@@ -1,0 +1,89 @@
+basic_preprocessing:
+  image_size: 512
+  test_mode: true
+  test_image_count: 10
+
+preprocessing:
+  image_size: [512, 512]
+  normalization:
+    method: "robust_min_max" # robust_min_max, min_max, z_score
+    p_low: 1.0
+    p_high: 99.0
+    target_min: 0.0
+    target_max: 1.0
+
+  roi:
+    breast_segmentation: true
+    pectoral_muscle_removal: true
+    otsu_threshold: true
+    min_area_fraction: 0.05
+
+  contrast:
+    method: "percentile_stretching" # options: percentile_stretching, clahe, he
+    lower_percentile: 2.0
+    upper_percentile: 98.0
+    test_mode: true
+    test_image_count: 10
+    clahe:
+      clip_limit: 2.0
+      tile_grid_size: [8, 8]
+
+  sharpening:
+    enabled: true
+    method: "unsharp_mask"
+    amount: 1.0              # Controlled sharpening strength (recommended: 0.5 - 1.2 to prevent noise amplification)
+    sigma: 1.0               # Gaussian blur sigma
+    kernel_size: [5, 5]      # Gaussian blur kernel size (odd integers)
+    test_mode: true
+    test_image_count: 10
+
+noise_simulation:
+  seed: 42
+  use_gpu: true
+  test_mode: true
+  test_image_count: 10
+  gaussian:
+    mean: 0.0
+    var: 0.01
+  salt_pepper:
+    amount: 0.04
+    salt_vs_pepper: 0.5
+  speckle:
+    var: 0.04
+  poisson:
+    scale: 255.0
+  mixed_poisson_gaussian:
+    poisson_scale: 255.0
+    gaussian_var: 0.005
+
+denoising:
+  median:
+    kernel_size: 5
+  gaussian:
+    kernel_size: [5, 5]
+    sigma: 1.0
+  wiener:
+    noise_variance: null # Auto-estimated if null
+  bilateral:
+    d: 9
+    sigma_color: 75
+    sigma_space: 75
+  non_local_means:
+    h: 0.1
+    template_window_size: 7
+    search_window_size: 21
+  anscombe_wiener:
+    sigma: 0.02
+  adaptive_median:
+    max_window_size: 7
+  kuan:
+    window_size: 7
+    damping: 1.0
+
+full_dataset_pipeline:
+  test_mode: false
+  batch_size: 16
+  num_workers: 4
+  checkpoint_frequency: 20
+  require_confirmation: true
+

@@ -1,0 +1,8 @@
+metric,value
+total_records,3568
+available_on_disk,58
+total_patients,1566
+benign_count,2111
+malignant_count,1457
+mass_cases,1696
+calcification_cases,1872

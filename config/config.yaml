@@ -1,0 +1,43 @@
+project:
+  name: "CBIS-DDSM Breast Cancer Detection AI Pipeline"
+  version: "1.0.0"
+  seed: 42
+
+paths:
+  raw_dir: "data/raw/CBIS_DDSM"
+  metadata_dir: "data/metadata"
+  processed_dir: "data/processed"
+  models_dir: "models"
+  results_dir: "results"
+
+dataset:
+  csv:
+    mass_train: "data/raw/CBIS_DDSM/csv/mass_case_description_train_set.csv"
+    mass_test: "data/raw/CBIS_DDSM/csv/mass_case_description_test_set.csv"
+    calc_train: "data/raw/CBIS_DDSM/csv/calc_case_description_train_set.csv"
+    calc_test: "data/raw/CBIS_DDSM/csv/calc_case_description_test_set.csv"
+    dicom_info: "data/raw/CBIS_DDSM/csv/dicom_info.csv"
+    meta: "data/raw/CBIS_DDSM/csv/meta.csv"
+  master_metadata: "data/metadata/CBIS_DDSM_master_metadata.csv"
+  split:
+    train_ratio: 0.70
+    val_ratio: 0.15
+    test_ratio: 0.15
+    stratify_by: "pathology"
+    patient_grouping: true
+
+model:
+  architecture: "resnet50" # Options: resnet18, resnet50, densenet121, efficientnet_b0
+  in_channels: 1
+  num_classes: 2
+  pretrained: true
+  dropout: 0.3
+
+training:
+  batch_size: 32
+  epochs: 50
+  lr: 0.0001
+  weight_decay: 0.00001
+  loss: "focal" # Options: cross_entropy, weighted_ce, focal
+  focal_gamma: 2.0
+  early_stopping_patience: 10

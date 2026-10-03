@@ -1,0 +1,27 @@
+experiment:
+  name: "mammography_denoising_benchmark"
+  description: "Comparative study of spatial, frequency, and statistical denoising methods on simulated mammographic noise"
+  noise_types:
+    - "gaussian"
+    - "salt_pepper"
+    - "speckle"
+    - "poisson"
+    - "mixed_poisson_gaussian"
+  filters:
+    - "median"
+    - "gaussian"
+    - "wiener"
+    - "bilateral"
+    - "non_local_means"
+    - "anscombe_wiener"
+    - "adaptive_median"
+    - "kuan"
+  metrics:
+    - "mse"
+    - "psnr"
+    - "ssim"
+    - "snr"
+    - "cnr"
+    - "cii"
+    - "entropy"
+  output_dir: "results/denoising"

@@ -1,0 +1,26 @@
+services:
+  cbis-ddsm-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cbis_ddsm_ai_app
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./data:/app/data
+      - ./dataset:/app/dataset
+      - ./dataset:/app/data/raw/CBIS_DDSM
+      - ./config:/app/config
+      - ./models:/app/models
+      - ./experiments:/app/experiments
+      - ./results:/app/results
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: ["python", "-m", "src.training.train"]

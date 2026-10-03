@@ -1,0 +1,11 @@
+patient_id,abnormality_category,breast_side,image_view,pathology,label,dataset_split,original_image_path,processed_image_path,width,height
+P_00044,mass,RIGHT,CC,BENIGN,0,train,/app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.101999469712679926627011488331183444331/1-063.jpg,/app/data/processed/normalized/P_00044_mass_RIGHT_CC_1-063.png,512,512
+P_00106,mass,LEFT,MLO,BENIGN_WITHOUT_CALLBACK,0,train,/app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.101916619211998977734958230192374913578/1-153.jpg,/app/data/processed/normalized/P_00106_mass_LEFT_MLO_1-153.png,512,512
+P_00106,mass,RIGHT,MLO,BENIGN_WITHOUT_CALLBACK,0,train,/app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.10098093912338239901459163343317187533/1-285.jpg,/app/data/processed/normalized/P_00106_mass_RIGHT_MLO_1-285.png,512,512
+P_00187,mass,LEFT,CC,BENIGN,0,train,/app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.101838604411514372224355857201121413540/1-161.jpg,/app/data/processed/normalized/P_00187_mass_LEFT_CC_1-161.png,512,512
+P_00281,mass,LEFT,MLO,BENIGN,0,train,/app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.100682860911308271813943300011840547108/1-198.jpg,/app/data/processed/normalized/P_00281_mass_LEFT_MLO_1-198.png,512,512
+P_00351,mass,LEFT,MLO,BENIGN,0,train,/app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.101493470410482092525730380153954599203/1-257.jpg,/app/data/processed/normalized/P_00351_mass_LEFT_MLO_1-257.png,512,512
+P_00512,mass,RIGHT,CC,BENIGN,0,train,/app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.102616147513045377112164328153581806961/1-205.jpg,/app/data/processed/normalized/P_00512_mass_RIGHT_CC_1-205.png,512,512
+P_01142,mass,RIGHT,MLO,BENIGN_WITHOUT_CALLBACK,0,train,/app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.101462230211922707319927858504016007558/1-048.jpg,/app/data/processed/normalized/P_01142_mass_RIGHT_MLO_1-048.png,512,512
+P_01144,mass,LEFT,CC,MALIGNANT,1,train,/app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.101979994513111795025203250011046951602/1-234.jpg,/app/data/processed/normalized/P_01144_mass_LEFT_CC_1-234.png,512,512
+P_01232,mass,RIGHT,CC,MALIGNANT,1,train,/app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.101302820113690396725231863062647135083/1-162.jpg,/app/data/processed/normalized/P_01232_mass_RIGHT_CC_1-162.png,512,512

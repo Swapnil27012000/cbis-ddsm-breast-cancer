@@ -1,0 +1,143 @@
+================================================================================
+CBIS-DDSM BREAST CANCER RESEARCH: FINAL PREPROCESSING DATASET REPORT
+================================================================================
+Timestamp Generated : 2026-10-02 22:41:55
+Pipeline Stage      : Final Preprocessing Dataset Generation & Integrity Verification
+Target Catalog      : data/metadata/final_preprocessing_metadata.csv
+Overall Integrity   : [PASSED] ALL INTEGRITY CHECKS SUCCESSFUL
+
+--------------------------------------------------------------------------------
+1. EXECUTIVE METRICS SUMMARY
+--------------------------------------------------------------------------------
+Total Records in Catalog      : 410
+  - Clean Baseline Mammograms : 10
+  - Experimental Perturbations: 400
+Successful Images Processed   : 410
+Failed Images                 : 0
+Missing Output Files          : 0
+Total Processing Time         : 63.49 seconds (1.06 minutes)
+
+--------------------------------------------------------------------------------
+2. COMPUTE HARDWARE & ACCELERATION DETAILS
+--------------------------------------------------------------------------------
+CUDA Available        : True
+Active Compute Device : cuda:0
+GPU Architecture Name : NVIDIA GeForce RTX 2050
+CUDA Version (Torch)  : 12.4
+Available Device Count: 1
+Total GPU VRAM        : 4.00 GB (4095.5 MB)
+Allocated VRAM        : 0.00 MB
+Cached / Reserved VRAM: 0.00 MB
+
+--------------------------------------------------------------------------------
+3. DATASET SPLIT & CLINICAL COHORT COMPOSITION
+--------------------------------------------------------------------------------
+Dataset Split Distribution:
+dataset_split
+train    410
+
+Pathology Classification Breakdown:
+pathology
+BENIGN                     205
+BENIGN_WITHOUT_CALLBACK    123
+MALIGNANT                   82
+
+Binary Diagnostic Labels:
+  - 0 (Benign / Benign without callback): 328
+  - 1 (Malignant)                      : 82
+
+Abnormality Categories:
+abnormality_category
+mass    410
+
+Breast Laterality:
+breast_side
+RIGHT    205
+LEFT     205
+
+Mammographic Views:
+image_view
+CC     205
+MLO    205
+
+--------------------------------------------------------------------------------
+4. NOISE EXPERIMENT STATISTICS
+--------------------------------------------------------------------------------
+Total Noise Types Evaluated   : 5
+Distribution Across Noise Models:
+  - gaussian                 : 80 records
+  - salt_pepper              : 80 records
+  - speckle                  : 80 records
+  - poisson                  : 80 records
+  - mixed_poisson_gaussian   : 80 records
+
+Noise Types Implemented:
+  1. Gaussian Noise (Additive sensor thermal / electronic noise)
+  2. Salt & Pepper Noise (Impulse sensor detector failure / transmission bit-flip)
+  3. Speckle Noise (Multiplicative coherent scatter / ultrasound-like interference)
+  4. Poisson Noise (Photon-counting quantum mottle in low-dose X-ray)
+  5. Mixed Poisson-Gaussian (Composite clinical digital detector simulation)
+
+--------------------------------------------------------------------------------
+5. DENOISING BENCHMARK EXPERIMENT STATISTICS
+--------------------------------------------------------------------------------
+Total Denoising Methods Tested : 8
+Distribution Across Filters    :
+  - median                   : 50 runs
+  - gaussian                 : 50 runs
+  - wiener                   : 50 runs
+  - bilateral                : 50 runs
+  - non_local_means          : 50 runs
+  - anscombe_wiener          : 50 runs
+  - adaptive_median          : 50 runs
+  - kuan                     : 50 runs
+
+Empirical Denoising Performance Averages across Mammography Benchmark:
+Denoising Method       | PSNR (dB)  | SSIM     | MSE        | CNR     
+-----------------------------------------------------------------
+adaptive_median        | 28.50      | 0.6295   | 0.002411   | 2.48    
+anscombe_wiener        | 6.38       | 0.3181   | 0.246296   | 0.00    
+bilateral              | 27.66      | 0.5851   | 0.002872   | 2.75    
+gaussian               | 28.97      | 0.6592   | 0.001401   | 2.77    
+kuan                   | 26.64      | 0.5799   | 0.003393   | 2.59    
+median                 | 30.68      | 0.7220   | 0.001048   | 2.46    
+non_local_means        | 23.69      | 0.4890   | 0.006922   | 2.51    
+wiener                 | 27.55      | 0.5909   | 0.002417   | 2.74    
+
+--------------------------------------------------------------------------------
+6. RIGOROUS DATASET INTEGRITY AUDIT (7 CHECKS)
+--------------------------------------------------------------------------------
+Check 1: Every Referenced File Exists on Disk
+  Status  : PASS
+  Details : Verified 2440 file references across all stages. Missing: 0.
+
+Check 2: No Raw Files Were Modified or Overwritten
+  Status  : PASS
+  Details : Verified raw repository isolation. Zero outputs written to data/raw. Verified 10 raw files.
+
+Check 3: No Train/Test Patient Leakage
+  Status  : PASS
+  Details : Train patients: 9, Val patients: 0, Test patients: 0. Patient overlap = 0.
+
+Check 4: Pathology is Not Missing
+  Status  : PASS
+  Details : Missing pathology count = 0. 100% of records have valid clinical diagnosis.
+
+Check 5: Label Matches Pathology
+  Status  : PASS
+  Details : Mismatches count = 0. 100% concordance (BENIGN -> 0, MALIGNANT -> 1).
+
+Check 6: Image Dimensions Are Valid (512x512)
+  Status  : PASS
+  Details : Verified 460 processed images. Zero dimension errors.
+
+Check 7: No Duplicate Output Paths
+  Status  : PASS
+  Details : Total unique target outputs: 410. Duplicate count = 0.
+
+--------------------------------------------------------------------------------
+7. SIGN-OFF & AI READINESS
+--------------------------------------------------------------------------------
+Integrity Status: SUCCESS - DATASET IS 100% VERIFIED & READY FOR MODEL TRAINING
+Note            : Model training has NOT been initiated, adhering to pipeline constraints.
+================================================================================

@@ -1,0 +1,9 @@
+gpu:
+  device_id: 0
+  use_amp: true # Automated Mixed Precision (FP16 / BF16)
+  benchmark: true
+  deterministic: true
+  max_memory_fraction: 0.90
+  pin_memory: true
+  num_workers: 4
+  empty_cache_frequency: 10 # Empty PyTorch cache every N batches
