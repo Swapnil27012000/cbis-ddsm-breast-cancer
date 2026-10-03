@@ -1,6 +1,6 @@
 metric,value
 total_records,3568
-available_on_disk,58
+available_on_disk,3568
 total_patients,1566
 benign_count,2111
 malignant_count,1457

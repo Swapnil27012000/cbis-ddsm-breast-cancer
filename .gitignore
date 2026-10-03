@@ -50,10 +50,23 @@ models/exported/*
 models/logs/*
 !models/logs/.gitkeep
 
-# Data and Artifacts (NEVER commit raw or heavy processed datasets)
-data/raw/CBIS_DDSM
+# Data and Datasets (NEVER commit raw or heavy datasets to GitHub)
+dataset/
+dataset/**
+data/raw/*
+!data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+
+# Large media & medical imaging formats
+*.dcm
+*.jpg
+*.jpeg
+*.png
+*.tif
+*.tiff
+
+# Results and experiment data
 experiments/**/results.csv
 results/**/*.png
 results/**/*.csv

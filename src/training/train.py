@@ -39,7 +39,7 @@ def train_epoch(
         optimizer.zero_grad()
 
         if scaler and device.type == "cuda":
-            with torch.cuda.amp.autocast():
+            with torch.amp.autocast("cuda"):
                 outputs = model(images)
                 loss = criterion(outputs, targets)
             scaler.scale(loss).backward()
@@ -68,7 +68,7 @@ def train_model(
     criterion = get_loss_function(config.get("training", {}).get("loss", "focal"))
     epochs = config.get("training", {}).get("epochs", 30)
     scheduler = get_lr_scheduler(opt, epochs=epochs)
-    scaler = torch.cuda.amp.GradScaler() if device.type == "cuda" else None
+    scaler = torch.amp.GradScaler("cuda") if device.type == "cuda" else None
 
     ckpt_mgr = CheckpointManager(config.get("paths", {}).get("models_dir", "models") + "/checkpoints")
     res_dir = config.get("paths", {}).get("results_dir", "results") + "/classification"
@@ -114,11 +114,26 @@ def main():
         return
 
     # Train / Val split
-    train_df = valid_df[valid_df.get("split", "train") == "train"]
-    val_df = valid_df[valid_df.get("split", "train") != "train"]
-    if len(val_df) == 0:
-        val_df = train_df.sample(frac=0.2, random_state=42)
-        train_df = train_df.drop(val_df.index)
+    split_col = None
+    for candidate in ["split", "dataset_split"]:
+        if candidate in valid_df.columns:
+            split_col = candidate
+            break
+
+    if split_col is not None:
+        split_series = valid_df[split_col].astype(str).str.strip().str.lower()
+        train_df = valid_df[split_series == "train"].copy()
+        val_df = valid_df[split_series.isin(["val", "validation", "test"])].copy()
+    else:
+        train_df = valid_df.copy()
+        val_df = pd.DataFrame()
+
+    if len(train_df) == 0 or len(val_df) == 0:
+        logger.info("Split column missing or incomplete; creating 80/20 train/validation partition...")
+        val_df = valid_df.sample(frac=0.2, random_state=42)
+        train_df = valid_df.drop(val_df.index)
+
+    logger.info(f"Dataset ready: {len(train_df)} train samples, {len(val_df)} validation samples.")
 
     train_ds = CBISDDSMDataset(train_df, image_col="image_path", label_col="label", transform=get_train_transforms())
     val_ds = CBISDDSMDataset(val_df, image_col="image_path", label_col="label", transform=get_val_transforms())

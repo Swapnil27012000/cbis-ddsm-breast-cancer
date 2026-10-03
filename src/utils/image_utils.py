@@ -218,10 +218,11 @@ if __name__ == "__main__":
         for m in meta_candidates:
             if os.path.exists(m):
                 df = pd.read_csv(m)
-                valid = df[df.get("file_exists", False) == True]
-                if not valid.empty:
-                    target_path = valid.iloc[0]["image_path"]
-                    break
+                if "file_exists" in df.columns:
+                    valid = df[df["file_exists"] == True]
+                    if not valid.empty:
+                        target_path = valid.iloc[0]["image_path"]
+                        break
 
     if target_path and os.path.exists(target_path):
         print_image_inspection(target_path)

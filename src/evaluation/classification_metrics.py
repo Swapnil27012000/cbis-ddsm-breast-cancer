@@ -4,7 +4,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 def compute_classification_metrics(y_true: list, y_pred: list, y_prob: list = None) -> dict:
     """Compute sensitivity, specificity, precision, recall, F1, and AUC."""
-    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
+    tn, fp, fn, tp = cm.ravel()
     metrics = {
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "sensitivity": float(tp / (tp + fn)) if (tp + fn) > 0 else 0.0,
