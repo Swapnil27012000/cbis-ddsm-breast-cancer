@@ -67,13 +67,16 @@ python -m src.data.dataset_audit
 # Stage 2: Image inventory, reference mapping & decodability validation (read-only)
 python -m src.data.image_inventory
 
-# Stage 3: Run noise simulation & denoising filter benchmarks
+# Stage 3: Image-role verification and visual inspection (read-only)
+python -m src.data.image_role_verification
+
+# Stage 4: Run noise simulation & denoising filter benchmarks
 python experiments/run_denoising_benchmark.py
 
-# Stage 4: Run preprocessing verification audit & integrity check
+# Stage 5: Run preprocessing verification audit & integrity check
 python -m src.preprocessing.finalize_preprocessing
 
-# Stage 5: Train ResNet50 classification model (Benign vs. Malignant)
+# Stage 6: Train ResNet50 classification model (Benign vs. Malignant)
 python -m src.training.train
 ```
 
@@ -119,6 +122,11 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
    - **Stage 2 — Run image inventory & reference mapping**:
      ```bash
      docker compose run --rm cbis-ddsm-ai python -m src.data.image_inventory
+     ```
+
+   - **Stage 3 — Run image-role verification and visual inspection**:
+     ```bash
+     docker compose run --rm cbis-ddsm-ai python -m src.data.image_role_verification
      ```
 
    - **Build metadata and validation reports**:

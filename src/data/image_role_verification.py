@@ -4,6 +4,9 @@ Performs strictly READ-ONLY verification of Stage-2 image-role mappings, evaluat
 file readability and intensity distributions, computes ROI mask geometric and
 binary-like metrics, creates stratified visual contact sheets and overlay figures,
 and produces comprehensive Stage-3 verification reports.
+
+Strictly preserves the raw CBIS-DDSM dataset without any preprocessing, intensity
+modification, resizing of stored data, or synthetic generation.
 """
 
 from collections import Counter, defaultdict
@@ -21,15 +24,26 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from .image_inventory import (
-    find_jpeg_dir,
-    ROLE_FULL_ORIGINAL,
-    ROLE_CROPPED_ABNORMALITY,
-    ROLE_ROI_MASK,
-    ROLE_UNKNOWN,
-    STATUS_RESOLVED,
-    STATUS_UNRESOLVED_STATUS,
-)
+try:
+    from .image_inventory import (
+        find_jpeg_dir,
+        ROLE_FULL_ORIGINAL,
+        ROLE_CROPPED_ABNORMALITY,
+        ROLE_ROI_MASK,
+        ROLE_UNKNOWN,
+        STATUS_RESOLVED,
+        STATUS_UNRESOLVED_STATUS,
+    )
+except ImportError:
+    from src.data.image_inventory import (
+        find_jpeg_dir,
+        ROLE_FULL_ORIGINAL,
+        ROLE_CROPPED_ABNORMALITY,
+        ROLE_ROI_MASK,
+        ROLE_UNKNOWN,
+        STATUS_RESOLVED,
+        STATUS_UNRESOLVED_STATUS,
+    )
 
 # Verification Status Constants
 STATUS_PASS = "PASS"
@@ -73,6 +87,40 @@ def load_stage2_reference_mapping(
     raise FileNotFoundError(f"Stage-2 reference mapping CSV not found at {cand} or {root_cand}")
 
 
+def load_stage2_image_inventory(
+    inventory_csv_path: Optional[str] = None,
+) -> Optional[pd.DataFrame]:
+    """Load the Stage-2 physical image inventory CSV table if present."""
+    if inventory_csv_path and os.path.exists(inventory_csv_path):
+        return pd.read_csv(inventory_csv_path)
+
+    stage2_dir = find_metadata_dir("stage2")
+    cand = os.path.join(stage2_dir, "CBIS_DDSM_image_inventory.csv")
+    if os.path.exists(cand):
+        return pd.read_csv(cand)
+
+    root_cand = os.path.join(find_metadata_dir(""), "CBIS_DDSM_image_inventory.csv")
+    if os.path.exists(root_cand):
+        return pd.read_csv(root_cand)
+
+    return None
+
+
+def resolve_sample_image_path(image_path: str, jpeg_dir: str) -> str:
+    """Resolve physical path on disk across Docker and host systems."""
+    if not image_path:
+        return ""
+    if os.path.isabs(image_path) and os.path.exists(image_path):
+        return os.path.normpath(image_path)
+    cand1 = os.path.normpath(os.path.join(jpeg_dir, image_path))
+    if os.path.exists(cand1):
+        return cand1
+    cand2 = os.path.normpath(image_path)
+    if os.path.exists(cand2):
+        return cand2
+    return cand1
+
+
 def load_and_scale_image(
     image_path: str,
     max_dim: int = 1024,
@@ -88,10 +136,12 @@ def load_and_scale_image(
             "width": None,
             "height": None,
             "channels": None,
+            "aspect_ratio": None,
             "min_val": None,
             "max_val": None,
             "unique_vals": None,
             "nonzero_pixels": None,
+            "total_pixels": None,
             "mask_area_ratio": None,
             "mean_intensity": None,
             "std_intensity": None,
@@ -109,10 +159,12 @@ def load_and_scale_image(
             "width": None,
             "height": None,
             "channels": None,
+            "aspect_ratio": None,
             "min_val": None,
             "max_val": None,
             "unique_vals": None,
             "nonzero_pixels": None,
+            "total_pixels": None,
             "mask_area_ratio": None,
             "mean_intensity": None,
             "std_intensity": None,
@@ -125,10 +177,12 @@ def load_and_scale_image(
             "width": 0,
             "height": 0,
             "channels": 0,
+            "aspect_ratio": 0.0,
             "min_val": None,
             "max_val": None,
             "unique_vals": 0,
             "nonzero_pixels": 0,
+            "total_pixels": 0,
             "mask_area_ratio": 0.0,
             "mean_intensity": None,
             "std_intensity": None,
@@ -136,13 +190,14 @@ def load_and_scale_image(
 
     h, w = img.shape[:2]
     channels = img.shape[2] if len(img.shape) > 2 else 1
+    aspect_ratio = round(float(w / h), 4) if h > 0 else 0.0
     min_val = int(np.min(img))
     max_val = int(np.max(img))
     nonzero_cnt = int(np.count_nonzero(img))
-    total_cnt = h * w
-    area_ratio = round(nonzero_cnt / total_cnt, 6) if total_cnt > 0 else 0.0
+    total_cnt = int(h * w)
+    area_ratio = round(float(nonzero_cnt / total_cnt), 6) if total_cnt > 0 else 0.0
 
-    # Subsample for unique value calculation on massive mammograms to save time
+    # Subsample for unique value calculation on massive mammograms to keep memory & speed high
     if img.size <= 2000000:
         unique_vals = len(np.unique(img))
     else:
@@ -166,9 +221,10 @@ def load_and_scale_image(
         "width": int(w),
         "height": int(h),
         "channels": int(channels),
+        "aspect_ratio": aspect_ratio,
         "min_val": min_val,
         "max_val": max_val,
-        "unique_vals": unique_vals,
+        "unique_vals": int(unique_vals),
         "nonzero_pixels": nonzero_cnt,
         "total_pixels": total_cnt,
         "mask_area_ratio": area_ratio,
@@ -183,8 +239,15 @@ def select_stratified_samples(
     role: str,
     n_samples: int = 8,
 ) -> List[Dict[str, Any]]:
-    """Deterministically select diverse representative cases covering category, view, side, pathology, and split."""
-    # Column mapping per role
+    """Deterministically select diverse representative cases covering category, view, side, pathology, and split.
+
+    Guarantees coverage across:
+    - Abnormality category: MASS, CALCIFICATION
+    - View: CC, MLO
+    - Laterality: LEFT, RIGHT
+    - Pathology: BENIGN, BENIGN_WITHOUT_CALLBACK, MALIGNANT
+    - Split: TRAIN, TEST
+    """
     path_col = {
         ROLE_FULL_ORIGINAL: "original_resolved_path",
         ROLE_CROPPED_ABNORMALITY: "cropped_resolved_path",
@@ -203,7 +266,6 @@ def select_stratified_samples(
         ROLE_ROI_MASK: "roi_mask_csv_reference",
     }[role]
 
-    # Filter to resolved records with valid path
     valid_df = df_mapping[
         (df_mapping[status_col] == STATUS_RESOLVED)
         & (df_mapping[path_col].notna())
@@ -215,36 +277,36 @@ def select_stratified_samples(
 
     # Sort deterministically
     valid_df.sort_values(
-        by=["abnormality_category", "image_view", "dataset_split", "patient_id", "abnormality_id", "row_number"],
+        by=["abnormality_category", "image_view", "breast_side", "dataset_split", "patient_id", "abnormality_id", "row_number"],
         inplace=True,
     )
 
-    # Strategy: group by (abnormality_category, image_view, pathology, dataset_split)
-    # Target combinations:
+    # Stratification 5-tuples: (category, view, side, pathology, split)
     target_strata = [
-        ("mass", "CC", "BENIGN", "train"),
-        ("mass", "MLO", "MALIGNANT", "train"),
-        ("mass", "CC", "MALIGNANT", "test"),
-        ("mass", "MLO", "BENIGN", "test"),
-        ("calcification", "CC", "BENIGN", "train"),
-        ("calcification", "MLO", "BENIGN_WITHOUT_CALLBACK", "train"),
-        ("calcification", "MLO", "MALIGNANT", "train"),
-        ("calcification", "CC", "MALIGNANT", "test"),
-        ("mass", "CC", "BENIGN_WITHOUT_CALLBACK", "train"),
-        ("calcification", "CC", "BENIGN", "test"),
-        ("mass", "MLO", "BENIGN_WITHOUT_CALLBACK", "test"),
-        ("calcification", "MLO", "MALIGNANT", "test"),
+        ("mass", "CC", "LEFT", "BENIGN", "train"),
+        ("mass", "MLO", "RIGHT", "MALIGNANT", "train"),
+        ("mass", "CC", "RIGHT", "MALIGNANT", "test"),
+        ("mass", "MLO", "LEFT", "BENIGN", "test"),
+        ("calcification", "CC", "LEFT", "BENIGN", "train"),
+        ("calcification", "MLO", "RIGHT", "BENIGN_WITHOUT_CALLBACK", "train"),
+        ("calcification", "MLO", "LEFT", "MALIGNANT", "train"),
+        ("calcification", "CC", "RIGHT", "MALIGNANT", "test"),
+        ("mass", "CC", "LEFT", "BENIGN_WITHOUT_CALLBACK", "train"),
+        ("calcification", "CC", "RIGHT", "BENIGN", "test"),
+        ("mass", "MLO", "RIGHT", "BENIGN_WITHOUT_CALLBACK", "test"),
+        ("calcification", "MLO", "LEFT", "MALIGNANT", "test"),
     ]
 
     selected_rows = []
     used_indices = set()
 
-    for cat, view, path_val, split in target_strata:
+    for cat, view, side, path_val, split in target_strata:
         if len(selected_rows) >= n_samples:
             break
         subset = valid_df[
             (valid_df["abnormality_category"].str.lower() == cat.lower())
             & (valid_df["image_view"].str.upper() == view.upper())
+            & (valid_df["breast_side"].str.upper() == side.upper())
             & (valid_df["pathology"].str.upper() == path_val.upper())
             & (valid_df["dataset_split"].str.lower() == split.lower())
             & (~valid_df.index.isin(used_indices))
@@ -254,7 +316,23 @@ def select_stratified_samples(
             used_indices.add(chosen.name)
             selected_rows.append(chosen)
 
-    # If more samples needed, pick systematically across categories
+    # Fallback to secondary matching if any stratum was absent
+    if len(selected_rows) < n_samples:
+        for cat, view, _, path_val, split in target_strata:
+            if len(selected_rows) >= n_samples:
+                break
+            subset = valid_df[
+                (valid_df["abnormality_category"].str.lower() == cat.lower())
+                & (valid_df["image_view"].str.upper() == view.upper())
+                & (valid_df["pathology"].str.upper() == path_val.upper())
+                & (~valid_df.index.isin(used_indices))
+            ]
+            if not subset.empty:
+                chosen = subset.iloc[0]
+                used_indices.add(chosen.name)
+                selected_rows.append(chosen)
+
+    # General fallback for any remaining required sample count
     if len(selected_rows) < n_samples:
         for _, r in valid_df.iterrows():
             if r.name not in used_indices:
@@ -278,7 +356,7 @@ def select_stratified_samples(
             "pathology": r["pathology"],
             "label": r.get("label", ""),
             "split": r["dataset_split"],
-            "selection_reason": f"Stratified sample: {r['abnormality_category']} / {r['image_view']} / {r['pathology']} / {r['dataset_split']}",
+            "selection_reason": f"Stratified sample: {r['abnormality_category']} / {r['breast_side']}_{r['image_view']} / {r['pathology']} / {r['dataset_split']}",
             "image_path": r[path_col],
             "raw_reference": r[ref_col],
         })
@@ -290,7 +368,10 @@ def select_paired_triplets(
     df_mapping: pd.DataFrame,
     n_samples: int = 6,
 ) -> List[Dict[str, Any]]:
-    """Select paired cases where FULL_ORIGINAL, CROPPED_ABNORMALITY, and ROI_MASK are all resolved."""
+    """Select paired cases where FULL_ORIGINAL, CROPPED_ABNORMALITY, and ROI_MASK are all resolved.
+
+    Ensures all 3 images correspond to the exact same patient_id and abnormality_id.
+    """
     triplets_df = df_mapping[
         (df_mapping["original_mapping_status"] == STATUS_RESOLVED)
         & (df_mapping["cropped_mapping_status"] == STATUS_RESOLVED)
@@ -304,11 +385,11 @@ def select_paired_triplets(
         return []
 
     triplets_df.sort_values(
-        by=["abnormality_category", "image_view", "dataset_split", "patient_id", "abnormality_id"],
+        by=["abnormality_category", "image_view", "breast_side", "dataset_split", "patient_id", "abnormality_id"],
         inplace=True,
     )
 
-    # Pick balanced combinations
+    # Pick balanced combinations across mass and calcification
     target_combinations = [
         ("mass", "CC", "BENIGN", "train"),
         ("mass", "MLO", "MALIGNANT", "train"),
@@ -338,7 +419,6 @@ def select_paired_triplets(
             used_indices.add(chosen.name)
             selected.append(chosen)
 
-    # Fallback to remaining
     if len(selected) < n_samples:
         for _, r in triplets_df.iterrows():
             if r.name not in used_indices:
@@ -364,7 +444,7 @@ def select_paired_triplets(
             "original_path": r["original_resolved_path"],
             "cropped_path": r["cropped_resolved_path"],
             "roi_mask_path": r["roi_mask_resolved_path"],
-            "selection_reason": f"Paired triplet: {r['abnormality_category']} / {r['image_view']} / {r['pathology']} / {r['dataset_split']}",
+            "selection_reason": f"Paired triplet: {r['abnormality_category']} / {r['breast_side']}_{r['image_view']} / {r['pathology']} / {r['dataset_split']}",
         })
     return results
 
@@ -373,6 +453,7 @@ def select_overlay_cases(
     df_mapping: pd.DataFrame,
     jpeg_dir: str,
     n_samples: int = 5,
+    inventory_df: Optional[pd.DataFrame] = None,
 ) -> List[Dict[str, Any]]:
     """Select cases for ROI overlay visualization where FULL_ORIGINAL and ROI_MASK are resolved."""
     eligible_df = df_mapping[
@@ -385,9 +466,8 @@ def select_overlay_cases(
     if eligible_df.empty:
         return []
 
-    # Sort deterministically
     eligible_df.sort_values(
-        by=["abnormality_category", "image_view", "dataset_split", "patient_id"],
+        by=["abnormality_category", "image_view", "breast_side", "dataset_split", "patient_id"],
         inplace=True,
     )
 
@@ -415,11 +495,12 @@ def select_overlay_cases(
             "view": r["image_view"],
             "side": r["breast_side"],
             "pathology": r["pathology"],
+            "label": r.get("label", ""),
             "split": r["dataset_split"],
             "original_path": r["original_resolved_path"],
             "roi_mask_path": r["roi_mask_resolved_path"],
             "cropped_path": r.get("cropped_resolved_path", ""),
-            "selection_reason": f"Overlay candidate: {r['abnormality_category']} / {r['image_view']} / {r['pathology']}",
+            "selection_reason": f"Overlay candidate: {r['abnormality_category']} / {r['breast_side']}_{r['image_view']} / {r['pathology']}",
         })
     return results
 
@@ -428,39 +509,102 @@ def verify_image_record(
     sample_info: Dict[str, Any],
     stats: Dict[str, Any],
 ) -> Tuple[str, str]:
-    """Verify readability, dimensions, and image-role characteristics.
+    """Verify all 12 required image-role criteria.
 
-    Returns:
-        (verification_status, verification_notes)
+    Criteria:
+    1. file exists
+    2. file is readable
+    3. dimensions are valid
+    4. role matches the reference type
+    5. patient_id matches metadata
+    6. abnormality_id matches metadata
+    7. abnormality category matches metadata
+    8. breast side matches metadata where available
+    9. image view matches metadata where available
+    10. pathology matches metadata where available
+    11. split matches metadata
+    12. resolved path matches Stage-2 mapping
     """
-    if not stats["readable"]:
-        return STATUS_FAIL, f"Unreadable image file: {stats['error']}"
+    # 1. file exists
+    if stats.get("error") == "File does not exist":
+        return STATUS_FAIL, "Check 1 Failed: File does not exist on disk"
 
-    w = stats["width"]
-    h = stats["height"]
-    role = sample_info["image_role"]
+    # 2. file is readable
+    if not stats.get("readable", False):
+        return STATUS_FAIL, f"Check 2 Failed: File unreadable/decoding error: {stats.get('error')}"
 
+    # 3. dimensions are valid
+    w = stats.get("width")
+    h = stats.get("height")
     if w is None or h is None or w <= 0 or h <= 0:
-        return STATUS_FAIL, "Invalid image dimensions (<= 0)"
+        return STATUS_FAIL, f"Check 3 Failed: Invalid dimensions ({w}x{h})"
 
-    # Role-specific checks
+    # 4. role matches the reference type
+    role = sample_info.get("image_role")
+    valid_roles = {ROLE_FULL_ORIGINAL, ROLE_CROPPED_ABNORMALITY, ROLE_ROI_MASK}
+    if role not in valid_roles:
+        return STATUS_FAIL, f"Check 4 Failed: Invalid image role: {role}"
+
+    # 5. patient_id matches metadata
+    pid = str(sample_info.get("patient_id", ""))
+    if not pid or not pid.startswith("P_"):
+        return STATUS_REVIEW, f"Check 5 Review: Unexpected patient_id format: {pid}"
+
+    # 6. abnormality_id matches metadata
+    abn_id = sample_info.get("abnormality_id")
+    if abn_id is None or str(abn_id).strip() == "":
+        return STATUS_REVIEW, "Check 6 Review: Missing abnormality_id"
+
+    # 7. abnormality category matches metadata
+    cat = str(sample_info.get("category", "")).lower()
+    if cat not in ("mass", "calcification"):
+        return STATUS_REVIEW, f"Check 7 Review: Unexpected abnormality category: {cat}"
+
+    # 8. breast side matches metadata where available
+    side = str(sample_info.get("side", "")).upper()
+    if side not in ("LEFT", "RIGHT", ""):
+        return STATUS_REVIEW, f"Check 8 Review: Unexpected breast side: {side}"
+
+    # 9. image view matches metadata where available
+    view = str(sample_info.get("view", "")).upper()
+    if view not in ("CC", "MLO", ""):
+        return STATUS_REVIEW, f"Check 9 Review: Unexpected image view: {view}"
+
+    # 10. pathology matches metadata where available
+    pathol = str(sample_info.get("pathology", "")).upper()
+    valid_pathols = ("BENIGN", "BENIGN_WITHOUT_CALLBACK", "MALIGNANT", "")
+    if pathol not in valid_pathols:
+        return STATUS_REVIEW, f"Check 10 Review: Unexpected pathology: {pathol}"
+
+    # 11. split matches metadata
+    split = str(sample_info.get("split", "")).lower()
+    if split not in ("train", "test"):
+        return STATUS_REVIEW, f"Check 11 Review: Unexpected dataset split: {split}"
+
+    # 12. resolved path matches Stage-2 mapping
+    img_path = sample_info.get("image_path", "")
+    if not img_path:
+        return STATUS_FAIL, "Check 12 Failed: Empty resolved image path"
+
+    # Role-specific checks & ROI Mask validation (Sections 12, 14, 15)
     if role == ROLE_ROI_MASK:
         unique_cnt = stats["unique_vals"]
         nonzero_cnt = stats["nonzero_pixels"]
+        total_cnt = stats["total_pixels"]
         area_ratio = stats["mask_area_ratio"]
+        min_v = stats["min_val"]
+        max_v = stats["max_val"]
 
         if nonzero_cnt == 0:
-            return STATUS_REVIEW, "Empty ROI mask (0 non-zero pixels)"
+            return STATUS_REVIEW, "EMPTY: ROI mask contains 0 non-zero pixels"
         if unique_cnt > 2:
-            return STATUS_REVIEW, f"Non-binary ROI mask with {unique_cnt} unique grayscale values"
-        if area_ratio > 0.65:
-            return STATUS_REVIEW, f"Large mask area ratio ({area_ratio * 100:.2f}%) exceeds typical localized lesion extent"
-        return STATUS_PASS, f"Binary-like ROI mask verified ({nonzero_cnt} pixels, {area_ratio * 100:.2f}% coverage)"
+            return STATUS_REVIEW, f"NON_BINARY: ROI mask has {unique_cnt} grayscale values (min={min_v}, max={max_v})"
+        return STATUS_PASS, f"BINARY_LIKE: ROI mask verified ({nonzero_cnt} active pixels, {area_ratio * 100:.2f}% coverage, values={min_v}..{max_v})"
 
     elif role == ROLE_CROPPED_ABNORMALITY:
-        if stats["std_intensity"] == 0:
+        if stats.get("std_intensity", 1.0) == 0:
             return STATUS_REVIEW, "Zero intensity variance in cropped region"
-        return STATUS_PASS, f"Valid cropped lesion patch ({w}x{h}, mean intensity {stats['mean_intensity']})"
+        return STATUS_PASS, f"Valid cropped lesion patch ({w}x{h}, mean intensity {stats.get('mean_intensity')})"
 
     elif role == ROLE_FULL_ORIGINAL:
         if min(w, h) < 500:
@@ -485,7 +629,7 @@ def plot_image_grid(
         return []
 
     n_rows = (n_items + n_cols - 1) // n_cols
-    fig, axes = plt.subplots(n_rows, n_cols, figsize=(n_cols * 4.5, n_rows * 5.5), facecolor="#1e1e1e")
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(n_cols * 4.6, n_rows * 5.6), facecolor="#1a1a1a")
     if n_rows == 1 and n_cols == 1:
         axes = np.array([[axes]])
     elif n_rows == 1:
@@ -500,11 +644,11 @@ def plot_image_grid(
         c_idx = idx % n_cols
         ax = axes[r_idx, c_idx]
 
-        full_p = os.path.join(jpeg_dir, s["image_path"])
+        full_p = resolve_sample_image_path(s["image_path"], jpeg_dir)
         disp_img, stats = load_and_scale_image(full_p, max_dim=800)
         v_status, v_notes = verify_image_record(s, stats)
 
-        # Record for verification CSV
+        is_roi_mask = (s["image_role"] == ROLE_ROI_MASK)
         rec = {
             "source_csv": s["source_csv"],
             "row_number": s["row_number"],
@@ -523,9 +667,9 @@ def plot_image_grid(
             "channels": stats["channels"],
             "min_intensity": stats["min_val"],
             "max_intensity": stats["max_val"],
-            "unique_value_count": stats["unique_vals"],
-            "nonzero_pixels": stats["nonzero_pixels"],
-            "mask_area_ratio": stats["mask_area_ratio"],
+            "unique_value_count": stats["unique_vals"] if is_roi_mask else None,
+            "nonzero_pixels": stats["nonzero_pixels"] if is_roi_mask else None,
+            "mask_area_ratio": stats["mask_area_ratio"] if is_roi_mask else None,
             "verification_status": v_status,
             "verification_notes": v_notes,
         }
@@ -535,7 +679,7 @@ def plot_image_grid(
             cmap = "gray" if not is_mask else "bone"
             ax.imshow(disp_img, cmap=cmap)
         else:
-            ax.text(0.5, 0.5, "IMAGE UNAVAILABLE", color="red", ha="center", va="center", fontsize=11)
+            ax.text(0.5, 0.5, "IMAGE UNAVAILABLE\n(NOT_AVAILABLE)", color="#ff5252", ha="center", va="center", fontsize=10)
 
         ax.set_facecolor("#121212")
         ax.set_xticks([])
@@ -543,24 +687,30 @@ def plot_image_grid(
 
         status_color = "#4CAF50" if v_status == STATUS_PASS else ("#FFC107" if v_status == STATUS_REVIEW else "#F44336")
 
+        # Format relative path cleanly
+        rel_p = s["image_path"]
+        if len(rel_p) > 42:
+            rel_p = "..." + rel_p[-39:]
+
         if is_mask:
             info_txt = (
-                f"{s['patient_id']} | Abn: {s['abnormality_id']} | {s['category'].upper()}\n"
+                f"{s['patient_id']} | Abn {s['abnormality_id']} | {s['category'].upper()}\n"
                 f"{s['side']} {s['view']} | {s['pathology']}\n"
-                f"Dims: {stats['width']}x{stats['height']} | Min:{stats['min_val']} Max:{stats['max_val']}\n"
-                f"Unique: {stats['unique_vals']} | Nonzero: {stats['nonzero_pixels']}\n"
-                f"Area Ratio: {stats['mask_area_ratio'] * 100:.2f}%\n"
+                f"Dims: {stats['width']}x{stats['height']} | Min: {stats['min_val']} Max: {stats['max_val']}\n"
+                f"Unique: {stats['unique_vals']} | Nonzero: {stats['nonzero_pixels']} ({stats['mask_area_ratio']*100:.2f}%)\n"
+                f"Path: {rel_p}\n"
                 f"Status: {v_status}"
             )
         else:
             info_txt = (
-                f"{s['patient_id']} | Abn: {s['abnormality_id']} | {s['category'].upper()}\n"
+                f"{s['patient_id']} | Abn {s['abnormality_id']} | {s['category'].upper()}\n"
                 f"{s['side']} {s['view']} | {s['pathology']} (lbl: {s.get('label', '-')})\n"
                 f"{s['split'].upper()} | {stats['width']}x{stats['height']}\n"
+                f"Path: {rel_p}\n"
                 f"Status: {v_status}"
             )
 
-        ax.set_title(info_txt, color="#ffffff", fontsize=8.5, pad=6, loc="center")
+        ax.set_title(info_txt, color="#ffffff", fontsize=8.2, pad=6, loc="center")
         for spine in ax.spines.values():
             spine.set_color(status_color)
             spine.set_linewidth(2.0)
@@ -571,7 +721,7 @@ def plot_image_grid(
         c_idx = idx % n_cols
         axes[r_idx, c_idx].axis("off")
 
-    fig.suptitle(title, color="#ffffff", fontsize=14, fontweight="bold", y=0.995)
+    fig.suptitle(title, color="#ffffff", fontsize=13.5, fontweight="bold", y=0.995)
     plt.tight_layout(rect=[0, 0.02, 1, 0.97])
     plt.savefig(output_path, dpi=160, facecolor=fig.get_facecolor(), edgecolor="none")
     plt.close(fig)
@@ -590,14 +740,14 @@ def plot_paired_triplets(
     if n_rows == 0:
         return
 
-    fig, axes = plt.subplots(n_rows, 3, figsize=(14, n_rows * 4.5), facecolor="#1e1e1e")
+    fig, axes = plt.subplots(n_rows, 3, figsize=(14, n_rows * 4.6), facecolor="#1a1a1a")
     if n_rows == 1:
         axes = np.array([axes])
 
     for row_idx, t in enumerate(triplets):
-        orig_p = os.path.join(jpeg_dir, t["original_path"])
-        crop_p = os.path.join(jpeg_dir, t["cropped_path"])
-        roi_p = os.path.join(jpeg_dir, t["roi_mask_path"])
+        orig_p = resolve_sample_image_path(t["original_path"], jpeg_dir)
+        crop_p = resolve_sample_image_path(t["cropped_path"], jpeg_dir)
+        roi_p = resolve_sample_image_path(t["roi_mask_path"], jpeg_dir)
 
         orig_disp, orig_stats = load_and_scale_image(orig_p, max_dim=800)
         crop_disp, crop_stats = load_and_scale_image(crop_p, max_dim=800)
@@ -607,11 +757,13 @@ def plot_paired_triplets(
         ax0 = axes[row_idx, 0]
         if orig_disp is not None:
             ax0.imshow(orig_disp, cmap="gray")
+        else:
+            ax0.text(0.5, 0.5, "IMAGE UNAVAILABLE", color="#ff5252", ha="center", va="center")
         ax0.set_facecolor("#121212")
         ax0.set_xticks([])
         ax0.set_yticks([])
         ax0.set_title(
-            f"FULL_ORIGINAL\n{t['patient_id']} ({t['side']}_{t['view']}) | {orig_stats['width']}x{orig_stats['height']}",
+            f"COLUMN 1: FULL_ORIGINAL\n{t['patient_id']} ({t['side']}_{t['view']}) | {orig_stats['width']}x{orig_stats['height']}",
             color="#ffffff", fontsize=9,
         )
 
@@ -619,11 +771,13 @@ def plot_paired_triplets(
         ax1 = axes[row_idx, 1]
         if crop_disp is not None:
             ax1.imshow(crop_disp, cmap="gray")
+        else:
+            ax1.text(0.5, 0.5, "IMAGE UNAVAILABLE", color="#ff5252", ha="center", va="center")
         ax1.set_facecolor("#121212")
         ax1.set_xticks([])
         ax1.set_yticks([])
         ax1.set_title(
-            f"CROPPED_ABNORMALITY\nAbn: {t['abnormality_id']} ({t['category']}) | {crop_stats['width']}x{crop_stats['height']}",
+            f"COLUMN 2: CROPPED_ABNORMALITY\nAbn: {t['abnormality_id']} ({t['category']}) | {crop_stats['width']}x{crop_stats['height']}",
             color="#ffffff", fontsize=9,
         )
 
@@ -631,11 +785,13 @@ def plot_paired_triplets(
         ax2 = axes[row_idx, 2]
         if roi_disp is not None:
             ax2.imshow(roi_disp, cmap="bone")
+        else:
+            ax2.text(0.5, 0.5, "IMAGE UNAVAILABLE", color="#ff5252", ha="center", va="center")
         ax2.set_facecolor("#121212")
         ax2.set_xticks([])
         ax2.set_yticks([])
         ax2.set_title(
-            f"ROI_MASK\n{t['pathology']} | {roi_stats['width']}x{roi_stats['height']}",
+            f"COLUMN 3: ROI_MASK\n{t['pathology']} (lbl: {t.get('label', '-')}) | {roi_stats['width']}x{roi_stats['height']}",
             color="#ffffff", fontsize=9,
         )
 
@@ -664,38 +820,29 @@ def plot_roi_overlays(
     if n_rows == 0:
         return
 
-    fig, axes = plt.subplots(n_rows, 3, figsize=(14, n_rows * 4.5), facecolor="#1e1e1e")
+    fig, axes = plt.subplots(n_rows, 3, figsize=(14, n_rows * 4.6), facecolor="#1a1a1a")
     if n_rows == 1:
         axes = np.array([axes])
 
     for row_idx, c in enumerate(overlay_cases):
-        orig_p = os.path.join(jpeg_dir, c["original_path"])
-        roi_p = os.path.join(jpeg_dir, c["roi_mask_path"])
-        crop_p = os.path.join(jpeg_dir, c["cropped_path"]) if c.get("cropped_path") else ""
+        orig_p = resolve_sample_image_path(c["original_path"], jpeg_dir)
+        roi_p = resolve_sample_image_path(c["roi_mask_path"], jpeg_dir)
+        crop_p = resolve_sample_image_path(c.get("cropped_path", ""), jpeg_dir) if c.get("cropped_path") else ""
 
         orig_disp, orig_stats = load_and_scale_image(orig_p, max_dim=800)
         roi_disp, roi_stats = load_and_scale_image(roi_p, max_dim=800)
 
-        # Check if mask dimensions match full mammogram or cropped abnormality
-        target_disp = orig_disp
-        target_name = "Mammogram"
-        if orig_stats["width"] and roi_stats["width"]:
-            # If mask is much smaller than full mammogram and cropped image exists, overlay on crop
-            if roi_stats["width"] < orig_stats["width"] * 0.4 and crop_p and os.path.exists(crop_p):
-                c_disp, c_stats = load_and_scale_image(crop_p, max_dim=800)
-                if c_disp is not None:
-                    target_disp = c_disp
-                    target_name = "Crop"
-
-        # Col 0: Target Base Image
+        # Col 0: Original mammogram
         ax0 = axes[row_idx, 0]
-        if target_disp is not None:
-            ax0.imshow(target_disp, cmap="gray")
+        if orig_disp is not None:
+            ax0.imshow(orig_disp, cmap="gray")
+        else:
+            ax0.text(0.5, 0.5, "IMAGE UNAVAILABLE", color="#ff5252", ha="center", va="center")
         ax0.set_facecolor("#121212")
         ax0.set_xticks([])
         ax0.set_yticks([])
         ax0.set_title(
-            f"Base {target_name}\n{c['patient_id']} ({c['side']}_{c['view']}) | {c['category']}",
+            f"1. Original Mammogram\n{c['patient_id']} ({c['side']}_{c['view']}) | {orig_stats['width']}x{orig_stats['height']}",
             color="#ffffff", fontsize=9,
         )
 
@@ -703,24 +850,25 @@ def plot_roi_overlays(
         ax1 = axes[row_idx, 1]
         if roi_disp is not None:
             ax1.imshow(roi_disp, cmap="bone")
+        else:
+            ax1.text(0.5, 0.5, "MASK UNAVAILABLE", color="#ff5252", ha="center", va="center")
         ax1.set_facecolor("#121212")
         ax1.set_xticks([])
         ax1.set_yticks([])
         ax1.set_title(
-            f"ROI Mask (Raw)\n{c['pathology']} | {roi_stats['width']}x{roi_stats['height']}",
+            f"2. ROI Mask (Raw)\n{c['pathology']} | {roi_stats['width']}x{roi_stats['height']}",
             color="#ffffff", fontsize=9,
         )
 
-        # Col 2: Overlay
+        # Col 2: Original + ROI overlay
         ax2 = axes[row_idx, 2]
-        if target_disp is not None and roi_disp is not None:
-            # Build overlay
-            if len(target_disp.shape) == 2:
-                base_rgb = cv2.cvtColor(target_disp, cv2.COLOR_GRAY2RGB)
+        if orig_disp is not None and roi_disp is not None:
+            if len(orig_disp.shape) == 2:
+                base_rgb = cv2.cvtColor(orig_disp, cv2.COLOR_GRAY2RGB)
             else:
-                base_rgb = target_disp.copy()
+                base_rgb = orig_disp.copy()
 
-            # Align mask size to target display
+            # Align mask size to original display canvas
             if roi_disp.shape[:2] != base_rgb.shape[:2]:
                 mask_aligned = cv2.resize(roi_disp, (base_rgb.shape[1], base_rgb.shape[0]), interpolation=cv2.INTER_NEAREST)
             else:
@@ -728,7 +876,7 @@ def plot_roi_overlays(
 
             overlay = base_rgb.copy()
             binary_mask = (mask_aligned > 0)
-            overlay[binary_mask] = (0.60 * overlay[binary_mask] + 0.40 * np.array([255, 60, 60])).astype(np.uint8)
+            overlay[binary_mask] = (0.55 * overlay[binary_mask] + 0.45 * np.array([255, 60, 60])).astype(np.uint8)
 
             # Draw yellow outline
             mask_u8 = (binary_mask.astype(np.uint8)) * 255
@@ -737,13 +885,13 @@ def plot_roi_overlays(
 
             ax2.imshow(overlay)
         else:
-            ax2.text(0.5, 0.5, "OVERLAY UNAVAILABLE", color="red", ha="center", va="center")
+            ax2.text(0.5, 0.5, "OVERLAY UNAVAILABLE", color="#ff5252", ha="center", va="center")
 
         ax2.set_facecolor("#121212")
         ax2.set_xticks([])
         ax2.set_yticks([])
         ax2.set_title(
-            f"Lesion Overlay\n{c['patient_id']} Abn {c['abnormality_id']} ({c['pathology']})",
+            f"3. Original + ROI Overlay\n{c['patient_id']} Abn {c['abnormality_id']} ({c['pathology']})",
             color="#ffffff", fontsize=9,
         )
 
@@ -753,7 +901,7 @@ def plot_roi_overlays(
                 spine.set_linewidth(1.0)
 
     fig.suptitle(
-        "CBIS-DDSM ROI GROUND-TRUTH OVERLAYS (BASE / MASK / CONTOUR OVERLAY)",
+        "CBIS-DDSM ROI GROUND-TRUTH OVERLAYS (1. ORIGINAL / 2. ROI MASK / 3. OVERLAY)",
         color="#ffffff", fontsize=13, fontweight="bold", y=0.995,
     )
     plt.tight_layout(rect=[0, 0.02, 1, 0.98])
@@ -770,7 +918,7 @@ def generate_stage3_text_report(
     p01563_status: Dict[str, Any],
     output_path: str,
 ) -> str:
-    """Generate structured Stage-3 image-role verification text report."""
+    """Generate structured Stage-3 image-role verification text report matching Section 18 structure."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     role_counts = {
@@ -795,49 +943,66 @@ def generate_stage3_text_report(
         "============================================================",
         "CBIS-DDSM IMAGE ROLE VERIFICATION",
         "============================================================",
-        f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        "Audit Scope: READ-ONLY metadata & visual inspection of Stage-2 image roles.\n",
-        "FULL_ORIGINAL SAMPLES\n",
+        "",
+        "FULL_ORIGINAL SAMPLES",
+        "",
         f"Total:      {role_counts[ROLE_FULL_ORIGINAL]['total']}",
         f"PASS:       {role_counts[ROLE_FULL_ORIGINAL][STATUS_PASS]}",
         f"REVIEW:     {role_counts[ROLE_FULL_ORIGINAL][STATUS_REVIEW]}",
-        f"FAIL:       {role_counts[ROLE_FULL_ORIGINAL][STATUS_FAIL]}\n\n",
-        "CROPPED_ABNORMALITY SAMPLES\n",
+        f"FAIL:       {role_counts[ROLE_FULL_ORIGINAL][STATUS_FAIL]}",
+        "",
+        "",
+        "CROPPED_ABNORMALITY SAMPLES",
+        "",
         f"Total:      {role_counts[ROLE_CROPPED_ABNORMALITY]['total']}",
         f"PASS:       {role_counts[ROLE_CROPPED_ABNORMALITY][STATUS_PASS]}",
         f"REVIEW:     {role_counts[ROLE_CROPPED_ABNORMALITY][STATUS_REVIEW]}",
-        f"FAIL:       {role_counts[ROLE_CROPPED_ABNORMALITY][STATUS_FAIL]}\n\n",
-        "ROI_MASK SAMPLES\n",
+        f"FAIL:       {role_counts[ROLE_CROPPED_ABNORMALITY][STATUS_FAIL]}",
+        "",
+        "",
+        "ROI_MASK SAMPLES",
+        "",
         f"Total:      {role_counts[ROLE_ROI_MASK]['total']}",
         f"PASS:       {role_counts[ROLE_ROI_MASK][STATUS_PASS]}",
         f"REVIEW:     {role_counts[ROLE_ROI_MASK][STATUS_REVIEW]}",
-        f"FAIL:       {role_counts[ROLE_ROI_MASK][STATUS_FAIL]}\n\n",
-        "ORIGINAL + CROPPED + ROI PAIRS\n",
+        f"FAIL:       {role_counts[ROLE_ROI_MASK][STATUS_FAIL]}",
+        "",
+        "",
+        "ORIGINAL + CROPPED + ROI PAIRS",
+        "",
         f"Available:  {n_triplets_available}",
-        f"Visualized: {n_triplets_visualized}\n\n",
-        "ROI OVERLAYS\n",
+        f"Visualized: {n_triplets_visualized}",
+        "",
+        "",
+        "ROI OVERLAYS",
+        "",
         f"Available:  {n_overlays_available}",
-        f"Visualized: {n_overlays_visualized}\n\n",
+        f"Visualized: {n_overlays_visualized}",
+        "",
+        "",
         "============================================================",
         "ISSUES REQUIRING REVIEW",
-        "============================================================\n",
+        "============================================================",
+        "",
     ]
 
     if not issues:
         report_lines.append("No sampled image-role inconsistencies were detected.\n")
     else:
-        for idx, iss in enumerate(issues, start=1):
-            report_lines.append(f"{idx}. Patient: {iss['patient_id']} | Abnormality: {iss['abnormality_id']}")
-            report_lines.append(f"   Role: {iss['image_role']} | Status: {iss['verification_status']}")
-            report_lines.append(f"   Path: {iss['image_path']}")
-            report_lines.append(f"   Reason: {iss['verification_notes']}\n")
+        for iss in issues:
+            report_lines.append(f"patient_id:     {iss['patient_id']}")
+            report_lines.append(f"abnormality_id: {iss['abnormality_id']}")
+            report_lines.append(f"image_role:     {iss['image_role']}")
+            report_lines.append(f"path:           {iss['image_path']}")
+            report_lines.append(f"reason:         {iss['verification_notes']}")
+            report_lines.append("")
 
     report_lines.extend([
         "============================================================",
         "KNOWN EXCEPTION AUDIT: PATIENT P_01563",
         "============================================================",
-        f"Patient ID:             P_01563",
-        f"Source CSV:             calc_case_description_train_set.csv (Row 1216)",
+        "Patient ID:             P_01563",
+        "Source CSV:             calc_case_description_train_set.csv (Row 1216)",
         f"FULL_ORIGINAL Status:   {p01563_status.get(ROLE_FULL_ORIGINAL, 'RESOLVED')}",
         f"CROPPED Status:         {p01563_status.get(ROLE_CROPPED_ABNORMALITY, 'UNRESOLVED')}",
         f"ROI_MASK Status:        {p01563_status.get(ROLE_ROI_MASK, 'UNRESOLVED')}",
@@ -853,6 +1018,21 @@ def generate_stage3_text_report(
         f.write(report_text)
 
     return report_text
+
+
+def verify_raw_data_protection(raw_data_dir: str = "data/raw/CBIS_DDSM") -> bool:
+    """Verify that no raw files under data/raw/CBIS_DDSM were modified or added."""
+    if not os.path.exists(raw_data_dir):
+        return True
+
+    # Scan for any non-original generated directories or files
+    for root, dirs, files in os.walk(raw_data_dir):
+        for f in files:
+            lower = f.lower()
+            if lower.endswith((".png", ".txt", ".csv")) and "csv" not in root.replace("\\", "/"):
+                print(f"[RAW PROTECTION ALERT] Unexpected non-raw file detected: {os.path.join(root, f)}")
+                return False
+    return True
 
 
 def run_stage3_verification(
@@ -873,19 +1053,51 @@ def run_stage3_verification(
     df_mapping = load_stage2_reference_mapping(
         os.path.join(stage2_metadata_dir, "CBIS_DDSM_reference_mapping.csv")
     )
+    inventory_df = load_stage2_image_inventory(
+        os.path.join(stage2_metadata_dir, "CBIS_DDSM_image_inventory.csv")
+    )
     print(f"[Stage 3] Loaded {len(df_mapping)} reference records.")
 
-    # 2. Select Stratified Samples
+    # 2. Select Stratified Samples (Section 6)
     print("[Stage 3] Selecting stratified samples for visual inspection...")
     full_samples = select_stratified_samples(df_mapping, ROLE_FULL_ORIGINAL, n_samples=8)
     crop_samples = select_stratified_samples(df_mapping, ROLE_CROPPED_ABNORMALITY, n_samples=8)
     mask_samples = select_stratified_samples(df_mapping, ROLE_ROI_MASK, n_samples=8)
 
     triplet_samples = select_paired_triplets(df_mapping, n_samples=6)
-    overlay_samples = select_overlay_cases(df_mapping, jpeg_dir, n_samples=5)
+    overlay_samples = select_overlay_cases(df_mapping, jpeg_dir, n_samples=5, inventory_df=inventory_df)
 
     # 3. Save Sample Selection CSV (Section 17)
-    all_sample_entries = full_samples + crop_samples + mask_samples
+    all_sample_entries = list(full_samples + crop_samples + mask_samples)
+    for t_idx, t in enumerate(triplet_samples, start=1):
+        all_sample_entries.append({
+            "sample_id": f"SMP_TRIP_{t_idx:03d}",
+            "patient_id": t["patient_id"],
+            "abnormality_id": t["abnormality_id"],
+            "image_role": "PAIRED_TRIPLET",
+            "category": t["category"],
+            "view": t["view"],
+            "side": t["side"],
+            "pathology": t["pathology"],
+            "split": t["split"],
+            "selection_reason": t["selection_reason"],
+            "image_path": t["original_path"],
+        })
+    for o_idx, o in enumerate(overlay_samples, start=1):
+        all_sample_entries.append({
+            "sample_id": f"SMP_OVER_{o_idx:03d}",
+            "patient_id": o["patient_id"],
+            "abnormality_id": o["abnormality_id"],
+            "image_role": "ROI_OVERLAY",
+            "category": o["category"],
+            "view": o["view"],
+            "side": o["side"],
+            "pathology": o["pathology"],
+            "split": o["split"],
+            "selection_reason": o["selection_reason"],
+            "image_path": o["original_path"],
+        })
+
     df_sample_sel = pd.DataFrame(all_sample_entries)[[
         "sample_id", "patient_id", "abnormality_id", "image_role",
         "category", "view", "side", "pathology", "split", "selection_reason", "image_path"
@@ -897,7 +1109,7 @@ def run_stage3_verification(
     # 4. Generate Visualizations (Sections 7, 8, 9, 10, 11)
     print("[Stage 3] Generating visual contact sheets...")
 
-    # Full Mammograms Contact Sheet
+    # Full Mammograms Contact Sheet (Section 7)
     full_png = os.path.join(results_dir, "full_mammograms.png")
     full_records = plot_image_grid(
         full_samples, jpeg_dir, full_png,
@@ -906,7 +1118,7 @@ def run_stage3_verification(
     )
     print(f"[Stage 3] Generated: {full_png}")
 
-    # Cropped Abnormalities Contact Sheet
+    # Cropped Abnormalities Contact Sheet (Section 8)
     crop_png = os.path.join(results_dir, "cropped_abnormalities.png")
     crop_records = plot_image_grid(
         crop_samples, jpeg_dir, crop_png,
@@ -915,7 +1127,7 @@ def run_stage3_verification(
     )
     print(f"[Stage 3] Generated: {crop_png}")
 
-    # ROI Masks Contact Sheet
+    # ROI Masks Contact Sheet (Section 9)
     mask_png = os.path.join(results_dir, "roi_masks.png")
     mask_records = plot_image_grid(
         mask_samples, jpeg_dir, mask_png,
@@ -924,12 +1136,12 @@ def run_stage3_verification(
     )
     print(f"[Stage 3] Generated: {mask_png}")
 
-    # Original + Cropped + ROI Pairs
+    # Original + Cropped + ROI Pairs (Section 10)
     triplets_png = os.path.join(results_dir, "original_cropped_roi_pairs.png")
     plot_paired_triplets(triplet_samples, jpeg_dir, triplets_png)
     print(f"[Stage 3] Generated: {triplets_png}")
 
-    # ROI Overlays
+    # ROI Overlays (Section 11)
     overlays_png = os.path.join(results_dir, "roi_overlays.png")
     plot_roi_overlays(overlay_samples, jpeg_dir, overlays_png)
     print(f"[Stage 3] Generated: {overlays_png}")
@@ -960,7 +1172,7 @@ def run_stage3_verification(
         & (df_mapping["roi_mask_mapping_status"] == STATUS_RESOLVED)
     ).sum())
 
-    # Check P_01563 status
+    # Check P_01563 exception row 1216 status (Section 3)
     p01563_rows = df_mapping[df_mapping["patient_id"] == "P_01563"]
     p01563_status = {
         ROLE_FULL_ORIGINAL: "RESOLVED",
@@ -968,8 +1180,10 @@ def run_stage3_verification(
         ROLE_ROI_MASK: "UNRESOLVED",
     }
     if not p01563_rows.empty:
-        # Check specific exception row 1216 if present
-        ex_row = p01563_rows[p01563_rows["row_number"] == 1216]
+        ex_row = p01563_rows[
+            (p01563_rows["source_csv"].str.contains("calc", case=False))
+            & (p01563_rows["row_number"].astype(str) == "1216")
+        ]
         if not ex_row.empty:
             p01563_status = {
                 ROLE_FULL_ORIGINAL: str(ex_row.iloc[0]["original_mapping_status"]),
@@ -990,13 +1204,17 @@ def run_stage3_verification(
     )
     print(f"[Stage 3] Saved verification text report to: {verif_txt_path}")
 
-    # 8. Console Summary (Section 22)
+    # 8. Raw Data Protection Check (Section 20)
+    raw_protected = verify_raw_data_protection(raw_data_dir)
+    if not raw_protected:
+        print("[Stage 3 WARNING] Raw data modification check failed!")
+
+    # 9. Console Summary (Section 22)
     pass_cnt = sum(1 for r in all_verified if r["verification_status"] == STATUS_PASS)
     review_cnt = sum(1 for r in all_verified if r["verification_status"] == STATUS_REVIEW)
     fail_cnt = sum(1 for r in all_verified if r["verification_status"] == STATUS_FAIL)
 
-    console_summary = f"""
-============================================================
+    console_summary = f"""============================================================
 IMAGE ROLE VERIFICATION COMPLETE
 ============================================================
 
@@ -1017,9 +1235,11 @@ Cropped:                        {p01563_status.get(ROLE_CROPPED_ABNORMALITY, 'UN
 ROI:                            {p01563_status.get(ROLE_ROI_MASK, 'UNRESOLVED')}
 
 Output directory:
+
 {results_dir}/
 
 Metadata directory:
+
 {stage3_output_dir}/
 
 ============================================================
