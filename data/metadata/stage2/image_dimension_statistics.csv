@@ -1,0 +1,5 @@
+image_role,image_count,minimum_width,maximum_width,mean_width,minimum_height,maximum_height,mean_height,minimum_aspect_ratio,maximum_aspect_ratio,mean_aspect_ratio,median_aspect_ratio
+ALL_PHYSICAL_IMAGES,10237,68,5431,2179.89,73,7111,3549.78,0.1687,4.7619,0.7566,0.6635
+FULL_ORIGINAL,3103,1531,5431,3106.91,3256,7111,5247.01,0.2984,0.8305,0.5935,0.6003
+CROPPED_ABNORMALITY,3567,95,5251,2227.5,126,7111,3639.93,0.2984,2.0302,0.7343,0.6649
+ROI_MASK,3567,68,5431,1325.86,73,6931,1983.17,0.1687,4.7619,0.9209,0.9053

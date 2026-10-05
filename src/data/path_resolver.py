@@ -258,12 +258,16 @@ class PathResolver:
                     )
 
                 # Differentiate between cropped image and ROI mask in a 2-image folder:
-                # In CBIS-DDSM pairs, mask is binary (often sorted first or 000000.dcm) and crop is abnormality (000001.dcm)
+                # Target filename in CBIS-DDSM CSV specifies instance 000000.dcm (index 0) vs 000001.dcm (index 1).
                 ref_type_lower = str(reference_type).lower() if reference_type else ""
-                if "roi" in ref_type_lower or "mask" in ref_type_lower or target_filename.startswith("000000"):
-                    chosen = folder_imgs[0]
-                elif "crop" in ref_type_lower or target_filename.startswith("000001"):
+                if target_filename.startswith("000001") or target_filename.endswith("-2.jpg") or target_filename == "1-2.jpg":
                     chosen = folder_imgs[1] if len(folder_imgs) > 1 else folder_imgs[0]
+                elif target_filename.startswith("000000") or target_filename.endswith("-1.jpg") or target_filename == "1-1.jpg":
+                    chosen = folder_imgs[0]
+                elif "crop" in ref_type_lower:
+                    chosen = folder_imgs[1] if len(folder_imgs) > 1 else folder_imgs[0]
+                elif "roi" in ref_type_lower or "mask" in ref_type_lower:
+                    chosen = folder_imgs[0]
                 else:
                     chosen = folder_imgs[0]
 

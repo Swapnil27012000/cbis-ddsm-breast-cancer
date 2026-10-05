@@ -61,14 +61,11 @@ python -c "import torch; print('CUDA available:', torch.cuda.is_available(), '| 
 
 ### 3. Pipeline Execution Stages
 ```bash
-# Stage 0: Dataset structure audit & path linkage verification (read-only)
+# Stage 1: Dataset structure audit & path linkage verification (read-only)
 python -m src.data.dataset_audit
 
-# Stage 1: Build unified master metadata and patient-stratified splits
-python -m src.data.metadata_builder
-
-# Stage 2: Run full image preprocessing pipeline (normalization, CLAHE, sharpening)
-python -m src.preprocessing.pipeline
+# Stage 2: Image inventory, reference mapping & decodability validation (read-only)
+python -m src.data.image_inventory
 
 # Stage 3: Run noise simulation & denoising filter benchmarks
 python experiments/run_denoising_benchmark.py
@@ -114,9 +111,14 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
 
 3. **Run individual pipeline stages inside the container**:
 
-   - **Run dataset structure and path linkage audit**:
+   - **Stage 1 — Run dataset structure and path linkage audit**:
      ```bash
      docker compose run --rm cbis-ddsm-ai python -m src.data.dataset_audit
+     ```
+
+   - **Stage 2 — Run image inventory & reference mapping**:
+     ```bash
+     docker compose run --rm cbis-ddsm-ai python -m src.data.image_inventory
      ```
 
    - **Build metadata and validation reports**:

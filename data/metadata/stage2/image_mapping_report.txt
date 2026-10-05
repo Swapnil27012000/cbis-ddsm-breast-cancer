@@ -1,0 +1,69 @@
+================================================================================
+CBIS-DDSM STAGE 2 — IMAGE/PATH MAPPING AND IMAGE INVENTORY REPORT
+================================================================================
+Generated: 2026-10-05 21:30:53
+Stage Scope: READ-ONLY image inventory, path resolution, and reference mapping.
+Notice: Raw JPEG storage hierarchy decoupled from clinical case representations.
+
+1. EXECUTIVE INVENTORY SUMMARY
+--------------------------------------------------------------------------------
+1.  Physical JPEG files on disk:       10237
+2.  CSV case description records:      3568
+3.  CSV image references:              10704
+4.  Resolved references:               10702
+5.  Missing references:                0
+6.  Unresolved references:             2
+7.  Ambiguous references:              0
+8.  Unique physical images mapped:     10237
+9.  Shared physical-image references:  293
+10. Unmapped physical images:          0
+11. Unreadable images:                 0
+12. FULL_ORIGINAL references:          3568
+13. CROPPED_ABNORMALITY references:    3568
+14. ROI_MASK references:               3568
+15. Mass case records:                 1696
+16. Calcification case records:        1872
+17. CC view records:                   1672
+18. MLO view records:                  1896
+19. Train split records:               2864
+20. Test split records:                704
+21. BENIGN records:                    1429
+22. BENIGN_WITHOUT_CALLBACK records:   682
+23. MALIGNANT records:                 1457
+
+2. STAGE 1 VS STAGE 2 INTEGRITY COMPARISON
+--------------------------------------------------------------------------------
+Metric                       Stage 1        Stage 2        Match Status
+-----------------------------------------------------------------------
+CSV Image References         10704          10704          MATCH
+Resolved References          10702          10702          MATCH
+Unresolved References        2              2              MATCH
+Ambiguous References         0              0              MATCH
+Overall Integrity Status:    PASS
+
+3. KNOWN EXCEPTION VERIFICATION: PATIENT P_01563
+--------------------------------------------------------------------------------
+Patient ID:             P_01563
+Source CSV:             calc_case_description_train_set.csv (Row 1216)
+Case Abnormality:       Calc-Training_P_01563_RIGHT_MLO_2
+FULL_ORIGINAL Status:   RESOLVED
+FULL_ORIGINAL Path:     1.3.6.1.4.1.9590.100.1.2.390445679911979677723186008730880664974/1-137.jpg
+CROPPED Status:         UNRESOLVED
+ROI_MASK Status:        UNRESOLVED
+Diagnosis:
+The SeriesInstanceUID directory 1.3.6.1.4.1.9590.100.1.2.348822970413183698610798947061334416506
+referenced by the cropped and mask records is genuinely omitted from the official raw dataset release.
+The full mammogram is 100% available and verified. Patient P_01563 is preserved without modification.
+
+4. SHARED AND UNMAPPED IMAGE ANALYSIS
+--------------------------------------------------------------------------------
+Shared Images (reference_count > 1):   293
+Clinical explanation: Multiple abnormalities (e.g. multiple calcification clusters
+or multiple masses) in the same patient breast view reference the identical full mammogram.
+Unmapped Images (reference_count == 0): 0
+Clinical explanation: Any images on disk not referenced directly by the four case description
+CSVs remain preserved and cataloged without modification or deletion.
+
+================================================================================
+END OF STAGE 2 REPORT
+================================================================================
