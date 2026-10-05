@@ -22,10 +22,15 @@ __all__ = [
     "run_integrity_checks",
     "generate_final_processing_report",
     "run_final_preprocessing_stage",
+    "run_stage4_image_quality_control",
+    "audit_single_image",
 ]
 
 def __getattr__(name: str):
-    if name == "validate_mammogram":
+    if name in ("run_stage4_image_quality_control", "audit_single_image"):
+        from . import image_quality
+        return getattr(image_quality, name)
+    elif name == "validate_mammogram":
         from .validation import validate_mammogram
         return validate_mammogram
     elif name in ("robust_min_max_normalize", "min_max_normalize", "z_score_normalize"):

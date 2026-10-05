@@ -1,0 +1,122 @@
+============================================================
+CBIS-DDSM IMAGE QUALITY CONTROL REPORT
+============================================================
+
+STAGE:
+Stage 4 — Image Quality Control and Validation
+
+Raw Dataset:
+data/raw/CBIS_DDSM/
+
+------------------------------------------------------------
+OVERALL
+------------------------------------------------------------
+
+Total physical JPEG files:       10237
+Total mapped image references:   10704
+Total images audited:            10704
+
+PASS:                            7407
+REVIEW:                          3297
+FAIL:                            0
+
+------------------------------------------------------------
+FILE INTEGRITY
+------------------------------------------------------------
+
+Valid:                           10702
+Missing:                         2
+Unreadable:                      0
+Corrupted:                       0
+
+------------------------------------------------------------
+IMAGE ROLES
+------------------------------------------------------------
+
+Full/Original:                   3568
+Cropped:                         3568
+ROI Masks:                       3568
+
+------------------------------------------------------------
+IMAGE DIMENSIONS
+------------------------------------------------------------
+
+Minimum width:                   68
+Maximum width:                   5431
+Mean width:                      2230.6
+
+Minimum height:                  73
+Maximum height:                  7111
+Mean height:                     3614.6
+
+------------------------------------------------------------
+INTENSITY
+------------------------------------------------------------
+
+Near-blank:                      1
+Low variance:                    0
+High saturation:                 6
+
+------------------------------------------------------------
+NUMERICAL VALIDATION
+------------------------------------------------------------
+
+NaN:                             0
+Inf:                             0
+
+------------------------------------------------------------
+FOREGROUND ANALYSIS
+------------------------------------------------------------
+
+Suspicious foreground:           0
+Extremely small foreground:      3459
+Extremely large foreground:      3324
+
+------------------------------------------------------------
+ROI MASKS
+------------------------------------------------------------
+
+Empty masks:                     0
+Binary-like masks:               1111
+Non-binary masks:                2457
+Suspicious masks:                0
+
+------------------------------------------------------------
+DUPLICATES
+------------------------------------------------------------
+
+Exact duplicate groups:          71
+Potential near-duplicate groups: 421
+
+------------------------------------------------------------
+ORIENTATION
+------------------------------------------------------------
+
+Potential orientation issues:    0
+
+------------------------------------------------------------
+STAGE 3 REVIEW CARRY-FORWARD
+------------------------------------------------------------
+
+Stage 3 role-review cases:       18
+Stage 3 reference-review cases:  22
+P_01563 unresolved cropped reference: 11
+P_01563 unresolved ROI reference:     11
+
+------------------------------------------------------------
+IMPORTANT INTERPRETATION
+------------------------------------------------------------
+
+This report evaluates technical image quality only.
+
+It does NOT make clinical judgments.
+
+It does NOT determine whether a lesion is benign or malignant.
+
+Pathology values come from the CBIS-DDSM metadata.
+
+Stage 3 mapping/reference concerns are not automatically corrected.
+
+============================================================
+END OF STAGE 4 QUALITY REPORT
+============================================================
