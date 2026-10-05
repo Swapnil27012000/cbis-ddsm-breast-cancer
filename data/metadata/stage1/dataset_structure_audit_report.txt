@@ -1,0 +1,119 @@
+================================================================================
+CBIS-DDSM DATASET STRUCTURE & RESOLUTION AUDIT REPORT
+================================================================================
+Generated: 2026-10-05 19:11:39
+Audit Scope: READ-ONLY inspection of CBIS-DDSM raw directory structure and CSV references.
+
+NOTICE:
+JPEG directory structure is a storage structure and is not treated as a patient/case structure.
+Original CSV metadata remains authoritative for patient/case definitions.
+
+1. DIRECTORY & FILE STRUCTURE HIERARCHY
+--------------------------------------------------------------------------------
+Root JPEG Directory: /app/data/raw/CBIS_DDSM/jpeg
+Total Directories / Subdirectories: 6775
+Total Image Files on Disk:          10237
+
+Directory Depth:
+  - Minimum Depth: 0
+  - Maximum Depth: 1
+  - Average Depth: 1.0
+
+Folder Image Density Breakdown:
+  - Folders with 0 images (parent/intermediate hierarchy): 1
+  - Folders with 1 image  (typically full mammogram series): 3311
+  - Folders with 2 images (typically crop + ROI mask pairs): 3463
+  - Folders with 3 images:                                 0
+  - Folders with 4+ images:                                0
+
+Images Per Containing Folder:
+  - Minimum: 1
+  - Maximum: 2
+  - Average: 1.51
+  - Median:  2.0
+
+File Extension Breakdown:
+  - .lnk: 12
+  - .jpg: 10237
+
+Duplicate Detection:
+  - Duplicate Filenames Across Different Folders: 600
+    (Note: Generic names like '1-1.jpg', '1-2.jpg' are standard across nested DICOM series folders)
+  - Duplicate Absolute File Paths: 0
+
+2. IMAGE DIMENSION SAMPLING (Representative Sample)
+--------------------------------------------------------------------------------
+Sampled 200 images across folders.
+  - Height range: 105 to 6871 px (mean: 3534 px)
+  - Width range:  81 to 4501 px (mean: 2202 px)
+  - Aspect ratio: 0.31 to 3.35 (mean: 0.77)
+  - Formats: {'uint8': 200}
+
+3. CSV METADATA & PATH RESOLUTION INTEGRITY
+--------------------------------------------------------------------------------
+Total Case Records in Description CSVs: 3568
+Records with >=1 Locally Resolved Image: 3568
+Records with All References Resolved:    3567
+
+Reference Breakdown:
+  - Full Mammogram References:
+      Total:      3568
+      Resolved:   3568
+      Unresolved: 0
+  - Cropped Lesion References:
+      Total:      3568
+      Resolved:   3567
+      Unresolved: 1
+  - ROI Mask References:
+      Total:      3568
+      Resolved:   3567
+      Unresolved: 1
+
+Matching Method Breakdown:
+  - Resolved Exact:           0
+  - Resolved Normalized:      10702
+  - Resolved Unique Filename: 0
+  - Ambiguous References:     0
+  - Unresolved References:    2
+
+Summary Totals:
+  - Total Image References in CSVs: 10704
+  - Total Resolved Image Paths:     10702
+  - Total Unresolved References:    2
+
+4. STRUCTURAL RELATIONSHIP & MAPPING LOGIC
+--------------------------------------------------------------------------------
+The CBIS-DDSM data flow operates under the following hierarchy:
+
+    CSV Metadata (mass_case_*.csv, calc_case_*.csv)
+          │  Contains: patient_id, abnormality_type, pathology, view, side,
+          │            image file path, cropped image file path, ROI mask file path
+          ▼
+    DICOM Series Instance UIDs / Relative Path References
+          │  Matches series folder UIDs embedded in DICOM path strings
+          ▼
+    Nested JPEG Directory Structure
+          │  Folders are named by Series/Study UIDs, NOT patient IDs.
+          │  - Folders with 1 image correspond to Full Mammograms.
+          │  - Folders with 2 images contain Crop + Binary Mask pairs (1-1.jpg, 1-2.jpg).
+          ▼
+    Local Disk Image Files (.jpg / .jpeg)
+          │  Resolved deterministically by PathResolver using indexed UIDs.
+
+Master Metadata Fields Mapping:
+  - patient_id:                  Direct patient identifier (authoritative)
+  - abnormality_category:        'mass' or 'calcification' derived from source CSV
+  - image_view:                  'CC' (Craniocaudal) or 'MLO' (Mediolateral Oblique)
+  - breast_side:                 'LEFT' or 'RIGHT'
+  - pathology:                   Original diagnostic text (BENIGN, BENIGN_WITHOUT_CALLBACK, MALIGNANT)
+  - label:                       Binary target (0 for BENIGN / 1 for MALIGNANT)
+  - image_file_path:             CSV relative path for full mammogram
+  - cropped_image_file_path:     CSV relative path for cropped abnormality
+  - roi_mask_file_path:          CSV relative path for ROI binary segmentation mask
+  - resolved_image_path:         Validated absolute disk path
+
+5. AUDIT STATUS CONCLUSION
+--------------------------------------------------------------------------------
+Status: WARNING - Unresolved References Present
+No raw files were modified, moved, renamed, or preprocessed during this audit.
+================================================================================

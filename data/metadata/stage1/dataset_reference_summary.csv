@@ -1,0 +1,13 @@
+source_csv,reference_type,total_references,resolved,unresolved,ambiguous,resolution_rate
+mass_case_description_train_set.csv,full_mammogram,1318,1318,0,0,100.0%
+mass_case_description_train_set.csv,cropped_image,1318,1318,0,0,100.0%
+mass_case_description_train_set.csv,roi_mask,1318,1318,0,0,100.0%
+mass_case_description_test_set.csv,full_mammogram,378,378,0,0,100.0%
+mass_case_description_test_set.csv,cropped_image,378,378,0,0,100.0%
+mass_case_description_test_set.csv,roi_mask,378,378,0,0,100.0%
+calc_case_description_train_set.csv,full_mammogram,1546,1546,0,0,100.0%
+calc_case_description_train_set.csv,cropped_image,1546,1545,1,0,99.94%
+calc_case_description_train_set.csv,roi_mask,1546,1545,1,0,99.94%
+calc_case_description_test_set.csv,full_mammogram,326,326,0,0,100.0%
+calc_case_description_test_set.csv,cropped_image,326,326,0,0,100.0%
+calc_case_description_test_set.csv,roi_mask,326,326,0,0,100.0%

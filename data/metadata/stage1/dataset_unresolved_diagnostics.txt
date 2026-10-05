@@ -1,0 +1,49 @@
+================================================================================
+CBIS-DDSM UNRESOLVED REFERENCES DIAGNOSTIC INVESTIGATION REPORT
+================================================================================
+Generated: 2026-10-05 19:11:39
+Total Unresolved References: 2
+Storage vs Case Architecture:
+  - The JPEG directory structure is a storage structure and is not treated as a patient/case structure.
+  - Original CSV metadata remains authoritative for patient/case definitions.
+Root Cause Determination:
+  - Root Cause: A (Files genuinely do not exist in the downloaded raw CBIS-DDSM dataset release).
+  - Referenced SeriesInstanceUID directory is entirely absent from disk storage.
+  - The case's Full Mammogram remains intact, verified, and completely usable downstream.
+================================================================================
+
+--------------------------------------------------
+Record 1
+--------------------------------------------------
+Source CSV:              calc_case_description_train_set.csv
+Row:                     1216
+Patient ID:              P_01563
+Abnormality ID:          2
+Image View:              RIGHT_MLO
+Reference type:          CROPPED_IMAGE
+CSV reference:           'Calc-Training_P_01563_RIGHT_MLO_2/1.3.6.1.4.1.9590.100.1.2.30641077412269695712292719894178697599/1.3.6.1.4.1.9590.100.1.2.348822970413183698610798947061334416506/000001.dcm\n'
+Normalized reference:    Calc-Training_P_01563_RIGHT_MLO_2/1.3.6.1.4.1.9590.100.1.2.30641077412269695712292719894178697599/1.3.6.1.4.1.9590.100.1.2.348822970413183698610798947061334416506/000001.dcm
+Expected filename:       000001.dcm
+Expected directory:      1.3.6.1.4.1.9590.100.1.2.348822970413183698610798947061334416506
+Candidates found:        0
+Resolution result:       UNRESOLVED
+Reason:                  Referenced SeriesInstanceUID directory and image file genuinely do not exist in raw JPEG storage
+Alternative usable:      True (Full Mammogram: /app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.390445679911979677723186008730880664974/1-137.jpg)
+
+--------------------------------------------------
+Record 2
+--------------------------------------------------
+Source CSV:              calc_case_description_train_set.csv
+Row:                     1216
+Patient ID:              P_01563
+Abnormality ID:          2
+Image View:              RIGHT_MLO
+Reference type:          ROI_MASK
+CSV reference:           'Calc-Training_P_01563_RIGHT_MLO_2/1.3.6.1.4.1.9590.100.1.2.30641077412269695712292719894178697599/1.3.6.1.4.1.9590.100.1.2.348822970413183698610798947061334416506/000000.dcm'
+Normalized reference:    Calc-Training_P_01563_RIGHT_MLO_2/1.3.6.1.4.1.9590.100.1.2.30641077412269695712292719894178697599/1.3.6.1.4.1.9590.100.1.2.348822970413183698610798947061334416506/000000.dcm
+Expected filename:       000000.dcm
+Expected directory:      1.3.6.1.4.1.9590.100.1.2.348822970413183698610798947061334416506
+Candidates found:        0
+Resolution result:       UNRESOLVED
+Reason:                  Referenced SeriesInstanceUID directory and image file genuinely do not exist in raw JPEG storage
+Alternative usable:      True (Full Mammogram: /app/data/raw/CBIS_DDSM/jpeg/1.3.6.1.4.1.9590.100.1.2.390445679911979677723186008730880664974/1-137.jpg)

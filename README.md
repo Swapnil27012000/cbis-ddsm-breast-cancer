@@ -15,7 +15,7 @@ breast-cancer-detection-ai-model-project/
 │   └── processed/          # Staged intermediate outputs (validated, ROIs, denoised, etc.)
 ├── dataset/                 # Raw DICOM/JPEG files & original case description CSVs
 ├── src/
-│   ├── data/                # CSV loaders, metadata builders, patient-safe splitters
+│   ├── data/                # Dataset audit, CSV loaders, metadata builders, patient-safe splitters
 │   ├── preprocessing/       # Mammogram validation, normalization, CLAHE contrast & sharpening
 │   ├── gpu/                 # CUDA memory management, streaming, and batch processors
 │   ├── noise/               # Synthetic medical noise models (Gaussian, Poisson, Speckle, etc.)
@@ -61,6 +61,9 @@ python -c "import torch; print('CUDA available:', torch.cuda.is_available(), '| 
 
 ### 3. Pipeline Execution Stages
 ```bash
+# Stage 0: Dataset structure audit & path linkage verification (read-only)
+python -m src.data.dataset_audit
+
 # Stage 1: Build unified master metadata and patient-stratified splits
 python -m src.data.metadata_builder
 
@@ -111,6 +114,11 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
 
 3. **Run individual pipeline stages inside the container**:
 
+   - **Run dataset structure and path linkage audit**:
+     ```bash
+     docker compose run --rm cbis-ddsm-ai python -m src.data.dataset_audit
+     ```
+
    - **Build metadata and validation reports**:
      ```bash
      docker compose run --rm cbis-ddsm-ai python -m src.data.metadata_builder
@@ -155,24 +163,24 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
    docker build -t cbis-ddsm-ai:latest .
    ```
 
-2. **Run with NVIDIA GPU support**:
+2. **Run Pipeline Stages with Docker CLI**:
 
-   **On Ubuntu / Linux / macOS (Bash):**
-   ```bash
-   docker run --gpus all --rm \
-     -v $(pwd)/data:/app/data \
-     -v $(pwd)/dataset:/app/data/raw/CBIS_DDSM \
-     -v $(pwd)/config:/app/config \
-     -v $(pwd)/src:/app/src \
-     -v $(pwd)/models:/app/models \
-     -v $(pwd)/results:/app/results \
-     cbis-ddsm-ai:latest python -m src.training.train
+   **Run Dataset Audit (Windows PowerShell):**
+   ```powershell
+   docker run --rm `
+     -v ${PWD}/data:/app/data `
+     -v ${PWD}/dataset:/app/dataset `
+     -v ${PWD}/dataset:/app/data/raw/CBIS_DDSM `
+     -v ${PWD}/config:/app/config `
+     -v ${PWD}/src:/app/src `
+     cbis-ddsm-ai:latest python -m src.data.dataset_audit
    ```
 
-   **On Windows (PowerShell):**
+   **Run Full Training with NVIDIA GPU support (Windows PowerShell):**
    ```powershell
    docker run --gpus all --rm `
      -v ${PWD}/data:/app/data `
+     -v ${PWD}/dataset:/app/dataset `
      -v ${PWD}/dataset:/app/data/raw/CBIS_DDSM `
      -v ${PWD}/config:/app/config `
      -v ${PWD}/src:/app/src `
@@ -181,10 +189,24 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
      cbis-ddsm-ai:latest python -m src.training.train
    ```
 
+   **Run Full Training with NVIDIA GPU support (Ubuntu / Linux / macOS Bash):**
+   ```bash
+   docker run --gpus all --rm \
+     -v $(pwd)/data:/app/data \
+     -v $(pwd)/dataset:/app/dataset \
+     -v $(pwd)/dataset:/app/data/raw/CBIS_DDSM \
+     -v $(pwd)/config:/app/config \
+     -v $(pwd)/src:/app/src \
+     -v $(pwd)/models:/app/models \
+     -v $(pwd)/results:/app/results \
+     cbis-ddsm-ai:latest python -m src.training.train
+   ```
+
 3. **Run on CPU (fallback without GPU)**:
    ```bash
    docker run --rm \
      -v $(pwd)/data:/app/data \
+     -v $(pwd)/dataset:/app/dataset \
      -v $(pwd)/dataset:/app/data/raw/CBIS_DDSM \
      -v $(pwd)/config:/app/config \
      -v $(pwd)/src:/app/src \
