@@ -1,0 +1,74 @@
+===========================================================================
+CBIS-DDSM STAGE 7 — SHARPENING EXPERIMENT REPORT
+===========================================================================
+
+1. EXPERIMENTAL DESIGN & SAMPLE SUMMARY
+---------------------------------------------
+Pilot Representative Cases        : 16
+Contrast Conditions Evaluated     : 3 (baseline, histogram_equalization, clahe)
+Sharpening Conditions Evaluated   : 2 (none [control], unsharp_mask)
+Total Factorial Design            : 3 x 2 = 6 conditions per case
+Total Experimental Records        : 96
+Successfully Processed Records    : 96
+Failed Records                    : 0
+Validation Audit Passed           : 96 / 96
+Validation Audit Failures         : 0
+Total Processing Runtime          : 280.62 seconds
+Average Runtime per Record        : 2.92 s/rec
+
+2. CONFIGURATION & UNSHARP PARAMETERS
+---------------------------------------------
+Gaussian Blur Sigma               : 1.0
+Sharpening Strength (Amount)      : 1.0
+Threshold                         : 0.0 (applied uniformly to all pixels)
+Internal Processing Representation: float32, clipped to [0.0, 1.0]
+Output Format                     : Lossless 8-bit Grayscale PNG
+Spatial Dimensions                : Native resolution strictly preserved (NO 512x512 resizing)
+
+3. IMAGE QUALITY & EDGE STATISTICS BY EXPERIMENTAL CONDITION
+---------------------------------------------
+Condition                           | Mean Int  | Entropy  | Mean Grad  | Strong Edges % | Mean Diff
+-----------------------------------------------------------------------------------------------
+baseline + none                     | 64.23     | 4.6143   | 9.45       | 10.80          | 0.00     
+baseline + unsharp_mask             | 64.24     | 4.7529   | 14.02      | 21.98          | 0.75     
+histogram_equalization + none       | 64.73     | 4.5282   | 15.02      | 19.34          | 0.00     
+histogram_equalization + unsharp_mask | 64.74     | 4.9505   | 22.56      | 27.28          | 1.22     
+clahe + none                        | 66.62     | 4.9258   | 16.08      | 26.44          | 0.00     
+clahe + unsharp_mask                | 66.63     | 4.9748   | 24.25      | 36.15          | 1.32     
+
+4. SATURATION & DIFFERENCE AMPLIFICATION SUMMARY
+---------------------------------------------
+Near-Zero Intensity Threshold     : <= 2.55 (<= 0.01 on [0, 1] scale)
+Near-One Intensity Threshold      : >= 252.45 (>= 0.99 on [0, 1] scale)
+Strong-Edge Sobel Threshold       : >= 25.5 (10% max gradient magnitude)
+
+[BASELINE]
+  Near-zero % (control -> sharp) : 50.46% -> 50.58%
+  Near-one  % (control -> sharp) : 1.45% -> 1.50%
+  Mean Absolute Difference       : 0.75
+  Max Absolute Difference        : 110.00
+
+[HISTOGRAM_EQUALIZATION]
+  Near-zero % (control -> sharp) : 49.89% -> 49.96%
+  Near-one  % (control -> sharp) : 1.38% -> 1.40%
+  Mean Absolute Difference       : 1.22
+  Max Absolute Difference        : 110.00
+
+[CLAHE]
+  Near-zero % (control -> sharp) : 2.24% -> 2.83%
+  Near-one  % (control -> sharp) : 1.41% -> 1.46%
+  Mean Absolute Difference       : 1.32
+  Max Absolute Difference        : 111.00
+
+5. SCIENTIFIC VALIDATION & INTEGRITY CONFIRMATION
+---------------------------------------------
+Raw CBIS-DDSM data modified       : NO (100% untouched)
+Stage-5 baseline files modified   : NO (100% untouched)
+Stage-6 contrast files modified   : NO (100% untouched)
+Control files duplicated on disk  : NO (referenced Stage-6 outputs)
+NaN or Inf values detected        : NONE (0)
+Blank or corrupted images         : NONE (0)
+Excessive saturation detected     : NONE (0)
+Spatial dimensions altered        : NONE (100% match inputs)
+
+===========================================================================

@@ -1,0 +1,27 @@
+{
+  "stage": 8,
+  "description": "CBIS-DDSM Stage 8 Artificial Noise Experiment Parameters",
+  "master_seed": 42,
+  "pilot_cases": 16,
+  "noise_models": {
+    "gaussian": {
+      "mean": 0.0,
+      "sigma": 0.03
+    },
+    "salt_pepper": {
+      "amount": 0.01,
+      "salt_vs_pepper": 0.5
+    },
+    "speckle": {
+      "sigma": 0.05
+    },
+    "poisson": {
+      "peak": 30
+    },
+    "mixed_poisson_gaussian": {
+      "poisson_peak": 30,
+      "gaussian_mean": 0.0,
+      "gaussian_sigma": 0.02
+    }
+  }
+}

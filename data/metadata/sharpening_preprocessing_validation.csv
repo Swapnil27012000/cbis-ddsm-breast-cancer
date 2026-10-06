@@ -1,0 +1,97 @@
+patient_id,abnormality_id,contrast_method,sharpening_method,input_exists,output_exists,input_shape,output_shape,shape_match,finite_values,intensity_range_valid,blank_image,excessive_saturation,excessive_edge_amplification,status,notes
+P_00004,1,baseline,none,True,True,5491x2986,5491x2986,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00004,1,baseline,unsharp_mask,True,True,5491x2986,5491x2986,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2986x5491)
+P_00004,1,histogram_equalization,none,True,True,5491x2986,5491x2986,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00004,1,histogram_equalization,unsharp_mask,True,True,5491x2986,5491x2986,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2986x5491)
+P_00004,1,clahe,none,True,True,5491x2986,5491x2986,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00004,1,clahe,unsharp_mask,True,True,5491x2986,5491x2986,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2986x5491)
+P_00009,1,baseline,none,True,True,5266x2596,5266x2596,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00009,1,baseline,unsharp_mask,True,True,5266x2596,5266x2596,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2596x5266)
+P_00009,1,histogram_equalization,none,True,True,5266x2596,5266x2596,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00009,1,histogram_equalization,unsharp_mask,True,True,5266x2596,5266x2596,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2596x5266)
+P_00009,1,clahe,none,True,True,5266x2596,5266x2596,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00009,1,clahe,unsharp_mask,True,True,5266x2596,5266x2596,True,True,True,False,False,True,PASS,Verified valid lossless PNG sharpened image (2596x5266)
+P_00037,1,baseline,none,True,True,4608x2936,4608x2936,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00037,1,baseline,unsharp_mask,True,True,4608x2936,4608x2936,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2936x4608)
+P_00037,1,histogram_equalization,none,True,True,4608x2936,4608x2936,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00037,1,histogram_equalization,unsharp_mask,True,True,4608x2936,4608x2936,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2936x4608)
+P_00037,1,clahe,none,True,True,4608x2936,4608x2936,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00037,1,clahe,unsharp_mask,True,True,4608x2936,4608x2936,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2936x4608)
+P_00056,1,baseline,none,True,True,4296x2936,4296x2936,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00056,1,baseline,unsharp_mask,True,True,4296x2936,4296x2936,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2936x4296)
+P_00056,1,histogram_equalization,none,True,True,4296x2936,4296x2936,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00056,1,histogram_equalization,unsharp_mask,True,True,4296x2936,4296x2936,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2936x4296)
+P_00056,1,clahe,none,True,True,4296x2936,4296x2936,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00056,1,clahe,unsharp_mask,True,True,4296x2936,4296x2936,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2936x4296)
+P_00007,1,baseline,none,True,True,5356x2986,5356x2986,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00007,1,baseline,unsharp_mask,True,True,5356x2986,5356x2986,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2986x5356)
+P_00007,1,histogram_equalization,none,True,True,5356x2986,5356x2986,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00007,1,histogram_equalization,unsharp_mask,True,True,5356x2986,5356x2986,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2986x5356)
+P_00007,1,clahe,none,True,True,5356x2986,5356x2986,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00007,1,clahe,unsharp_mask,True,True,5356x2986,5356x2986,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2986x5356)
+P_00008,1,baseline,none,True,True,4576x3048,4576x3048,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00008,1,baseline,unsharp_mask,True,True,4576x3048,4576x3048,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3048x4576)
+P_00008,1,histogram_equalization,none,True,True,4576x3048,4576x3048,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00008,1,histogram_equalization,unsharp_mask,True,True,4576x3048,4576x3048,True,True,True,False,False,True,PASS,Verified valid lossless PNG sharpened image (3048x4576)
+P_00008,1,clahe,none,True,True,4576x3048,4576x3048,True,True,True,False,False,True,PASS,Verified valid Stage-6 clahe control image
+P_00008,1,clahe,unsharp_mask,True,True,4576x3048,4576x3048,True,True,True,False,False,True,PASS,Verified valid lossless PNG sharpened image (3048x4576)
+P_00012,1,baseline,none,True,True,5904x3704,5904x3704,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00012,1,baseline,unsharp_mask,True,True,5904x3704,5904x3704,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3704x5904)
+P_00012,1,histogram_equalization,none,True,True,5904x3704,5904x3704,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00012,1,histogram_equalization,unsharp_mask,True,True,5904x3704,5904x3704,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3704x5904)
+P_00012,1,clahe,none,True,True,5904x3704,5904x3704,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00012,1,clahe,unsharp_mask,True,True,5904x3704,5904x3704,True,True,True,False,False,True,PASS,Verified valid lossless PNG sharpened image (3704x5904)
+P_00127,1,baseline,none,True,True,6706x3796,6706x3796,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00127,1,baseline,unsharp_mask,True,True,6706x3796,6706x3796,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3796x6706)
+P_00127,1,histogram_equalization,none,True,True,6706x3796,6706x3796,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00127,1,histogram_equalization,unsharp_mask,True,True,6706x3796,6706x3796,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3796x6706)
+P_00127,1,clahe,none,True,True,6706x3796,6706x3796,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00127,1,clahe,unsharp_mask,True,True,6706x3796,6706x3796,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3796x6706)
+P_00041,1,baseline,none,True,True,5664x3070,5664x3070,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00041,1,baseline,unsharp_mask,True,True,5664x3070,5664x3070,True,True,True,False,False,True,PASS,Verified valid lossless PNG sharpened image (3070x5664)
+P_00041,1,histogram_equalization,none,True,True,5664x3070,5664x3070,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00041,1,histogram_equalization,unsharp_mask,True,True,5664x3070,5664x3070,True,True,True,False,False,True,PASS,Verified valid lossless PNG sharpened image (3070x5664)
+P_00041,1,clahe,none,True,True,5664x3070,5664x3070,True,True,True,False,False,True,PASS,Verified valid Stage-6 clahe control image
+P_00041,1,clahe,unsharp_mask,True,True,5664x3070,5664x3070,True,True,True,False,False,True,PASS,Verified valid lossless PNG sharpened image (3070x5664)
+P_00100,1,baseline,none,True,True,4831x2731,4831x2731,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00100,1,baseline,unsharp_mask,True,True,4831x2731,4831x2731,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2731x4831)
+P_00100,1,histogram_equalization,none,True,True,4831x2731,4831x2731,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00100,1,histogram_equalization,unsharp_mask,True,True,4831x2731,4831x2731,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2731x4831)
+P_00100,1,clahe,none,True,True,4831x2731,4831x2731,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00100,1,clahe,unsharp_mask,True,True,4831x2731,4831x2731,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2731x4831)
+P_00158,1,baseline,none,True,True,4656x2888,4656x2888,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00158,1,baseline,unsharp_mask,True,True,4656x2888,4656x2888,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2888x4656)
+P_00158,1,histogram_equalization,none,True,True,4656x2888,4656x2888,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00158,1,histogram_equalization,unsharp_mask,True,True,4656x2888,4656x2888,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2888x4656)
+P_00158,1,clahe,none,True,True,4656x2888,4656x2888,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00158,1,clahe,unsharp_mask,True,True,4656x2888,4656x2888,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2888x4656)
+P_00299,1,baseline,none,True,True,6301x3736,6301x3736,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00299,1,baseline,unsharp_mask,True,True,6301x3736,6301x3736,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3736x6301)
+P_00299,1,histogram_equalization,none,True,True,6301x3736,6301x3736,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00299,1,histogram_equalization,unsharp_mask,True,True,6301x3736,6301x3736,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3736x6301)
+P_00299,1,clahe,none,True,True,6301x3736,6301x3736,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00299,1,clahe,unsharp_mask,True,True,6301x3736,6301x3736,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3736x6301)
+P_00018,1,baseline,none,True,True,4720x2584,4720x2584,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00018,1,baseline,unsharp_mask,True,True,4720x2584,4720x2584,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2584x4720)
+P_00018,1,histogram_equalization,none,True,True,4720x2584,4720x2584,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00018,1,histogram_equalization,unsharp_mask,True,True,4720x2584,4720x2584,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2584x4720)
+P_00018,1,clahe,none,True,True,4720x2584,4720x2584,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00018,1,clahe,unsharp_mask,True,True,4720x2584,4720x2584,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2584x4720)
+P_00012,1,baseline,none,True,True,5944x3552,5944x3552,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00012,1,baseline,unsharp_mask,True,True,5944x3552,5944x3552,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3552x5944)
+P_00012,1,histogram_equalization,none,True,True,5944x3552,5944x3552,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00012,1,histogram_equalization,unsharp_mask,True,True,5944x3552,5944x3552,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (3552x5944)
+P_00012,1,clahe,none,True,True,5944x3552,5944x3552,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00012,1,clahe,unsharp_mask,True,True,5944x3552,5944x3552,True,True,True,False,False,True,PASS,Verified valid lossless PNG sharpened image (3552x5944)
+P_00001,1,baseline,none,True,True,4800x2656,4800x2656,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00001,1,baseline,unsharp_mask,True,True,4800x2656,4800x2656,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2656x4800)
+P_00001,1,histogram_equalization,none,True,True,4800x2656,4800x2656,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00001,1,histogram_equalization,unsharp_mask,True,True,4800x2656,4800x2656,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2656x4800)
+P_00001,1,clahe,none,True,True,4800x2656,4800x2656,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00001,1,clahe,unsharp_mask,True,True,4800x2656,4800x2656,True,True,True,False,False,True,PASS,Verified valid lossless PNG sharpened image (2656x4800)
+P_00100,1,baseline,none,True,True,5491x2791,5491x2791,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00100,1,baseline,unsharp_mask,True,True,5491x2791,5491x2791,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2791x5491)
+P_00100,1,histogram_equalization,none,True,True,5491x2791,5491x2791,True,True,True,False,False,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00100,1,histogram_equalization,unsharp_mask,True,True,5491x2791,5491x2791,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2791x5491)
+P_00100,1,clahe,none,True,True,5491x2791,5491x2791,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00100,1,clahe,unsharp_mask,True,True,5491x2791,5491x2791,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (2791x5491)

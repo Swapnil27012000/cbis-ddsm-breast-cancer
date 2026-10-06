@@ -32,13 +32,40 @@ __all__ = [
     "run_contrast_visualization",
     "load_contrast_config",
     "compute_image_statistics",
+    "run_image_sharpening_stage7",
+    "run_sharpening_visualization",
+    "load_sharpening_config",
+    "load_stage6_inputs",
+    "compute_edge_statistics",
+    "compute_difference_metrics",
+    "run_stage8_pilot",
+    "load_stage8_config",
+    "derive_deterministic_seed",
+    "load_clean_image",
+    "calculate_noise_statistics",
+    "save_noisy_image",
+    "validate_noisy_image",
+    "generate_noise_visualizations",
 ]
 
 def __getattr__(name: str):
+    if name in (
+        "run_stage8_pilot",
+        "load_stage8_config",
+        "derive_deterministic_seed",
+        "load_clean_image",
+        "calculate_noise_statistics",
+        "save_noisy_image",
+        "validate_noisy_image",
+        "generate_noise_visualizations",
+    ):
+        from . import noise_experiment
+        return getattr(noise_experiment, name)
+
     if name in ("run_baseline_preprocessing_pilot", "run_baseline_preprocessing", "load_full_dataset_samples"):
         from . import baseline_preprocessing
         return getattr(baseline_preprocessing, name)
-    elif name in ("run_contrast_enhancement", "load_contrast_config", "compute_image_statistics"):
+    elif name in ("run_contrast_enhancement", "load_contrast_config"):
         from . import contrast_enhancement
         return getattr(contrast_enhancement, name)
     elif name == "run_contrast_visualization":
@@ -65,9 +92,23 @@ def __getattr__(name: str):
     elif name in ("apply_clahe", "apply_histogram_equalization", "stretch_contrast", "run_contrast_stretching"):
         from . import contrast
         return getattr(contrast, name)
-    elif name in ("unsharp_mask", "apply_unsharp_mask", "apply_laplacian_sharpening", "run_image_sharpening"):
+    elif name in (
+        "unsharp_mask",
+        "apply_unsharp_mask",
+        "apply_laplacian_sharpening",
+        "run_image_sharpening",
+        "run_image_sharpening_stage7",
+        "load_sharpening_config",
+        "load_stage6_inputs",
+        "compute_image_statistics",
+        "compute_edge_statistics",
+        "compute_difference_metrics",
+    ):
         from . import sharpening
         return getattr(sharpening, name)
+    elif name == "run_sharpening_visualization":
+        from . import sharpening_visualization
+        return getattr(sharpening_visualization, name)
     elif name == "run_basic_preprocessing":
         from .basic_preprocessing import run_basic_preprocessing
         return run_basic_preprocessing

@@ -1,0 +1,97 @@
+===========================================================================
+CBIS-DDSM STAGE 8 — ARTIFICIAL NOISE EXPERIMENT REPORT
+===========================================================================
+
+1. STAGE INFORMATION
+---------------------------------------------
+Stage                             : Stage 8 — Artificial Noise Experiment
+Dataset                           : CBIS-DDSM Mammography
+Mode                              : PILOT-FIRST
+Pilot Cases                       : 16
+Master Seed                       : 42
+Total Processing Runtime          : 634.08 seconds
+
+2. INPUT INFORMATION
+---------------------------------------------
+Primary Clean Source              : Stage-5 Clean Baseline Mammograms
+Stage-6 Contrast Enhancement      : EXCLUDED (Clean baseline preserved)
+Stage-7 Sharpening                : EXCLUDED (Clean baseline preserved)
+Number of Clean References        : 16
+Native Spatial Dimensions         : Strictly preserved (NO resizing)
+
+3. NOISE TYPES
+---------------------------------------------
+1. Gaussian Noise (Additive sensor thermal/electronic simulation)
+2. Salt & Pepper Noise (Impulse bit transmission error simulation)
+3. Speckle Noise (Multiplicative scattering simulation)
+4. Poisson Noise (Quantum photon counting shot simulation)
+5. Mixed Poisson-Gaussian Noise (Dual photon shot + electronic sensor simulation)
+
+4. NOISE PARAMETERS
+---------------------------------------------
+Gaussian                          : mean = 0.0, sigma = 0.03
+Salt & Pepper                     : amount = 0.01, salt_vs_pepper = 0.5
+Speckle                           : sigma = 0.05
+Poisson                           : peak = 30
+Mixed Poisson-Gaussian            : poisson_peak = 30, gaussian_mean = 0.0, gaussian_sigma = 0.02
+
+5. OUTPUT COUNTS
+---------------------------------------------
+Expected Clean Records            : 16
+Expected Noisy Images             : 80 (16 cases x 5 noise models)
+Total Experimental Records        : 96
+Successful Records                : 96
+Failed Records                    : 0
+Missing Outputs                   : 0
+
+6. VALIDATION AUDIT
+---------------------------------------------
+Validation Records Audited        : 96
+Validation Passed                 : 96 / 96 (100% PASS)
+Validation Failures               : 0
+Dimension Integrity Checked       : PASS (100% match clean reference)
+File Readability Checked          : PASS (all readable uint8 PNGs)
+Intensity Range Integrity Checked : PASS ([0, 255] discrete, [0, 1] float32)
+NaN / Inf Pixel Values Checked    : PASS (0 occurrences)
+Blank / Completely Saturated Imgs : PASS (0 occurrences)
+Reproducibility (SHA-256 Seed)    : PASS (100% deterministic per image)
+
+7. BASIC METRIC SUMMARY ACROSS NOISE MODELS
+---------------------------------------------
+Noise Model               | Mean MSE   | Mean PSNR (dB)  | Mean SNR (dB)  | Mean MAD   | Mean Entropy
+-----------------------------------------------------------------------------------------------
+gaussian                  | 0.000660   | 31.81           | 23.65          | 0.0177     | 5.9984      
+salt_pepper               | 0.004089   | 23.89           | 15.73          | 0.0050     | 4.6035      
+speckle                   | 0.000377   | 34.50           | 26.34          | 0.0097     | 4.7919      
+poisson                   | 0.007387   | 21.47           | 13.31          | 0.0465     | 3.2677      
+mixed_poisson_gaussian    | 0.007650   | 21.31           | 13.15          | 0.0510     | 5.8492      
+clean (reference)         | 0.000000   | inf             | inf            | 0.0000     | 4.6143      
+
+8. VISUALIZATION OUTPUTS
+---------------------------------------------
+- clean_vs_noisy_comparison      : results/preprocessing/noise/clean_vs_noisy_comparison.png
+- noise_difference_maps          : results/preprocessing/noise/noise_difference_maps.png
+- noise_histogram_comparison     : results/preprocessing/noise/noise_histogram_comparison.png
+- noise_metric_comparison        : results/preprocessing/noise/noise_metric_comparison.png
+
+9. RESEARCH INTERPRETATION
+---------------------------------------------
+- Controlled synthetic noise models successfully produced measurable, reproducible perturbations.
+- Gaussian noise (sigma=0.03) exhibits uniform additive degradation across tissue and background.
+- Salt & Pepper (1%) simulates localized impulse sensor dropout, creating distinct white/black spikes.
+- Multiplicative Speckle (sigma=0.05) scales proportionally with tissue density, leaving black backgrounds clean.
+- Poisson (peak=30) and Mixed Poisson-Gaussian models introduce realistic signal-dependent quantum shot noise.
+- Every noise output was strictly clipped to [0, 1] float32 and saved as lossless 8-bit PNG for Stage 9.
+
+10. INTEGRITY STATEMENT
+---------------------------------------------
+Raw CBIS-DDSM data modified       : NO (100% untouched)
+Stage-5 baseline modified         : NO (100% untouched)
+Stage-6 contrast outputs modified : NO (100% untouched)
+Stage-7 sharpening outputs mod    : NO (100% untouched)
+Denoising algorithms executed     : NO (strictly deferred to Stage 9)
+
+11. NEXT STAGE
+---------------------------------------------
+Stage 8 pilot completed. Stage 9 denoising experiment has NOT been executed.
+===========================================================================

@@ -156,3 +156,50 @@ contrast_enhancement:
     png_compression_level: 1
     io_buffer_size: 1048576
 
+sharpening:
+  enabled: true
+  pilot_mode: true
+  pilot_sample_count: 16
+  methods:
+    - none
+    - unsharp_mask
+  unsharp_mask:
+    sigma: 1.0
+    amount: 1.0
+    threshold: 0
+  edge_analysis:
+    sobel_ksize: 3
+    strong_edge_threshold: 25.5
+  saturation:
+    near_zero_threshold: 0.01
+    near_one_threshold: 0.99
+  performance:
+    num_workers: 4
+    png_compression_level: 1
+    io_buffer_size: 1048576
+
+stage8:
+  master_seed: 42
+  pilot:
+    enabled: true
+    num_cases: 16
+  noise:
+    gaussian:
+      mean: 0.0
+      sigma: 0.03
+    salt_pepper:
+      amount: 0.01
+      salt_vs_pepper: 0.5
+    speckle:
+      sigma: 0.05
+    poisson:
+      peak: 30
+    mixed_poisson_gaussian:
+      poisson_peak: 30
+      gaussian_mean: 0.0
+      gaussian_sigma: 0.02
+  performance:
+    num_workers: 4
+    png_compression_level: 1
+    io_buffer_size: 1048576
+

@@ -73,18 +73,21 @@ python -m src.data.image_role_verification
 # Stage 4: Image quality control and validation audit (read-only)
 python -m src.preprocessing.image_quality
 
-# Stage 5: Primary baseline image preprocessing pilot & visual validation
+# Stage 5: Primary baseline image preprocessing pilot & full-dataset execution
 python -m src.preprocessing.baseline_preprocessing
 python -m src.preprocessing.baseline_visualization
 python -m src.preprocessing.verify_optimization_equivalence
 
-# Stage 6: Run noise simulation & denoising filter benchmarks
+# Stage 6: Controlled contrast enhancement experiment (Baseline vs HistEq vs CLAHE)
+python -m src.preprocessing.contrast_enhancement
+python -m src.preprocessing.contrast_visualization
+
+# Stage 7: Controlled image sharpening experiment (3x2 factorial: Baseline, HistEq, CLAHE x None, Unsharp)
+python -m src.preprocessing.sharpening
+python -m src.preprocessing.sharpening_visualization
+
+# Stage 8+: Downstream noise simulation, denoising benchmarks & classification
 python experiments/run_denoising_benchmark.py
-
-# Stage 7: Run preprocessing verification audit & integrity check
-python -m src.preprocessing.finalize_preprocessing
-
-# Stage 8: Train ResNet50 classification model (Benign vs. Malignant)
 python -m src.training.train
 ```
 

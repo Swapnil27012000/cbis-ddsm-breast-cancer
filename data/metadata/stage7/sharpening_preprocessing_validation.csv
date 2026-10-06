@@ -1,0 +1,13 @@
+patient_id,abnormality_id,contrast_method,sharpening_method,input_exists,output_exists,input_shape,output_shape,shape_match,finite_values,intensity_range_valid,blank_image,excessive_saturation,excessive_edge_amplification,status,notes
+P_00004,1,baseline,none,True,True,600x400,600x400,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00004,1,baseline,unsharp_mask,True,True,600x400,600x400,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (400x600)
+P_00004,1,histogram_equalization,none,True,True,600x400,600x400,True,True,True,False,True,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00004,1,histogram_equalization,unsharp_mask,True,True,600x400,600x400,True,True,True,False,True,False,PASS,Verified valid lossless PNG sharpened image (400x600)
+P_00004,1,clahe,none,True,True,600x400,600x400,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00004,1,clahe,unsharp_mask,True,True,600x400,600x400,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (400x600)
+P_00009,1,baseline,none,True,True,500x350,500x350,True,True,True,False,False,False,PASS,Verified valid Stage-6 baseline control image
+P_00009,1,baseline,unsharp_mask,True,True,500x350,500x350,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (350x500)
+P_00009,1,histogram_equalization,none,True,True,500x350,500x350,True,True,True,False,True,False,PASS,Verified valid Stage-6 histogram_equalization control image
+P_00009,1,histogram_equalization,unsharp_mask,True,True,500x350,500x350,True,True,True,False,True,False,PASS,Verified valid lossless PNG sharpened image (350x500)
+P_00009,1,clahe,none,True,True,500x350,500x350,True,True,True,False,False,False,PASS,Verified valid Stage-6 clahe control image
+P_00009,1,clahe,unsharp_mask,True,True,500x350,500x350,True,True,True,False,False,False,PASS,Verified valid lossless PNG sharpened image (350x500)

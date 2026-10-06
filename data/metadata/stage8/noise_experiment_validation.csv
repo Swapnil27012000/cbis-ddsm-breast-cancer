@@ -1,0 +1,97 @@
+patient_id,abnormality_id,breast_side,image_view,noise_type,clean_exists,noisy_exists,can_reopen,dimension_integrity,is_grayscale,range_valid,finite_values,not_blank,not_saturated,status,notes
+P_00004,1,LEFT,CC,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00004,1,LEFT,CC,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00004,1,LEFT,CC,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00004,1,LEFT,CC,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00004,1,LEFT,CC,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00004,1,LEFT,CC,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00009,1,RIGHT,MLO,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00009,1,RIGHT,MLO,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00009,1,RIGHT,MLO,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00009,1,RIGHT,MLO,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00009,1,RIGHT,MLO,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00009,1,RIGHT,MLO,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00037,1,RIGHT,CC,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00037,1,RIGHT,CC,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00037,1,RIGHT,CC,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00037,1,RIGHT,CC,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00037,1,RIGHT,CC,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00037,1,RIGHT,CC,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00056,1,LEFT,MLO,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00056,1,LEFT,MLO,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00056,1,LEFT,MLO,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00056,1,LEFT,MLO,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00056,1,LEFT,MLO,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00056,1,LEFT,MLO,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00007,1,LEFT,CC,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00007,1,LEFT,CC,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00007,1,LEFT,CC,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00007,1,LEFT,CC,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00007,1,LEFT,CC,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00007,1,LEFT,CC,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00008,1,RIGHT,MLO,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00008,1,RIGHT,MLO,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00008,1,RIGHT,MLO,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00008,1,RIGHT,MLO,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00008,1,RIGHT,MLO,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00008,1,RIGHT,MLO,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00012,1,LEFT,MLO,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00012,1,LEFT,MLO,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00012,1,LEFT,MLO,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00012,1,LEFT,MLO,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00012,1,LEFT,MLO,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00012,1,LEFT,MLO,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00127,1,RIGHT,CC,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00127,1,RIGHT,CC,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00127,1,RIGHT,CC,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00127,1,RIGHT,CC,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00127,1,RIGHT,CC,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00127,1,RIGHT,CC,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00041,1,LEFT,CC,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00041,1,LEFT,CC,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00041,1,LEFT,CC,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00041,1,LEFT,CC,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00041,1,LEFT,CC,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00041,1,LEFT,CC,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00100,1,RIGHT,CC,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00100,1,RIGHT,CC,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00100,1,RIGHT,CC,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00100,1,RIGHT,CC,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00100,1,RIGHT,CC,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00100,1,RIGHT,CC,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00158,1,RIGHT,MLO,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00158,1,RIGHT,MLO,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00158,1,RIGHT,MLO,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00158,1,RIGHT,MLO,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00158,1,RIGHT,MLO,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00158,1,RIGHT,MLO,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00299,1,LEFT,MLO,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00299,1,LEFT,MLO,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00299,1,LEFT,MLO,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00299,1,LEFT,MLO,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00299,1,LEFT,MLO,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00299,1,LEFT,MLO,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00018,1,RIGHT,CC,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00018,1,RIGHT,CC,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00018,1,RIGHT,CC,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00018,1,RIGHT,CC,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00018,1,RIGHT,CC,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00018,1,RIGHT,CC,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00012,1,LEFT,CC,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00012,1,LEFT,CC,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00012,1,LEFT,CC,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00012,1,LEFT,CC,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00012,1,LEFT,CC,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00012,1,LEFT,CC,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00001,1,LEFT,MLO,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00001,1,LEFT,MLO,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00001,1,LEFT,MLO,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00001,1,LEFT,MLO,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00001,1,LEFT,MLO,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00001,1,LEFT,MLO,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00100,1,RIGHT,MLO,clean,True,True,True,True,True,True,True,True,True,PASS,Verified Stage-5 clean baseline reference
+P_00100,1,RIGHT,MLO,gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00100,1,RIGHT,MLO,salt_pepper,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00100,1,RIGHT,MLO,speckle,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00100,1,RIGHT,MLO,poisson,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
+P_00100,1,RIGHT,MLO,mixed_poisson_gaussian,True,True,True,True,True,True,True,True,True,PASS,Verified PASS
