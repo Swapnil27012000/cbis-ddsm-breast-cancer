@@ -1,0 +1,17 @@
+patient_id,abnormality_id,case,output_exists,can_reopen,dimensions_identical,dtype_identical,exact_pixel_equality,max_abs_diff,mean_abs_diff,differing_pixels,pct_differing_pixels,orig_dimensions,opt_dimensions,orig_range,opt_range,status
+P_00004,1,P_00004_LEFT_CC,True,True,True,True,True,0,0.0,0,0.0,2986x5491,2986x5491,"[0, 255]","[0, 255]",PASS
+P_00009,1,P_00009_RIGHT_MLO,True,True,True,True,True,0,0.0,0,0.0,2596x5266,2596x5266,"[0, 255]","[0, 255]",PASS
+P_00037,1,P_00037_RIGHT_CC,True,True,True,True,True,0,0.0,0,0.0,2936x4608,2936x4608,"[0, 255]","[0, 255]",PASS
+P_00056,1,P_00056_LEFT_MLO,True,True,True,True,True,0,0.0,0,0.0,2936x4296,2936x4296,"[0, 255]","[0, 255]",PASS
+P_00007,1,P_00007_LEFT_CC,True,True,True,True,True,0,0.0,0,0.0,2986x5356,2986x5356,"[0, 255]","[0, 255]",PASS
+P_00008,1,P_00008_RIGHT_MLO,True,True,True,True,True,0,0.0,0,0.0,3048x4576,3048x4576,"[0, 255]","[0, 255]",PASS
+P_00012,1,P_00012_LEFT_MLO,True,True,True,True,True,0,0.0,0,0.0,3704x5904,3704x5904,"[0, 255]","[0, 255]",PASS
+P_00127,1,P_00127_RIGHT_CC,True,True,True,True,True,0,0.0,0,0.0,3796x6706,3796x6706,"[0, 255]","[0, 255]",PASS
+P_00041,1,P_00041_LEFT_CC,True,True,True,True,True,0,0.0,0,0.0,3070x5664,3070x5664,"[0, 255]","[0, 255]",PASS
+P_00100,1,P_00100_RIGHT_CC,True,True,True,True,True,0,0.0,0,0.0,2731x4831,2731x4831,"[0, 255]","[0, 255]",PASS
+P_00158,1,P_00158_RIGHT_MLO,True,True,True,True,True,0,0.0,0,0.0,2888x4656,2888x4656,"[0, 255]","[0, 255]",PASS
+P_00299,1,P_00299_LEFT_MLO,True,True,True,True,True,0,0.0,0,0.0,3736x6301,3736x6301,"[0, 255]","[0, 255]",PASS
+P_00018,1,P_00018_RIGHT_CC,True,True,True,True,True,0,0.0,0,0.0,2584x4720,2584x4720,"[0, 255]","[0, 255]",PASS
+P_00012,1,P_00012_LEFT_CC,True,True,True,True,True,0,0.0,0,0.0,3552x5944,3552x5944,"[0, 255]","[0, 255]",PASS
+P_00001,1,P_00001_LEFT_MLO,True,True,True,True,True,0,0.0,0,0.0,2656x4800,2656x4800,"[0, 255]","[0, 255]",PASS
+P_00100,1,P_00100_RIGHT_MLO,True,True,True,True,True,0,0.0,0,0.0,2791x5491,2791x5491,"[0, 255]","[0, 255]",PASS

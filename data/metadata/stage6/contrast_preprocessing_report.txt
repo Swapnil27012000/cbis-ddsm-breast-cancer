@@ -1,0 +1,60 @@
+============================================================
+STAGE 6 — CONTRAST ENHANCEMENT EXPERIMENT PILOT REPORT
+============================================================
+
+Input baseline cases processed:     16
+Total method records generated:      48
+Successfully processed:              48
+Processing failures:                 0
+
+Method Breakdown:
+  Baseline (Control):                16
+  Global Histogram Equalization:     16
+  CLAHE (clip=2.0, grid=8x8):         16
+
+Validation Results:
+  Validation PASS:                   48
+  Validation FAIL:                   0
+  Blank images detected:             0
+  Shape mismatches:                  0
+
+Method-Wise Statistical Summary (Averages):
+  [Method 0: Baseline Control]
+    Mean Intensity:                  64.2285
+    Std Deviation:                   77.3943
+    Entropy (bits):                  4.6143
+    Breast Foreground Mean:          130.8743
+    Breast Foreground Std:           61.0757
+    Percentiles (p01 / p99):         0.0 / 255.0
+
+  [Method 1: Global Histogram Equalization]
+    Mean Intensity:                  64.7269
+    Std Deviation:                   82.1856
+    Entropy (bits):                  4.5282
+    Breast Foreground Mean:          130.7084
+    Breast Foreground Std:           72.5934
+    Percentiles (p01 / p99):         0.0 / 255.0
+
+  [Method 2: CLAHE (clipLimit=2.0, tileGridSize=8x8)]
+    Mean Intensity:                  66.6245
+    Std Deviation:                   74.9460
+    Entropy (bits):                  4.9258
+    Breast Foreground Mean:          130.1516
+    Breast Foreground Std:           58.0401
+    Percentiles (p01 / p99):         2.06 / 255.0
+
+Scientific Observations & Quality Notes:
+  - Global Histogram Equalization heavily expands the global dynamic range
+    and significantly increases background scanner noise amplification.
+  - CLAHE enhances local glandular contrast adaptively while preventing
+    extreme background amplification due to the 2.0 clip limit.
+  - Spatial dimensions and 8-bit grayscale depths are strictly preserved.
+  - Zero resizing (native dimensions maintained).
+
+Data Integrity Verification:
+  Stage-5 baseline files modified:   NO
+  Raw CBIS-DDSM files modified:      NO
+
+Total Processing Time:               17.1s
+Average Time Per Input Case:         1.0688s
+============================================================

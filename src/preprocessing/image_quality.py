@@ -28,26 +28,20 @@ import pandas as pd
 from PIL import Image
 import yaml
 
-try:
-    from src.data.image_inventory import (
-        find_jpeg_dir,
-        ROLE_FULL_ORIGINAL,
-        ROLE_CROPPED_ABNORMALITY,
-        ROLE_ROI_MASK,
-        ROLE_UNKNOWN,
-        STATUS_RESOLVED,
-        STATUS_UNRESOLVED_STATUS,
-    )
-except ImportError:
-    from ..data.image_inventory import (
-        find_jpeg_dir,
-        ROLE_FULL_ORIGINAL,
-        ROLE_CROPPED_ABNORMALITY,
-        ROLE_ROI_MASK,
-        ROLE_UNKNOWN,
-        STATUS_RESOLVED,
-        STATUS_UNRESOLVED_STATUS,
-    )
+# Ensure project root is in sys.path
+_PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+
+from src.data.image_inventory import (
+    find_jpeg_dir,
+    ROLE_FULL_ORIGINAL,
+    ROLE_CROPPED_ABNORMALITY,
+    ROLE_ROI_MASK,
+    ROLE_UNKNOWN,
+    STATUS_RESOLVED,
+    STATUS_UNRESOLVED_STATUS,
+)
 
 # Technical Quality Status Constants
 STATUS_PASS = "PASS"

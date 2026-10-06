@@ -1,0 +1,49 @@
+patient_id,abnormality_id,method,input_exists,output_exists,input_shape,output_shape,shape_match,finite_values,valid_intensity_range,blank_image,excessive_saturation,status,notes
+P_00004,1,baseline,True,True,5491x2986,5491x2986,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00004,1,histogram_equalization,True,True,5491x2986,5491x2986,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00004,1,clahe,True,True,5491x2986,5491x2986,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00009,1,baseline,True,True,5266x2596,5266x2596,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00009,1,histogram_equalization,True,True,5266x2596,5266x2596,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00009,1,clahe,True,True,5266x2596,5266x2596,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00037,1,baseline,True,True,4608x2936,4608x2936,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00037,1,histogram_equalization,True,True,4608x2936,4608x2936,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00037,1,clahe,True,True,4608x2936,4608x2936,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00056,1,baseline,True,True,4296x2936,4296x2936,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00056,1,histogram_equalization,True,True,4296x2936,4296x2936,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00056,1,clahe,True,True,4296x2936,4296x2936,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00007,1,baseline,True,True,5356x2986,5356x2986,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00007,1,histogram_equalization,True,True,5356x2986,5356x2986,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00007,1,clahe,True,True,5356x2986,5356x2986,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00008,1,baseline,True,True,4576x3048,4576x3048,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00008,1,histogram_equalization,True,True,4576x3048,4576x3048,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00008,1,clahe,True,True,4576x3048,4576x3048,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00012,1,baseline,True,True,5904x3704,5904x3704,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00012,1,histogram_equalization,True,True,5904x3704,5904x3704,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00012,1,clahe,True,True,5904x3704,5904x3704,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00127,1,baseline,True,True,6706x3796,6706x3796,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00127,1,histogram_equalization,True,True,6706x3796,6706x3796,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00127,1,clahe,True,True,6706x3796,6706x3796,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00041,1,baseline,True,True,5664x3070,5664x3070,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00041,1,histogram_equalization,True,True,5664x3070,5664x3070,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00041,1,clahe,True,True,5664x3070,5664x3070,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00100,1,baseline,True,True,4831x2731,4831x2731,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00100,1,histogram_equalization,True,True,4831x2731,4831x2731,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00100,1,clahe,True,True,4831x2731,4831x2731,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00158,1,baseline,True,True,4656x2888,4656x2888,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00158,1,histogram_equalization,True,True,4656x2888,4656x2888,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00158,1,clahe,True,True,4656x2888,4656x2888,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00299,1,baseline,True,True,6301x3736,6301x3736,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00299,1,histogram_equalization,True,True,6301x3736,6301x3736,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00299,1,clahe,True,True,6301x3736,6301x3736,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00018,1,baseline,True,True,4720x2584,4720x2584,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00018,1,histogram_equalization,True,True,4720x2584,4720x2584,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00018,1,clahe,True,True,4720x2584,4720x2584,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00012,1,baseline,True,True,5944x3552,5944x3552,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00012,1,histogram_equalization,True,True,5944x3552,5944x3552,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00012,1,clahe,True,True,5944x3552,5944x3552,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00001,1,baseline,True,True,4800x2656,4800x2656,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00001,1,histogram_equalization,True,True,4800x2656,4800x2656,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00001,1,clahe,True,True,4800x2656,4800x2656,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image
+P_00100,1,baseline,True,True,5491x2791,5491x2791,True,True,True,False,False,PASS,Verified valid baseline control image
+P_00100,1,histogram_equalization,True,True,5491x2791,5491x2791,True,True,True,False,False,PASS,Verified lossless PNG global histogram equalized image
+P_00100,1,clahe,True,True,5491x2791,5491x2791,True,True,True,False,False,PASS,Verified lossless PNG CLAHE enhanced image

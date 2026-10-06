@@ -1,0 +1,36 @@
+============================================================
+CBIS-DDSM FULL DATASET BASELINE PREPROCESSING REPORT
+============================================================
+
+Total eligible FULL/ORIGINAL records: 3568
+Successfully processed: 3568
+Review required: 0
+Failed: 0
+
+CC: 1672
+MLO: 1896
+
+LEFT: 1819
+RIGHT: 1749
+
+MASS: 1696
+CALCIFICATION: 1872
+
+BENIGN: 1429
+BENIGN_WITHOUT_CALLBACK: 682
+MALIGNANT: 1457
+
+Train: 2864
+Validation: 0
+Test: 704
+
+Total output files: 3568
+Total metadata records: 3568
+Total validation records: 3568
+
+Total processing time: 2375.7s
+Average time/image: 0.6658s
+
+Raw data modified:
+NO
+============================================================

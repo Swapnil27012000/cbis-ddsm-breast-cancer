@@ -1,0 +1,12 @@
+============================================================
+STAGE 5 OPTIMIZATION EQUIVALENCE REPORT
+============================================================
+Total images evaluated:          16
+Outputs exist:                   16 / 16
+Outputs reopened successfully:   16 / 16
+Dimensions identical:            16 / 16
+Dtype identical:                 16 / 16
+Exact pixel equality:            16 / 16
+Total differing pixels:          0 / 262426616
+Overall Equivalence Status:      PASS (100% BIT-EXACT)
+============================================================

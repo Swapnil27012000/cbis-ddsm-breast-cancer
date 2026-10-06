@@ -112,3 +112,47 @@ stage4_quality_control:
   # Visualization Contact Sheets
   max_contact_sheet_images: 12                # Maximum number of flagged images displayed per contact sheet
 
+baseline:
+  enabled: true
+  pilot_mode: false                           # Full dataset execution enabled
+  pilot_sample_count: 16                      # (Applicable only when pilot_mode is true)
+
+  normalization:
+    method: "percentile"                      # Robust percentile intensity normalization
+    lower_percentile: 1.0                     # Values <= p1 map to 0.0
+    upper_percentile: 99.0                    # Values >= p99 map to 1.0
+
+  breast_region:
+    enabled: true
+    crop_margin_ratio: 0.05                   # Conservative 5% safety margin around detected breast bounding box
+    threshold_method: "otsu_conservative"     # Non-destructive threshold on non-zero pixels
+    min_foreground_area_ratio: 0.05           # Minimum plausible breast foreground area ratio
+    max_foreground_area_ratio: 0.98           # Maximum plausible breast foreground area ratio
+
+  validation:
+    max_foreground_loss_ratio: 0.02           # Ensure no aggressive breast tissue loss occurs
+    min_foreground_area_ratio: 0.05
+
+  performance:
+    num_workers: 4                            # Concurrent threads for I/O and processing
+    png_compression_level: 1                  # Fast lossless PNG compression (100% bit-exact lossless)
+    io_buffer_size: 1048576                   # 1MB buffer for fast I/O hashing
+
+contrast_enhancement:
+  enabled: true
+  pilot_mode: true
+  pilot_sample_count: 16
+  methods:
+    - baseline
+    - histogram_equalization
+    - clahe
+  clahe:
+    clip_limit: 2.0
+    tile_grid_size:
+      width: 8
+      height: 8
+  performance:
+    num_workers: 4
+    png_compression_level: 1
+    io_buffer_size: 1048576
+

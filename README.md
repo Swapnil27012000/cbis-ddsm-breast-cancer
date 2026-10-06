@@ -73,13 +73,18 @@ python -m src.data.image_role_verification
 # Stage 4: Image quality control and validation audit (read-only)
 python -m src.preprocessing.image_quality
 
-# Stage 5: Run noise simulation & denoising filter benchmarks
+# Stage 5: Primary baseline image preprocessing pilot & visual validation
+python -m src.preprocessing.baseline_preprocessing
+python -m src.preprocessing.baseline_visualization
+python -m src.preprocessing.verify_optimization_equivalence
+
+# Stage 6: Run noise simulation & denoising filter benchmarks
 python experiments/run_denoising_benchmark.py
 
-# Stage 6: Run preprocessing verification audit & integrity check
+# Stage 7: Run preprocessing verification audit & integrity check
 python -m src.preprocessing.finalize_preprocessing
 
-# Stage 7: Train ResNet50 classification model (Benign vs. Malignant)
+# Stage 8: Train ResNet50 classification model (Benign vs. Malignant)
 python -m src.training.train
 ```
 
@@ -135,6 +140,14 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
    - **Stage 4 — Run image quality control and validation audit**:
      ```bash
      docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.image_quality
+     ```
+
+   - **Stage 5 — Run primary baseline image preprocessing pilot & visual validation**:
+     ```bash
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.baseline_preprocessing
+     ```
+     ```bash
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.baseline_visualization
      ```
 
    - **Build metadata and validation reports**:
