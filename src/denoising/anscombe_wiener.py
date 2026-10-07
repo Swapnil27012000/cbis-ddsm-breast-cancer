@@ -8,7 +8,7 @@ GPU Acceleration: Not currently GPU accelerated. Runs on CPU.
 """
 from typing import Tuple, Union
 import numpy as np
-from .wiener import denoise_wiener
+from scipy.signal import wiener
 
 
 def anscombe_transform(x: np.ndarray) -> np.ndarray:
@@ -37,7 +37,7 @@ def denoise_anscombe_wiener(
     Pipeline:
         1. Scale image to photon count space: x = img * scale
         2. Apply forward Anscombe transform: y = 2 * sqrt(x + 3/8)
-        3. Apply adaptive Wiener filter with noise variance = 1.0
+        3. Apply adaptive Wiener filter in stabilized domain with noise variance ~ 1.0
         4. Invert Anscombe transform and normalize back to [0.0, 1.0]
 
     Args:
@@ -59,11 +59,22 @@ def denoise_anscombe_wiener(
     # 2. Forward Anscombe stabilization
     stabilized = anscombe_transform(count_domain)
 
-    # 3. Wiener filtering (noise variance in stabilized domain is ~1.0)
-    stabilized_denoised = denoise_wiener(stabilized, mysize=mysize, noise=float(sigma))
+    # 3. Wiener filtering in stabilized domain (noise variance in stabilized domain is ~1.0)
+    if isinstance(mysize, int):
+        window = (mysize, mysize)
+    else:
+        window = (int(mysize[0]), int(mysize[1]))
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        stabilized_denoised = wiener(stabilized, mysize=window, noise=float(sigma))
+
+    # Any invalid values in stabilized domain default to stabilized zero: 2 * sqrt(3/8)
+    stabilized_zero = float(2.0 * np.sqrt(3.0 / 8.0))
+    stabilized_clean = np.nan_to_num(stabilized_denoised, nan=stabilized_zero, posinf=stabilized_zero, neginf=stabilized_zero)
 
     # 4. Inverse Anscombe transform
-    restored = inverse_anscombe_transform(stabilized_denoised) / float(scale)
+    restored = inverse_anscombe_transform(stabilized_clean) / float(scale)
 
     clean_out = np.nan_to_num(restored, nan=0.0, posinf=1.0, neginf=0.0)
     return np.clip(clean_out, 0.0, 1.0).astype(np.float32)
+

@@ -46,9 +46,24 @@ __all__ = [
     "save_noisy_image",
     "validate_noisy_image",
     "generate_noise_visualizations",
+    "run_stage9_pilot",
+    "load_stage9_config",
+    "apply_denoising_method",
+    "validate_denoised_image",
+    "load_stage8_noisy_inputs",
 ]
 
 def __getattr__(name: str):
+    if name in (
+        "run_stage9_pilot",
+        "load_stage9_config",
+        "apply_denoising_method",
+        "validate_denoised_image",
+        "load_stage8_noisy_inputs",
+    ):
+        from . import denoising_experiment
+        return getattr(denoising_experiment, name)
+
     if name in (
         "run_stage8_pilot",
         "load_stage8_config",

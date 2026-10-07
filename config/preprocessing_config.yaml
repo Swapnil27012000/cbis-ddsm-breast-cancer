@@ -203,3 +203,39 @@ stage8:
     png_compression_level: 1
     io_buffer_size: 1048576
 
+stage9:
+  pilot:
+    enabled: true
+    num_cases: 16
+  methods:
+    median:
+      kernel_size: 3
+    gaussian:
+      kernel_size: 5
+      sigma: 1.0
+    wiener:
+      window_size: 5
+    bilateral:
+      diameter: 5
+      sigma_color: 0.1
+      sigma_space: 5.0
+    non_local_means:
+      patch_size: 5
+      patch_distance: 6
+      h: 0.05
+    anscombe_wiener:
+      scale: 255.0
+      wiener_window_size: 5
+      sigma: 1.0
+    adaptive_median:
+      min_window: 3
+      max_window: 7
+    kuan:
+      window_size: 5
+      noise_var: 0.04
+      damping: 1.0
+  performance:
+    num_workers: 4
+    png_compression_level: 1
+    io_buffer_size: 1048576
+

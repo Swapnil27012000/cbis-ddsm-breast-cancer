@@ -42,7 +42,8 @@ def denoise_wiener(
 
     # Execute adaptive Wiener filter on CPU
     noise_param = float(noise) if noise is not None else None
-    filtered = wiener(work, mysize=window, noise=noise_param)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        filtered = wiener(work, mysize=window, noise=noise_param)
 
     # Sanitize and clip output
     clean_out = np.nan_to_num(filtered, nan=0.0, posinf=1.0, neginf=0.0)
