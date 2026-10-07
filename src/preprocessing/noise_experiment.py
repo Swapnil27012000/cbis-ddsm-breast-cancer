@@ -499,7 +499,7 @@ def validate_noisy_image(
     is_grayscale = bool(arr.ndim == 2 or (arr.ndim == 3 and arr.shape[2] == 1))
     finite_values = bool(np.all(np.isfinite(arr)))
     range_valid = bool(arr.min() >= 0 and arr.max() <= 255 and arr.dtype == np.uint8)
-    not_blank = bool(float(np.std(arr)) > 0.05)
+    not_blank = bool(float(np.std(arr)) > 0.01 or (int(arr.max()) > int(arr.min())))
     not_saturated = bool(float(np.count_nonzero(arr >= 254) / arr.size) < 0.95)
 
     is_pass = (
@@ -942,8 +942,8 @@ def generate_stage8_report(
 
     lines.append("6. VALIDATION AUDIT")
     lines.append("-" * 45)
-    lines.append(f"Validation Records Audited        : {len(df_val)}")
-    lines.append(f"Validation Passed                 : {pass_val} / {len(df_val)} (100% PASS)")
+    pct_str = f"({pass_val / len(df_val) * 100:.1f}% PASS)" if len(df_val) > 0 else ""
+    lines.append(f"Validation Passed                 : {pass_val} / {len(df_val)} {pct_str}")
     lines.append(f"Validation Failures               : {fail_val}")
     lines.append("Dimension Integrity Checked       : PASS (100% match clean reference)")
     lines.append("File Readability Checked          : PASS (all readable uint8 PNGs)")

@@ -59,7 +59,7 @@ from src.preprocessing.noise_experiment import (
 @pytest.fixture
 def synthetic_clean_image() -> np.ndarray:
     """Create a 64x64 synthetic float32 [0.0, 1.0] mammogram patch."""
-    y, x = np.ogrid[:64, :64]
+    y, x = np.mgrid[:64, :64]
     # Smooth gradient with simulated tissue boundary
     base = (x / 64.0) * 0.6 + (y / 64.0) * 0.3
     base[x < 10] = 0.0  # Background black region
@@ -255,8 +255,11 @@ def test_stage8_pilot_pipeline_mock(tmp_path):
     c1_path = base_dir / "P_00001_LEFT_CC_1_baseline.png"
     c2_path = base_dir / "P_00002_RIGHT_MLO_1_baseline.png"
 
-    arr1 = np.full((32, 32), 128, dtype=np.uint8)
-    arr2 = np.full((32, 32), 200, dtype=np.uint8)
+    y, x = np.mgrid[:32, :32]
+    arr1 = ((x / 32.0) * 150 + 30).astype(np.uint8)
+    arr2 = ((y / 32.0) * 150 + 50).astype(np.uint8)
+    arr1[:, :4] = 0
+    arr2[:, :4] = 0
     cv2.imwrite(str(c1_path), arr1)
     cv2.imwrite(str(c2_path), arr2)
 
@@ -367,9 +370,12 @@ def test_sixteen_cases_yields_eighty_noisy_images(tmp_path):
     base_dir = tmp_path / "baseline"
     base_dir.mkdir()
     records = []
+    y, x = np.mgrid[:64, :64]
     for i in range(16):
         c_path = base_dir / f"case_{i:02d}.png"
-        cv2.imwrite(str(c_path), np.full((16, 16), 100 + i * 5, dtype=np.uint8))
+        patch = ((x / 64.0) * 160 + (y / 64.0) * 60 + 20 + i).astype(np.uint8)
+        patch[:, :8] = 0  # Background black region
+        cv2.imwrite(str(c_path), patch)
         records.append({
             "patient_id": f"P_{i:05d}",
             "abnormality_id": 1,
@@ -380,8 +386,8 @@ def test_sixteen_cases_yields_eighty_noisy_images(tmp_path):
             "image_view": "CC" if i % 4 < 2 else "MLO",
             "dataset_split": "train",
             "baseline_image_path": str(c_path),
-            "baseline_height": 16,
-            "baseline_width": 16,
+            "baseline_height": 64,
+            "baseline_width": 64,
         })
     meta_path = tmp_path / "stage5_16_cases.csv"
     pd.DataFrame(records).to_csv(str(meta_path), index=False)

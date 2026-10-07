@@ -9,7 +9,7 @@ Dataset                           : CBIS-DDSM Mammography
 Mode                              : PILOT-FIRST
 Pilot Cases                       : 16
 Master Seed                       : 42
-Total Processing Runtime          : 634.08 seconds
+Total Processing Runtime          : 711.47 seconds
 
 2. INPUT INFORMATION
 ---------------------------------------------
@@ -46,8 +46,7 @@ Missing Outputs                   : 0
 
 6. VALIDATION AUDIT
 ---------------------------------------------
-Validation Records Audited        : 96
-Validation Passed                 : 96 / 96 (100% PASS)
+Validation Passed                 : 96 / 96 (100.0% PASS)
 Validation Failures               : 0
 Dimension Integrity Checked       : PASS (100% match clean reference)
 File Readability Checked          : PASS (all readable uint8 PNGs)
