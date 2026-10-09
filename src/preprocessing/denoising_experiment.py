@@ -416,10 +416,11 @@ def validate_denoised_image(
 def load_stage8_noisy_inputs(
     stage8_meta_path: Optional[str] = None,
     max_cases: int = 16,
+    limit_inputs: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
-    """Load the 80 exact Stage-8 noisy images from metadata.
+    """Load the Stage-8 noisy images from metadata.
 
-    Filters out 'clean' reference rows and returns only the 80 noisy images.
+    Filters out 'clean' reference rows and returns the noisy images.
     """
     s8_meta_path = stage8_meta_path or find_metadata_path("noise_experiment_metadata.csv", "stage8")
     if not os.path.exists(s8_meta_path):
@@ -444,6 +445,9 @@ def load_stage8_noisy_inputs(
             df_filtered = df_noisy
     else:
         df_filtered = df_noisy.head(max_cases * 5)
+
+    if limit_inputs is not None and limit_inputs > 0:
+        df_filtered = df_filtered.head(limit_inputs)
 
     records: List[Dict[str, Any]] = []
     for _, r in df_filtered.iterrows():
@@ -872,11 +876,13 @@ def run_stage9_pilot(
     output_base_dir: str = "data/processed/denoising",
     metadata_dir: str = "data/metadata/stage9",
     viz_dir: str = "results/preprocessing/denoising",
+    max_cases: int = 16,
+    limit_inputs: Optional[int] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Execute complete Stage 9 Denoising Experiment Pilot.
 
-    Evaluates 8 denoising methods across 80 Stage-8 noisy images.
-    Produces 640 denoised images, metadata, validation, summary, report, and visualizations.
+    Evaluates 8 denoising methods across Stage-8 noisy images.
+    Produces denoised images, metadata, validation, summary, report, and visualizations.
     """
     start_time = time.time()
     cfg = load_stage9_config(config_path)
@@ -885,8 +891,12 @@ def run_stage9_pilot(
     perf_cfg = cfg.get("performance", {})
     png_compression = int(perf_cfg.get("png_compression_level", 1))
 
-    # 1. Load the 80 exact Stage-8 noisy inputs
-    noisy_inputs = load_stage8_noisy_inputs(stage8_metadata_csv)
+    # 1. Load the exact Stage-8 noisy inputs
+    noisy_inputs = load_stage8_noisy_inputs(
+        stage8_meta_path=stage8_metadata_csv,
+        max_cases=max_cases,
+        limit_inputs=limit_inputs,
+    )
     if len(noisy_inputs) == 0:
         raise RuntimeError("No valid Stage-8 noisy images found in metadata.")
 
@@ -1086,7 +1096,39 @@ def run_stage9_pilot(
 
 def main():
     """CLI entrypoint for Stage 9 Denoising Experiment."""
-    run_stage9_pilot()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="CBIS-DDSM Stage 9: Medical Image Denoising Experiment")
+    parser.add_argument(
+        "--limit",
+        "--num_images",
+        dest="limit",
+        type=int,
+        default=None,
+        help="Limit number of Stage-8 noisy images to process (e.g. --limit 5)",
+    )
+    parser.add_argument(
+        "--cases",
+        "--num_cases",
+        dest="cases",
+        type=int,
+        default=16,
+        help="Limit number of pilot cases to process (default: 16)",
+    )
+    parser.add_argument(
+        "--config",
+        dest="config",
+        type=str,
+        default=None,
+        help="Optional path to custom config YAML",
+    )
+    args = parser.parse_args()
+
+    run_stage9_pilot(
+        config_path=args.config,
+        max_cases=args.cases,
+        limit_inputs=args.limit,
+    )
 
 
 if __name__ == "__main__":

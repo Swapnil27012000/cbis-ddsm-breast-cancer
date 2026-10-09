@@ -1,8 +1,8 @@
 {
   "stage": 9,
   "description": "CBIS-DDSM Stage 9 Denoising Experiment Parameters",
-  "noisy_inputs": 80,
-  "expected_outputs": 640,
+  "noisy_inputs": 5,
+  "expected_outputs": 40,
   "denoising_methods": {
     "median": {
       "kernel_size": 3
