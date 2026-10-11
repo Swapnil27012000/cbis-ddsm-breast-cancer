@@ -86,8 +86,15 @@ python -m src.preprocessing.contrast_visualization
 python -m src.preprocessing.sharpening
 python -m src.preprocessing.sharpening_visualization
 
-# Stage 8+: Downstream noise simulation, denoising benchmarks & classification
-python experiments/run_denoising_benchmark.py
+# Stage 8: Controlled artificial noise experiment (5 synthetic noise models on Stage-5 baseline)
+python -m src.preprocessing.noise_experiment
+
+# Stage 9: Medical image denoising experiment (8 filters on exact Stage-8 noisy images)
+python -m src.preprocessing.denoising_experiment
+# Or quick pilot test on 5 images:
+python -m src.preprocessing.denoising_experiment --limit 5
+
+# Stage 10+: Downstream metrics, statistical analysis & classification training
 python -m src.training.train
 ```
 
@@ -153,6 +160,35 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
      docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.baseline_visualization
      ```
 
+   - **Stage 6 — Controlled contrast enhancement experiment**:
+     ```bash
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.contrast_enhancement
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.contrast_visualization
+     ```
+
+   - **Stage 7 — Controlled image sharpening experiment**:
+     ```bash
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.sharpening
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.sharpening_visualization
+     ```
+
+   - **Stage 8 — Controlled artificial noise experiment**:
+     ```bash
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.noise_experiment
+     ```
+
+   - **Stage 9 — Medical image denoising experiment (8 filters on Stage-8 noisy images)**:
+     ```bash
+     # Full 16-case pilot run (80 noisy inputs -> 640 denoised images):
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.denoising_experiment
+
+     # Quick test on 5 noisy images (40 denoised images):
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.denoising_experiment --limit 5
+
+     # Run Stage 9 unit tests:
+     docker compose run --rm cbis-ddsm-ai pytest tests/test_denoising_experiment.py -v
+     ```
+
    - **Build metadata and validation reports**:
      ```bash
      docker compose run --rm cbis-ddsm-ai python -m src.data.metadata_builder
@@ -161,11 +197,6 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
    - **Run full preprocessing pipeline**:
      ```bash
      docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.pipeline
-     ```
-
-   - **Run noise simulation & denoising benchmark**:
-     ```bash
-     docker compose run --rm cbis-ddsm-ai python -m src.experiments.denoising_experiment
      ```
 
    - **Finalize preprocessing dataset & integrity verification**:
@@ -253,5 +284,54 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
 
 ## 🧪 Running Tests
 ```bash
+# Run all project tests
 pytest tests/
+
+# Run Stage 9 Denoising Experiment unit tests specifically
+pytest tests/test_denoising_experiment.py -v
 ```
+
+---
+
+## 📊 Research Pipeline Status & Experiment Registry
+
+| Stage | Name | Description | Status |
+|---|---|---|---|
+| **Stage 1** | Dataset Structure Audit | Physical CBIS-DDSM file tree, format & DICOM mapping validation | **COMPLETED** |
+| **Stage 2** | Image Inventory & Mapping | Resolving exact original mammogram paths vs. ROI/crop labels | **COMPLETED** |
+| **Stage 3** | Image Role Verification | Separating full mammograms from crops and lesion masks | **COMPLETED** |
+| **Stage 4** | Image Quality Control | Decodability, dynamic range, aspect ratio & artifact checks | **COMPLETED** |
+| **Stage 5** | Primary Baseline Preprocessing | Conservative breast segmentation, margin crop & 1st–99th percentile normalization | **COMPLETED** |
+| **Stage 6** | Contrast Enhancement Experiment | Controlled evaluation: Baseline vs. Histogram Equalization vs. CLAHE | **COMPLETED** |
+| **Stage 7** | Sharpening Experiment | Controlled evaluation: Unsharp Masking vs. Unsharpened across contrast variants | **COMPLETED** |
+| **Stage 8** | Artificial Noise Experiment | Controlled synthetic noise perturbation: Gaussian, Salt & Pepper, Speckle, Poisson, Mixed P-G | **COMPLETED** |
+| **Stage 9** | Denoising Experiment | Benchmark 8 medical denoising filters across the exact same 80 Stage-8 noisy images | **COMPLETED** |
+| **Stage 10** | Denoising Metrics | Quantitative image fidelity analysis (PSNR, SSIM, MSE, SNR, CNR, CII) | *Next Stage* |
+| **Stage 11–18** | Preprocessing Selection & CNN Training | Classification modeling with ResNet-50, DenseNet-121, EfficientNet | *Upcoming* |
+
+---
+
+## 🔬 Stage 9: Medical Image Denoising Experiment Details
+
+Stage 9 evaluates 8 medical image denoising algorithms on the exact 80 synthetic noisy mammograms generated during Stage 8 ($16\text{ pilot cases} \times 5\text{ noise models}$), producing $80 \times 8 = 640$ denoised outputs.
+
+### Denoising Algorithms & Configurations
+
+| # | Algorithm | Implementation | Configuration | Primary Target |
+|---|---|---|---|---|
+| 1 | **Median** | OpenCV SIMD Median Blur | `kernel_size = 3` | Salt & Pepper impulse noise |
+| 2 | **Gaussian** | Spatial Gaussian Smoothing | `kernel_size = 5`, `sigma = 1.0` | Additive high-frequency Gaussian noise |
+| 3 | **Wiener** | SciPy Adaptive MMSE Local Filter | `window_size = 5` | Stationary additive noise |
+| 4 | **Bilateral** | Edge-Preserving Domain/Range Filter | `diameter = 5`, `sigma_color = 0.1`, `sigma_space = 5.0` | Edge-retentive noise reduction |
+| 5 | **Non-Local Means** | OpenCV fastNlMeans Patch Matching | `patch_size = 5`, `patch_distance = 6`, `h = 0.05` | Texture and structural self-similarity |
+| 6 | **Anscombe-Wiener** | Generalized Anscombe VST + Wiener | `scale = 255.0`, `wiener_window = 5`, `sigma = 1.0` | Quantum Poisson & Mixed shot noise |
+| 7 | **Adaptive Median** | Two-Level Dynamic Window Expansion | `min_window = 3`, `max_window = 7` | Dense impulse noise |
+| 8 | **Kuan** | Local Statistical MMSE Speckle Filter | `window_size = 5`, `noise_var = 0.04`, `damping = 1.0` | Multiplicative Speckle noise |
+
+### Scientific Fairness & Reproducibility Protocol
+- **Zero Noise Re-generation**: All 8 denoisers receive the exact same pre-loaded `float32 [0.0, 1.0]` array per noisy image.
+- **SHA-256 Hash Verification**: An array hash (`noisy_image_hash`) is recorded in metadata to guarantee identical inputs.
+- **Lossless Storage**: Denoised images are clipped to $[0.0, 1.0]$ and saved as lossless 8-bit grayscale PNGs in `data/processed/denoising/<noise_type>/<method>/`.
+- **14-Point Validation Audit**: Automatically verifies dimension match, grayscale format, dynamic range, no NaNs/Infs, and absence of blank or saturated outputs.
+- **No Early Winner Selection**: Algorithmic ranking and quantitative metrics (MSE, PSNR, SSIM, SNR, CNR) are reserved strictly for Stage 10.
+
