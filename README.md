@@ -94,7 +94,15 @@ python -m src.preprocessing.denoising_experiment
 # Or quick pilot test on 5 images:
 python -m src.preprocessing.denoising_experiment --limit 5
 
-# Stage 10+: Downstream metrics, statistical analysis & classification training
+# Stage 10: Denoising metrics & quantitative evaluation (MSE, PSNR, SSIM, SNR, CNR, MAE, RMSE, Entropy, Gradient)
+python -m src.preprocessing.denoising_metrics
+
+# Stage 11: Preprocessing visualization, comparison panels, difference maps & scientific report
+python -m src.preprocessing.stage11_visualization
+python -m src.preprocessing.stage11_audit
+python -m src.preprocessing.stage11_report
+
+# Stage 12+: Preprocessing strategy selection & classification training
 python -m src.training.train
 ```
 
@@ -179,14 +187,41 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
 
    - **Stage 9 — Medical image denoising experiment (8 filters on Stage-8 noisy images)**:
      ```bash
-     # Full 16-case pilot run (80 noisy inputs -> 640 denoised images):
-     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.denoising_experiment
+     # Full 16-case pilot run with safe resume (80 noisy inputs -> 640 denoised images):
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.denoising_experiment --cases 16
 
-     # Quick test on 5 noisy images (40 denoised images):
-     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.denoising_experiment --limit 5
+     # Force overwrite mode (recomputes all outputs):
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.denoising_experiment --cases 16 --overwrite
 
      # Run Stage 9 unit tests:
      docker compose run --rm cbis-ddsm-ai pytest tests/test_denoising_experiment.py -v
+     ```
+
+   - **Stage 10 — Denoising metrics & quantitative evaluation**:
+     ```bash
+     # Full 16-case pilot evaluation with safe resume (evaluates missing records without duplicating):
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.denoising_metrics
+
+     # Force overwrite mode (recomputes all 640 evaluations from scratch):
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.denoising_metrics --overwrite
+
+     # Run Stage 10 unit tests:
+     docker compose run --rm cbis-ddsm-ai pytest tests/test_denoising_metrics.py -v
+     ```
+
+   - **Stage 11 — Preprocessing visualization & comparison**:
+     ```bash
+     # Run Stage 11 visual comparisons & quantitative chart generation:
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.stage11_visualization
+
+     # Run Stage 11 artifact audit & validation checks:
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.stage11_audit
+
+     # Compile Stage 11 scientific comparison report:
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.stage11_report
+
+     # Run Stage 11 unit & integration tests:
+     docker compose run --rm cbis-ddsm-ai pytest tests/test_stage11_visualization.py -v
      ```
 
    - **Build metadata and validation reports**:
@@ -289,6 +324,12 @@ pytest tests/
 
 # Run Stage 9 Denoising Experiment unit tests specifically
 pytest tests/test_denoising_experiment.py -v
+
+# Run Stage 10 Denoising Metrics unit tests specifically
+pytest tests/test_denoising_metrics.py -v
+
+# Run Stage 11 Preprocessing Visualization unit tests specifically
+pytest tests/test_stage11_visualization.py -v
 ```
 
 ---
@@ -306,8 +347,10 @@ pytest tests/test_denoising_experiment.py -v
 | **Stage 7** | Sharpening Experiment | Controlled evaluation: Unsharp Masking vs. Unsharpened across contrast variants | **COMPLETED** |
 | **Stage 8** | Artificial Noise Experiment | Controlled synthetic noise perturbation: Gaussian, Salt & Pepper, Speckle, Poisson, Mixed P-G | **COMPLETED** |
 | **Stage 9** | Denoising Experiment | Benchmark 8 medical denoising filters across the exact same 80 Stage-8 noisy images | **COMPLETED** |
-| **Stage 10** | Denoising Metrics | Quantitative image fidelity analysis (PSNR, SSIM, MSE, SNR, CNR, CII) | *Next Stage* |
-| **Stage 11–18** | Preprocessing Selection & CNN Training | Classification modeling with ResNet-50, DenseNet-121, EfficientNet | *Upcoming* |
+| **Stage 10** | Denoising Metrics | Quantitative image fidelity analysis (MSE, PSNR, SSIM, SNR, CNR, MAE, RMSE, Entropy, Gradient) | **COMPLETED** |
+| **Stage 11** | Preprocessing Visualization & Comparison | Visual contact sheets, difference maps & statistical comparisons | **COMPLETED** |
+| **Stage 12** | Preprocessing Strategy Selection | Evidence-based selection of optimal preprocessing pipeline | *Next Stage* |
+| **Stage 13–18** | CNN Architecture & Training | Classification modeling with ResNet-50, DenseNet-121, EfficientNet | *Upcoming* |
 
 ---
 

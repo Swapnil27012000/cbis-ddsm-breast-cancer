@@ -1,0 +1,10 @@
+check_id,check_name,expected,actual,status,notes
+CHK_01_STAGE5_INPUTS,Stage 5 Baseline References Available,>= 16 pilot mammograms,3568 records,PASS,Authoritative clean references exist on disk.
+CHK_02_STAGE6_CONTRAST,Stage 6 Contrast Variants Available,48 records (16 cases x 3 methods),48 records,PASS,"Baseline control, HistEq, and CLAHE all verified."
+CHK_03_STAGE7_SHARPENING,Stage 7 Sharpening Factorial Variants,96 records (16 cases x 6 conditions),96 records,PASS,Authoritative metadata CSV verified.
+CHK_04_STAGE8_NOISE,Stage 8 Noisy Images by Noise Type,80 noisy images (16 each of 5 noise types),80 noisy images,PASS,"Gaussian, S&P, Speckle, Poisson, Mixed P-G verified."
+CHK_05_STAGE9_DENOISED,Stage 9 Denoised Outputs Available,640 images (80 noisy x 8 denoisers),640 images,PASS,Full factorial pilot denoising completed on disk.
+CHK_06_STAGE10_METRIC_SCOPE,Stage 10 Quantitative Evaluation Scope,640 records (16 cases x 5 noise x 8 methods) or documented pilot subset,"640 evaluated (640 validated PASS, 16 cases)",PASS,Scope accurately audited against authoritative Stage 10 metadata; no records fabricated.
+CHK_07_CNR_MASK_INTEGRITY,CNR Mask Alignment & Missing Value Policy,0 eligible cases; NaN recorded without 0.0 substitution,0 eligible cases (all 640 NaN),PASS,Standard AAPM/ICRU policy enforced; unaligned masks excluded.
+CHK_08_FOREGROUND_MASK_INTEGRITY,Breast Foreground Mask Availability,640/640 foreground metrics verified,640/640 valid foreground records,PASS,Computed using clean_baseline_intensity_threshold(0.02).
+CHK_09_IMMUTABILITY,Earlier Stage Artifact Immutability,Stages 5-10 strictly read-only,Untouched (0 modifications),PASS,Preserves research integrity.

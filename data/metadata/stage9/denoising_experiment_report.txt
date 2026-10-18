@@ -7,12 +7,13 @@ CBIS-DDSM STAGE 9 — DENOISING EXPERIMENT REPORT
 Stage                             : Stage 9 — Denoising Experiment
 Dataset                           : CBIS-DDSM Mammography
 Mode                              : PILOT-FIRST
-Pilot Clean Reference Cases       : 16
-Total Processing Runtime          : 535.91 seconds
+Pilot Clean Reference Cases       : 16 (Authoritative baseline mammograms)
+Unique Clean Cases in Corpus      : 16
+Total Processing Runtime          : 3700.81 seconds
 
 2. INPUT
 ---------------------------------------------
-Stage-8 Noisy Inputs Loaded       : 5
+Stage-8 Noisy Inputs Loaded       : 80
 Noise Types Evaluated             : 5 (Gaussian, Salt & Pepper, Speckle, Poisson, Mixed P-G)
 Input Fairness Verification       : PASS (Exact same array dispatched to all 8 denoisers)
 Noise Re-generation               : STRICTLY FORBIDDEN & EXCLUDED (0 regenerated)
@@ -39,18 +40,22 @@ Anscombe-Wiener                   : scale = 255.0, wiener_window = 5, sigma = 1.
 Adaptive Median                   : min_window = 3, max_window = 7
 Kuan                              : window_size = 5, noise_var = 0.04, damping = 1.0
 
-5. OUTPUT COUNTS
+5. OUTPUT COUNTS & PILOT RESUME SUMMARY
 ---------------------------------------------
+Target Pilot Mammograms           : 16 (Authoritative clean references)
 Expected Denoised Outputs         : 640 (80 noisy inputs x 8 denoising methods)
-Total Denoised Records Generated  : 40
-Successful Outputs                : 40
+Total Denoised Records in Corpus  : 640
+Successful Outputs                : 640
 Failed Outputs                    : 0
-Missing Outputs                   : 0
+  - Preserved from Prior Metadata : 40 records (Case P_00004)
+  - Recovered Existing from Disk  : 238 records (Cases P_00007, P_00008, P_00009, P_00012, P_00037, P_00056)
+  - Newly Generated in this Run   : 362 records
+Missing Pilot Outputs             : 0
 
 6. VALIDATION AUDIT
 ---------------------------------------------
-Validation Records Audited        : 40
-Validation Passed                 : 40 / 40 (100.0% PASS)
+Validation Records Audited        : 640
+Validation Passed                 : 640 / 640 (100.0% PASS)
 Validation Failures               : 0
 Dimension Integrity (vs Noisy)    : PASS (100% exact match)
 Dimension Integrity (vs Clean)    : PASS (100% exact match)
@@ -64,16 +69,16 @@ Traceability Chain (Clean->Noisy) : PASS (100% verified)
 ---------------------------------------------
 Method             | Gaussian    | S&P         | Speckle     | Poisson     | Mixed P-G   | Total     
 -----------------------------------------------------------------------------------------------------
-median             | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 5 PASS
-gaussian           | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 5 PASS
-wiener             | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 5 PASS
-bilateral          | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 5 PASS
-non_local_means    | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 5 PASS
-anscombe_wiener    | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 5 PASS
-adaptive_median    | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 5 PASS
-kuan               | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 1 PASS      | 5 PASS
+median             | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 80 PASS
+gaussian           | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 80 PASS
+wiener             | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 80 PASS
+bilateral          | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 80 PASS
+non_local_means    | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 80 PASS
+anscombe_wiener    | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 80 PASS
+adaptive_median    | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 80 PASS
+kuan               | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 16 PASS     | 80 PASS
 -----------------------------------------------------------------------------------------------------
-Total              | 128 PASS    | 128 PASS    | 128 PASS    | 128 PASS    | 128 PASS    | 40 PASS
+Total              | 128 PASS    | 128 PASS    | 128 PASS    | 128 PASS    | 128 PASS    | 640 PASS
 
 8. VISUALIZATION OUTPUTS
 ---------------------------------------------
@@ -84,7 +89,7 @@ Total              | 128 PASS    | 128 PASS    | 128 PASS    | 128 PASS    | 128
 9. RESEARCH INTERPRETATION
 ---------------------------------------------
 - All 8 denoising algorithms successfully executed across all 5 synthetic noise types without errors.
-- Zero numerical instability (no NaN or Inf) was observed across all 640 generated images.
+- Zero numerical instability (no NaN or Inf) was observed across all generated images.
 - Median and Adaptive Median demonstrate strong visual suppression of impulse Salt & Pepper artifacts.
 - Bilateral and NLM filters exhibit pronounced edge retention along fibroglandular tissue boundaries.
 - Anscombe-Wiener demonstrates stable variance-stabilized restoration on quantum Poisson shot models.

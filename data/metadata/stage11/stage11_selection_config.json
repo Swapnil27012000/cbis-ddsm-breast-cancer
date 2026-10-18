@@ -1,0 +1,64 @@
+{
+  "stage": "Stage 11 \u2014 Preprocessing Visualization & Comparison",
+  "pilot_scope": {
+    "pilot_mammograms_total": 16,
+    "representative_cases_selected": [
+      "P_00004_1_LEFT_CC",
+      "P_00009_1_RIGHT_MLO",
+      "P_00007_1_LEFT_CC",
+      "P_00299_1_LEFT_MLO"
+    ],
+    "selection_rationale": "Deterministic coverage of mass vs calcification, benign vs malignant, CC vs MLO views, and direct linkage to Stage 10 evaluated pilot metrics."
+  },
+  "display_settings": {
+    "image_colormap": "gray",
+    "image_vmin": 0,
+    "image_vmax": 255,
+    "difference_map_colormap": "inferno",
+    "difference_map_vmin": 0,
+    "difference_map_vmax": 120,
+    "native_dimensions_preserved": true,
+    "no_independent_normalization": true
+  },
+  "detail_crop_coordinates": {
+    "P_00004_1_LEFT_CC": {
+      "ymin": 2100,
+      "ymax": 2700,
+      "xmin": 1200,
+      "xmax": 1800,
+      "purpose": "Dense fibroglandular parenchyma and circumscribed benign mass boundary"
+    },
+    "P_00009_1_RIGHT_MLO": {
+      "ymin": 2200,
+      "ymax": 2800,
+      "xmin": 800,
+      "xmax": 1400,
+      "purpose": "Spiculated malignant mass lesion and pectoral margin"
+    },
+    "P_00007_1_LEFT_CC": {
+      "ymin": 2000,
+      "ymax": 2600,
+      "xmin": 1100,
+      "xmax": 1700,
+      "purpose": "Punctate microcalcification clusters in fibroglandular tissue"
+    },
+    "P_00299_1_LEFT_MLO": {
+      "ymin": 2500,
+      "ymax": 3100,
+      "xmin": 1400,
+      "xmax": 2000,
+      "purpose": "Pleomorphic microcalcifications and architectural distortion"
+    }
+  },
+  "metric_framework": {
+    "comparison_a": "Clean Reference (Stage 5) vs Noisy Input (Stage 8) [Degradation Severity]",
+    "comparison_b": "Clean Reference (Stage 5) vs Denoised Output (Stage 9) [Restoration Accuracy]",
+    "comparison_c": "Noisy Input (Stage 8) vs Denoised Output (Stage 9) [Filtering Modification]",
+    "cnr_handling": "0 eligible cases; unaligned masks excluded per AAPM/ICRU; NaN recorded",
+    "foreground_mask": "clean_baseline_intensity_threshold(0.02)"
+  },
+  "output_paths": {
+    "figures_directory": "results/preprocessing/comparison",
+    "metadata_directory": "data/metadata/stage11"
+  }
+}

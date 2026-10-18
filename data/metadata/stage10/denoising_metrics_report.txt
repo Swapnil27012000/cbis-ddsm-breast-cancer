@@ -1,0 +1,188 @@
+==============================================================================
+CBIS-DDSM STAGE 10 — DENOISING METRICS & QUANTITATIVE EVALUATION REPORT
+==============================================================================
+
+1. STAGE INFORMATION & PILOT SCOPE
+--------------------------------------------------
+Stage                             : Stage 10 — Denoising Metrics & Quantitative Evaluation
+Dataset                           : CBIS-DDSM Mammography
+Evaluation Mode                   : PILOT RESUME & COMPLETE (Authoritative Stage 9 Corpus)
+Total Processing Runtime          : 7298.22 seconds
+Average Runtime Per Record        : 11.40 seconds/record
+Evaluations Preserved from Prior  : 40
+Newly Evaluated in this Run       : 600
+Total Denoising Records Evaluated : 640 / 640
+
+2. INPUT FILE AUDIT & PILOT COVERAGE
+--------------------------------------------------
+Expected Pilot Evaluations        : 640 (16 clean cases x 5 noise models x 8 denoisers)
+Actual Stage 9 Records Audited    : 640
+Missing Pilot Evaluations         : 0
+Duplicate Evaluations             : 0 (Strict composite-key deduplication verified)
+Failed / Invalid Evaluations      : 0
+Unique Clean Baseline Mammograms  : 16 unique mammograms
+  Clean Case Manifest             : P_00001_LEFT_MLO_1, P_00004_LEFT_CC_1, P_00007_LEFT_CC_1, P_00008_RIGHT_MLO_1, P_00009_RIGHT_MLO_1, P_00012_LEFT_CC_1, P_00012_LEFT_MLO_1, P_00018_RIGHT_CC_1, P_00037_RIGHT_CC_1, P_00041_LEFT_CC_1, P_00056_LEFT_MLO_1, P_00100_RIGHT_CC_1, P_00100_RIGHT_MLO_1, P_00127_RIGHT_CC_1, P_00158_RIGHT_MLO_1, P_00299_LEFT_MLO_1
+Unique Noisy Inputs Evaluated     : 80 (5 synthetic noise models per case)
+Denoising Methods Evaluated       : 8 (Median, Gaussian, Wiener, Bilateral, NLM,
+                                       Anscombe-Wiener, Adaptive Median, Kuan)
+Method x Noise Combinations       : 40 combinations evaluated
+Coverage Status                   : COMPLETE (100% full pilot coverage across all 16 cases)
+Stage-5 Clean Reference Source    : data/processed/baseline/full_mammogram/
+Stage-8 Noisy Images Source       : data/processed/noise/<noise_type>/
+Stage-9 Denoised Outputs Source   : data/processed/denoising/<noise_type>/<method>/
+Input Traceability Status         : PASS (100% verified across Stage 5, Stage 8, & Stage 9)
+
+3. THREE-WAY METRIC EVALUATION FRAMEWORK
+--------------------------------------------------
+Comparison A: Clean Reference vs Noisy Input
+  - Reference (I): Clean Baseline (Stage 5)
+  - Evaluated (K): Noisy Input (Stage 8)
+  - Scientific Meaning: Quantifies severity of synthetic noise degradation.
+
+Comparison B: Clean Reference vs Denoised Output
+  - Reference (I): Clean Baseline (Stage 5)
+  - Evaluated (K): Denoised Output (Stage 9)
+  - Scientific Meaning: Primary quantitative measure of restoration fidelity.
+
+Comparison C: Noisy Input vs Denoised Output
+  - Reference (I): Noisy Input (Stage 8)
+  - Evaluated (K): Denoised Output (Stage 9)
+  - Scientific Meaning: Quantifies magnitude of filtering modification.
+  - Note: Comparison C alone does NOT measure restoration accuracy.
+
+4. METRIC DEFINITIONS & FORMULAS
+--------------------------------------------------
+1. MSE   : (1/N) * sum((I - K)^2)
+2. PSNR  : 10 * log10(1.0 / MSE) [dB], safe handling of MSE=0 -> +inf
+3. SSIM  : structural_similarity(I, K, data_range=1.0, win_size=7)
+4. SNR   : 10 * log10(sum(I^2) / sum((I - K)^2)) [dB] (Reference Signal Energy)
+5. MAE   : (1/N) * sum(|I - K|)
+6. RMSE  : sqrt(MSE)
+7. Entropy: Shannon Information Entropy (256 bins)
+8. Gradient: Mean Sobel Gradient Magnitude (ksize=3)
+9. CNR   : |mu_ROI - mu_BG| / sqrt(sigma_ROI^2 + sigma_BG^2) (Standard AAPM/ICRU)
+10. Foreground: Separate Breast-Region metrics excluding exterior black air
+
+5. IMAGE INTENSITY REPRESENTATION & NORMALIZATION
+--------------------------------------------------
+Storage Format                    : Lossless 8-bit Grayscale PNG [0, 255]
+Evaluation Domain                 : float32 strictly normalized to [0.0, 1.0]
+Normalization Policy              : Uniform established Stage-5 baseline scale (No per-image stretch)
+
+6. VALIDATION RESULTS
+--------------------------------------------------
+Validation Records Audited        : 640
+Validation Passed                 : 640 / 640 (100.0% PASS)
+Validation Failures               : 0
+Dimension Integrity               : PASS (Clean, Noisy, and Denoised dimensions match)
+Numerical Integrity               : PASS (Zero NaN or Inf pixels in inputs)
+Traceability Audit                : PASS (Exact metadata relationship verified)
+
+7. CNR METHOD, MASK ELIGIBILITY & MISSING COUNTS
+--------------------------------------------------
+CNR Calculation Policy            : AAPM/ICRU Standard peri-tumoral annular zone
+Eligible Cases with Valid Mask    : 0
+Unavailable Cases (Documented)    : 640
+Missing Value Representation      : NaN (Zero is STRICTLY FORBIDDEN from substitution)
+Note on CBIS-DDSM Masks           : CBIS-DDSM lesion ROI masks are cropped sub-regions with dimensions
+                                    that do not align with full mammograms. Unaligned masks were
+                                    strictly excluded to prevent corrupt statistics; CNR is reported as NaN.
+
+8. WHOLE-IMAGE vs FOREGROUND-ONLY METRICS SUMMARY
+--------------------------------------------------
+Foreground Definition Note        : Breast foreground metrics are calculated over tissue pixels exceeding
+                                    intensity threshold (>0.02) on Stage-5 baseline images, excluding digital
+                                    scanner air background. This represents an estimated foreground measurement,
+                                    not manual or verified clinical segmentation.
+
+Condition                 | Whole-Image PSNR   | Foreground PSNR    | Whole SSIM   | Foreground SSIM
+------------------------------------------------------------------------------------------------
+Denoised Mean (Pooled)    | 31.85              | 30.07              | 0.7057       | 0.6139         
+
+9. SUMMARY BY DENOISING METHOD (Comparison B: Clean vs Denoised)
+--------------------------------------------------
+Method             | PSNR (dB)          | SSIM               | MSE (x1e-4)     | MAE (x1e-3)    
+------------------------------------------------------------------------------------------------
+adaptive_median    | 33.82 ± 8.79       | 0.7171 ± 0.1983    | 14.86           | 17.22          
+anscombe_wiener    | 29.36 ± 7.98       | 0.6682 ± 0.1788    | 31.27           | 21.66          
+bilateral          | 30.22 ± 7.98       | 0.6768 ± 0.1782    | 25.88           | 18.89          
+gaussian           | 35.07 ± 4.15       | 0.7521 ± 0.1330    | 4.48            | 11.36          
+kuan               | 31.67 ± 5.83       | 0.7005 ± 0.1686    | 12.52           | 13.73          
+median             | 36.06 ± 6.77       | 0.8037 ± 0.1413    | 6.35            | 11.73          
+non_local_means    | 27.88 ± 7.16       | 0.6349 ± 0.1769    | 39.14           | 25.19          
+wiener             | 30.69 ± 6.38       | 0.6927 ± 0.1502    | 17.38           | 16.17          
+
+10. SUMMARY BY NOISE TYPE (Comparison B: Clean vs Denoised)
+--------------------------------------------------
+Noise Type               | PSNR (dB)          | SSIM               | MSE (x1e-4)    
+------------------------------------------------------------------------------------
+gaussian                 | 36.75 ± 1.47       | 0.6598 ± 0.0688    | 2.24           
+mixed_poisson_gaussian   | 25.68 ± 3.28       | 0.4798 ± 0.0893    | 35.09          
+poisson                  | 25.93 ± 3.34       | 0.6504 ± 0.0939    | 33.44          
+salt_pepper              | 31.14 ± 9.45       | 0.8102 ± 0.1019    | 22.87          
+speckle                  | 39.75 ± 2.61       | 0.9285 ± 0.0365    | 1.28           
+
+11. COMPARISON C SUMMARY (Noisy vs Denoised - Filtering Modification)
+--------------------------------------------------
+Method             | ND-PSNR (dB)     | ND-SSIM          | ND-MSE (x1e-4)  
+---------------------------------------------------------------------------
+adaptive_median    | 28.29            | 0.7885           | 27.62           
+anscombe_wiener    | 36.93            | 0.9055           | 2.48            
+bilateral          | 34.87            | 0.8784           | 4.94            
+gaussian           | 27.73            | 0.7324           | 30.43           
+kuan               | 29.41            | 0.8163           | 20.00           
+median             | 26.71            | 0.6591           | 38.72           
+non_local_means    | 42.77            | 0.9356           | 0.91            
+wiener             | 32.41            | 0.8385           | 9.78            
+
+12. PAIRED STATISTICAL COMPARISONS (vs Noisy Baseline)
+--------------------------------------------------
+Noise        | Method           | Metric  | Diff      | Cohen d   | p-value   | Sig (p<.05)
+-------------------------------------------------------------------------------------------
+gaussian     | adaptive_median  | PSNR    | +3.0018   | 11.69     | 0.0000    | True       
+gaussian     | adaptive_median  | SSIM    | +0.1691   | 10.72     | 0.0000    | True       
+gaussian     | adaptive_median  | MSE     | -0.0003   | -15.51    | 0.0004    | True       
+gaussian     | anscombe_wiener  | PSNR    | +4.3223   | 5.99      | 0.0000    | True       
+gaussian     | anscombe_wiener  | SSIM    | +0.1899   | 4.84      | 0.0000    | True       
+gaussian     | anscombe_wiener  | MSE     | -0.0004   | -7.30     | 0.0000    | True       
+gaussian     | bilateral        | PSNR    | +6.2858   | 11.36     | 0.0000    | True       
+gaussian     | bilateral        | SSIM    | +0.1972   | 7.03      | 0.0000    | True       
+gaussian     | bilateral        | MSE     | -0.0005   | -12.67    | 0.0000    | True       
+gaussian     | gaussian         | PSNR    | +6.0039   | 8.41      | 0.0000    | True       
+gaussian     | gaussian         | SSIM    | +0.1933   | 6.84      | 0.0000    | True       
+gaussian     | gaussian         | MSE     | -0.0005   | -11.57    | 0.0000    | True       
+gaussian     | kuan             | PSNR    | +3.2129   | 4.86      | 0.0000    | True       
+gaussian     | kuan             | SSIM    | +0.1367   | 3.27      | 0.0000    | True       
+gaussian     | kuan             | MSE     | -0.0003   | -5.38     | 0.0000    | True       
+gaussian     | median           | PSNR    | +6.3751   | 8.35      | 0.0000    | True       
+gaussian     | median           | SSIM    | +0.3430   | 10.58     | 0.0000    | True       
+gaussian     | median           | MSE     | -0.0005   | -16.43    | 0.0004    | True       
+gaussian     | non_local_means  | PSNR    | +4.2846   | 6.31      | 0.0000    | True       
+gaussian     | non_local_means  | SSIM    | +0.1498   | 6.50      | 0.0000    | True       
+... (100 more comparisons saved in paired_statistical_comparison.csv)
+
+13. SYNTHETIC NOISE & SCIENTIFIC INTEGRITY STATEMENT
+--------------------------------------------------
+Synthetic Noise Notice            : All noise types evaluated (Gaussian, Salt & Pepper, Speckle, Poisson,
+                                    Mixed Poisson-Gaussian) are synthetic algorithmic perturbations applied
+                                    for controlled benchmark testing, not authentic acquisition artifacts.
+Winner Selection Policy           : NO WINNER SELECTED. Selection of an optimal filter depends on subsequent
+                                    clinical downstream detection, lesion type, and radiologist review.
+                                    Stage 10 provides objective quantitative restoration benchmarks only.
+Treatment of Infinite Values      : Infinite values (+inf) occur when MSE=0 (identical images) and are
+                                    safely isolated from arithmetic means in summary tables where infinite
+                                    counts are explicitly tracked.
+
+14. RESEARCH INTEGRITY & PREVIOUS STAGE IMMUTABILITY
+--------------------------------------------------
+Raw CBIS-DDSM data modified       : NO (100% untouched)
+Stage-5 baseline modified         : NO (100% untouched)
+Stage-6 contrast outputs modified : NO (100% untouched)
+Stage-7 sharpening outputs mod    : NO (100% untouched)
+Stage-8 noisy images modified     : NO (100% untouched)
+Stage-9 denoised images modified  : NO (100% untouched)
+
+15. NEXT STAGE
+--------------------------------------------------
+Stage 10 completed. Stage 11 visualization & comparison has NOT been executed.
+==============================================================================

@@ -234,8 +234,80 @@ stage9:
       window_size: 5
       noise_var: 0.04
       damping: 1.0
+stage10:
+  metrics:
+    ssim:
+      data_range: 1.0
+      win_size: 7
+    psnr:
+      data_range: 1.0
+    entropy:
+      num_bins: 256
+    gradient:
+      sobel_ksize: 3
+    cnr:
+      definition: "standard"
+      dilation_radius: 15
+      air_threshold: 0.02
+    foreground:
+      enabled: true
+      threshold: 0.02
   performance:
     num_workers: 4
-    png_compression_level: 1
-    io_buffer_size: 1048576
+
+stage11:
+  comparison:
+    output_directory: "results/preprocessing/comparison"
+    metadata_directory: "data/metadata/stage11"
+    representative_cases:
+      - "P_00004_1_LEFT_CC"
+      - "P_00009_1_RIGHT_MLO"
+      - "P_00007_1_LEFT_CC"
+      - "P_00299_1_LEFT_MLO"
+    display:
+      colormap: "gray"
+      vmin: 0
+      vmax: 255
+      preserve_dimensions: true
+    difference_maps:
+      colormap: "inferno"
+      vmin: 0
+      vmax: 120
+      comparisons:
+        - "clean_vs_noisy"
+        - "clean_vs_denoised"
+        - "noisy_vs_denoised"
+    detail_crops:
+      P_00004_1_LEFT_CC:
+        ymin: 2100
+        ymax: 2700
+        xmin: 1200
+        xmax: 1800
+      P_00009_1_RIGHT_MLO:
+        ymin: 2200
+        ymax: 2800
+        xmin: 800
+        xmax: 1400
+      P_00007_1_LEFT_CC:
+        ymin: 2000
+        ymax: 2600
+        xmin: 1100
+        xmax: 1700
+      P_00299_1_LEFT_MLO:
+        ymin: 2500
+        ymax: 3100
+        xmin: 1400
+        xmax: 2000
+    metrics_visualization:
+      metrics:
+        - "psnr"
+        - "ssim"
+        - "mse"
+      comparisons:
+        - "by_denoising_method"
+        - "by_noise_type"
+        - "method_by_noise_heatmap"
+        - "whole_vs_foreground"
+        - "comparison_c_filtering_magnitude"
+      cnr_policy: "exclude_if_missing_or_unaligned_nan"
 

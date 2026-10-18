@@ -1,0 +1,36 @@
+{
+  "stage": 10,
+  "description": "CBIS-DDSM Stage 10 Denoising Metrics Configuration",
+  "eval_records": 640,
+  "preserved_records": 40,
+  "newly_computed_records": 600,
+  "config": {
+    "metrics": {
+      "ssim": {
+        "data_range": 1.0,
+        "win_size": 7
+      },
+      "psnr": {
+        "data_range": 1.0
+      },
+      "entropy": {
+        "num_bins": 256
+      },
+      "gradient": {
+        "sobel_ksize": 3
+      },
+      "cnr": {
+        "definition": "standard",
+        "dilation_radius": 15,
+        "air_threshold": 0.02
+      },
+      "foreground": {
+        "enabled": true,
+        "threshold": 0.02
+      }
+    },
+    "performance": {
+      "num_workers": 4
+    }
+  }
+}

@@ -53,6 +53,7 @@ from src.preprocessing.denoising_experiment import (
     load_stage8_noisy_inputs,
     run_stage9_pilot,
     compute_array_hash,
+    resolve_image_path,
 )
 from src.preprocessing.noise_experiment import (
     add_gaussian_noise,
@@ -405,3 +406,113 @@ def test_raw_stage5_and_stage8_integrity(tmp_path):
     assert h_raw_before == h_raw_after
     assert h_s5_before == h_s5_after
     assert h_s8_before == h_s8_after
+
+
+# ==============================================================================
+# TEST 23: Resume Mode Preserves Valid Existing Outputs Without Duplication
+# ==============================================================================
+def test_stage9_resume_mode_preserves_existing_and_processes_missing(tmp_path):
+    clean_dir = tmp_path / "baseline"
+    noise_dir = tmp_path / "noise"
+    clean_dir.mkdir(parents=True)
+    noise_dir.mkdir(parents=True)
+
+    y, x = np.mgrid[:32, :32]
+    records = []
+
+    # 2 mock cases x 5 noise types = 10 noisy images
+    for c_idx in range(2):
+        pid = f"P_{c_idx:05d}"
+        clean_patch = ((x / 32.0) * 160 + (y / 32.0) * 50 + 20).astype(np.uint8)
+        clean_p = clean_dir / f"{pid}_1_LEFT_CC_baseline.png"
+        cv2.imwrite(str(clean_p), clean_patch)
+        clean_f32 = clean_patch.astype(np.float32) / 255.0
+
+        for nt in ALL_NOISE_TYPES:
+            nt_sub = noise_dir / nt
+            nt_sub.mkdir(exist_ok=True)
+            noisy_p = nt_sub / f"{pid}_1_LEFT_CC_{nt}.png"
+            rng = np.random.default_rng(100 + c_idx)
+            noisy_arr = add_gaussian_noise(clean_f32, rng=rng)
+            noisy_u8 = np.clip(np.round(noisy_arr * 255.0), 0, 255).astype(np.uint8)
+            cv2.imwrite(str(noisy_p), noisy_u8)
+
+            records.append({
+                "patient_id": pid,
+                "abnormality_id": 1,
+                "abnormality_type": "mass",
+                "pathology": "BENIGN",
+                "binary_label": 0,
+                "breast_side": "LEFT",
+                "image_view": "CC",
+                "official_split": "train",
+                "clean_image_path": str(clean_p),
+                "noise_image_path": str(noisy_p),
+                "noise_type": nt,
+                "noise_seed": 100 + c_idx,
+                "original_height": 32,
+                "original_width": 32,
+                "noisy_height": 32,
+                "noisy_width": 32,
+            })
+
+    s8_meta_path = tmp_path / "mock_s8_meta.csv"
+    pd.DataFrame(records).to_csv(str(s8_meta_path), index=False)
+
+    out_denoised = tmp_path / "denoised"
+    out_meta = tmp_path / "metadata"
+    out_viz = tmp_path / "viz"
+
+    # Step 1: Run with max_cases=1 (produces 5 inputs x 8 methods = 40 records)
+    df_meta1, df_val1 = run_stage9_pilot(
+        config_path=None,
+        stage8_metadata_csv=str(s8_meta_path),
+        output_base_dir=str(out_denoised),
+        metadata_dir=str(out_meta),
+        viz_dir=str(out_viz),
+        max_cases=1,
+        resume=True,
+    )
+    assert len(df_meta1) == 40
+    assert len(df_val1) == 40
+
+    # Record hashes of the 40 outputs generated in step 1
+    case0_hashes_before = {}
+    for _, r in df_meta1.iterrows():
+        p = resolve_image_path(r["denoised_image_path"])
+        if not os.path.exists(p):
+            p = str(tmp_path / r["denoised_image_path"])
+        assert os.path.exists(p)
+        case0_hashes_before[r["denoising_method"], r["noise_type"]] = hashlib.sha256(open(p, "rb").read()).hexdigest()
+
+    # Step 2: Resume with max_cases=2 (should reuse case 0 and generate case 1)
+    df_meta2, df_val2 = run_stage9_pilot(
+        config_path=None,
+        stage8_metadata_csv=str(s8_meta_path),
+        output_base_dir=str(out_denoised),
+        metadata_dir=str(out_meta),
+        viz_dir=str(out_viz),
+        max_cases=2,
+        resume=True,
+    )
+
+    # Total records should be exactly 80 (2 cases x 5 noise types x 8 methods)
+    assert len(df_meta2) == 80
+    assert len(df_val2) == 80
+    assert (df_val2["status"] == STATUS_PASS).all()
+    assert (df_meta2["status"] == STATUS_SUCCESS).all()
+
+    # Verify zero duplicate combinations
+    dup_cols = ["patient_id", "abnormality_id", "breast_side", "image_view", "noise_type", "denoising_method"]
+    assert not df_meta2.duplicated(subset=dup_cols).any()
+
+    # Verify case 0 files were completely preserved
+    sub_case0 = df_meta2[df_meta2["patient_id"] == "P_00000"]
+    assert len(sub_case0) == 40
+    for _, r in sub_case0.iterrows():
+        p = resolve_image_path(r["denoised_image_path"])
+        if not os.path.exists(p):
+            p = str(tmp_path / r["denoised_image_path"])
+        h_after = hashlib.sha256(open(p, "rb").read()).hexdigest()
+        assert h_after == case0_hashes_before[r["denoising_method"], r["noise_type"]]
+

@@ -1,0 +1,7 @@
+stage,stage_name,actual_records,expected_records,unique_pilot_cases,status,notes
+Stage 5,Baseline Preprocessing,3568,3568,16,PASS,Full dataset baseline records; includes all 16 pilot mammograms.
+Stage 6,Contrast Enhancement,48,48,16,PASS,"16 pilot mammograms x 3 methods (baseline, histogram_equalization, clahe)."
+Stage 7,Sharpening Experiment,96,96,16,PASS,"16 cases x 6 conditions (3 contrast x 2 sharpening: none, unsharp_mask)."
+Stage 8,Artificial Noise Simulation,96,96,16,PASS,16 clean references + 80 noisy images (16 each for 5 synthetic noise models).
+Stage 9,Denoising Experiment,640,640,16,PASS,16 cases x 5 noise models x 8 denoising methods = 640 valid outputs.
+Stage 10,Quantitative Denoising Metrics,640,640,16,PASS,"640 evaluations completed and validated across all 16 pilot mammograms (5 noise types x 8 denoising methods = 640 total). 0 missing evaluations, 0 duplicates. CNR is NaN (0 eligible cases) due to unaligned/missing full-mammogram ROI masks. Foreground metrics 100% computed via intensity threshold mask."

@@ -51,9 +51,50 @@ __all__ = [
     "apply_denoising_method",
     "validate_denoised_image",
     "load_stage8_noisy_inputs",
+    "run_stage10_denoising_metrics",
+    "evaluate_single_denoised_record",
+    "compute_mae",
+    "compute_rmse",
+    "compute_image_pair_metrics",
+    "run_stage11_artifact_audit",
+    "run_stage11_visualization_pipeline",
+    "create_contrast_comparison_panel",
+    "create_sharpening_comparison_panel",
+    "create_clean_vs_noisy_panel",
+    "create_denoising_comparison_panel",
+    "create_denoising_difference_maps_panel",
+    "create_magnified_detail_crops",
+    "generate_stage11_report",
 ]
 
 def __getattr__(name: str):
+    if name in (
+        "run_stage11_visualization_pipeline",
+        "create_contrast_comparison_panel",
+        "create_sharpening_comparison_panel",
+        "create_clean_vs_noisy_panel",
+        "create_denoising_comparison_panel",
+        "create_denoising_difference_maps_panel",
+        "create_magnified_detail_crops",
+    ):
+        from . import stage11_visualization
+        return getattr(stage11_visualization, name)
+    elif name == "run_stage11_artifact_audit":
+        from . import stage11_audit
+        return getattr(stage11_audit, name)
+    elif name == "generate_stage11_report":
+        from . import stage11_report
+        return getattr(stage11_report, name)
+    elif name in (
+        "run_stage10_denoising_metrics",
+        "evaluate_single_denoised_record",
+        "compute_mae",
+        "compute_rmse",
+        "compute_image_pair_metrics",
+    ):
+        from . import denoising_metrics
+        return getattr(denoising_metrics, name)
+
     if name in (
         "run_stage9_pilot",
         "load_stage9_config",
