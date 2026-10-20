@@ -112,25 +112,25 @@ STAGE 11
 STAGE 12
 │
 ├── FINAL PREPROCESSING STRATEGY
-│   ├── Analyze contrast results
-│   ├── Analyze sharpening results
-│   ├── Analyze denoising results
-│   └── Select preprocessing configuration
+│   ├── Analyze contrast results [x]
+│   ├── Analyze sharpening results [x]
+│   ├── Analyze denoising results [x]
+│   └── Select preprocessing configuration (candidate shortlist established) [x]
 │
 ↓
 STAGE 13
 │
 ├── CLASSIFICATION DATASET
-│   ├── Patient-level split
-│   ├── Train
-│   ├── Validation
-│   └── Test
+│   ├── Patient-level split [x]
+│   ├── Train [x]
+│   ├── Validation [x]
+│   └── Test [x]
 │
 ↓
 STAGE 14
 │
 ├── BASELINE CNN
-│   └── Establish baseline classification performance
+│   └── Establish baseline classification performance [x]
 │
 ↓
 STAGE 15

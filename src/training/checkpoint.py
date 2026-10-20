@@ -22,7 +22,10 @@ class CheckpointManager:
         path = os.path.join(self.checkpoint_dir, filename)
         if not os.path.exists(path):
             raise FileNotFoundError(f"Checkpoint not found at: {path}")
-        checkpoint = torch.load(path, map_location="cpu")
+        try:
+            checkpoint = torch.load(path, map_location="cpu", weights_only=True)
+        except (TypeError, ValueError):
+            checkpoint = torch.load(path, map_location="cpu")
         model.load_state_dict(checkpoint["model_state_dict"])
         if optimizer and "optimizer_state_dict" in checkpoint:
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])

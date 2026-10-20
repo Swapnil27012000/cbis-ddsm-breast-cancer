@@ -1,0 +1,19 @@
+audit_item,expected_value,observed_value,audit_status,details
+Source Records Total,3568,3568,PASS,Matches sum of 4 raw CSVs (1318 + 378 + 1546 + 326)
+Stage 5 Baseline Manifest Alignment,3568,3568,PASS,100% of records resolve to verified Stage 5 baseline PNGs
+Image Type Verification,Full/original mammogram baseline PNG,Full/original mammogram baseline PNG,PASS,Zero cropped ROIs; zero lesion masks; zero synthetic noise/denoised images
+Disk Existence & Readability,3568,3568,PASS,All 3568 baseline PNGs verified readable with native spatial dimensions
+Binary Label Mapping,2111 benign / 1457 malignant,2111 benign / 1457 malignant,PASS,BENIGN/BENIGN_WITHOUT_CALLBACK -> 0; MALIGNANT -> 1; 0 unmapped
+Invalid or Missing Labels,0,0,PASS,Zero unknown or missing pathology values in the entire corpus
+Unique Patient Count,1566,1566,PASS,All 1566 patients cataloged across mass and calcification cohorts
+Unique Mammographic Views,3032,3032,PASS,Preserves distinct bilateral CC and MLO views per patient
+Multi-Abnormality Shared Mammograms,536,536,PASS,536 secondary abnormality records sharing physical mammograms tracked
+Primary Canonical View Records,3032,3032,PASS,3032 primary view records flagged with is_primary_view_record = True
+Official Cross-Partition Patient Conflicts,31 patients,31 patients (143 records),REVIEW_REQUIRED,Independent mass/calc splits in raw CBIS-DDSM cause train/test patient overlap
+Conflicting Records Origin,83 official train + 60 official test,83 official train + 60 official test,PASS,143 quarantined records fully accounted for
+Train-Val-Test Patient Overlap,0,0,PASS,Zero patient leakage across active train, validation, and test partitions
+Official Test Set Preservation (Clean),644 records,644 records (318 patients),PASS,704 official test minus 60 quarantined conflict records = 644 clean test
+Validation Split Derivation,Derived strictly from clean train pool,Derived strictly from clean train pool,PASS,244 patients (542 records) derived from 1217 clean train patients
+Deterministic Split Seed,Seed 42 reproducible,Seed 42 reproducible,PASS,Stratified patient-level split is 100% deterministic
+Prior Stages Immutability,Stages 1-12 unmodified,Stages 1-12 unmodified,PASS,All raw CSVs and Stages 1-12 metadata files remain strictly read-only
+Overall Split Audit Conclusion,Policy Decision,REVIEW REQUIRED — POLICY DECISION NEEDED,REVIEW,Clean manifests ready for Stage 14 pending formal sign-off on 644 vs 704 test set policy

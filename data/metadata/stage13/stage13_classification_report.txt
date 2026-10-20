@@ -1,0 +1,79 @@
+================================================================================
+CBIS-DDSM STAGE 13 — CLASSIFICATION DATASET AND PATIENT-LEVEL SPLIT REPORT
+================================================================================
+Generated: 2026-10-20 12:10:23
+Stage Scope: Classification manifest construction, multi-abnormality auditing,
+             patient-level zero-leakage splitting, and Stage 12 candidate binding.
+
+1. EXECUTIVE SUMMARY & INVENTORY RECONCILIATION
+--------------------------------------------------------------------------------
+Total source case-description records:   3568
+Stage 5 verified baseline records:       3568
+Aligned classification records:          3568
+Baseline physical images verified:       3568
+Baseline physical images readable:       3568
+Total unique patients:                   1566
+Total unique mammographic views:         3032
+Total unique baseline image files:       3568
+Primary view records (canonical):        3032
+Secondary abnormality records:          536
+
+2. PATHOLOGY & BINARY LABEL MAPPING
+--------------------------------------------------------------------------------
+Mapping policy: BENIGN -> 0, BENIGN_WITHOUT_CALLBACK -> 0, MALIGNANT -> 1
+Total Benign (Class 0):                  2111 (59.16%)
+Total Malignant (Class 1):               1457 (40.84%)
+Invalid / Unmapped Labels:               0
+Class Imbalance Ratio (Benign:Malignant): 1.45 : 1.00
+
+3. PATIENT-LEVEL SPLIT ARCHITECTURE & ZERO-LEAKAGE POLICY
+--------------------------------------------------------------------------------
+Split Rule 1: Clean official test patients stay strictly in 'test'.
+Split Rule 2: Validation is derived strictly from clean official training patients.
+Split Rule 3: Deterministic patient-level stratification with random seed 42.
+Split Rule 4: All mammograms/views of a patient are strictly assigned to 1 partition.
+Split Rule 5: Official cross-partition conflicts quarantined (31 patients).
+
+Active Train partition:      973 patients, 2239 records (1891 views)
+                             Pathology: 1324 benign, 915 malignant (40.87% mal)
+Active Validation partition: 244 patients, 542 records (465 views)
+                             Pathology: 312 benign, 230 malignant (42.44% mal)
+Active Test partition:       318 patients, 644 records (591 views)
+                             Pathology: 387 benign, 257 malignant (39.91% mal)
+Quarantined Conflicts:       31 patients, 143 records (85 views)
+
+Cross-Partition Overlap Verification across Train, Val, and Test: 0 PATIENTS (PASSED)
+
+4. OFFICIAL CROSS-PARTITION CONFLICT AUDIT
+--------------------------------------------------------------------------------
+Total conflicting patients in official CBIS-DDSM: 31
+Cause: Independent splitting of mass and calcification cohorts by dataset authors.
+Action: Quarantined in data/metadata/stage13/cross_partition_patient_conflicts.csv.
+Conflicting Patient IDs: P_00016, P_00041, P_00159, P_00394, P_00495, P_00510, P_00591, P_00601, P_00639, P_00652, P_00678, P_00723, P_00753, P_00882, P_00906, P_00924, P_00969, P_01108, P_01152, P_01179, P_01237, P_01307, P_01365, P_01467, P_01566, P_01605, P_01621, P_01635, P_01741, P_01803, P_01883
+
+5. STAGE 12 CANDIDATE STATUS & DOWNSTREAM PROTOCOL
+--------------------------------------------------------------------------------
+Stage 12 Shortlisted Preprocessing Candidates:
+  - C1_BASELINE: Baseline Preprocessing (Control) -> AVAILABLE FULL CORPUS (3,568 images)
+  - C2_CLAHE: Contrast Enhancement -> PILOT ONLY (16 images; full preprocessing required)
+  - C3_UNSHARP_MASK: Edge Enhancement -> PILOT ONLY (16 images; full preprocessing required)
+  - C4_CLAHE_UNSHARP: Compound Enhancement -> PILOT ONLY (16 images; full preprocessing required)
+  - C5_MEDIAN_DENOISING: Noise Suppression -> PILOT ONLY (16 images; full preprocessing required)
+Preprocessing Winner: NONE DECLARED. Full comparative evaluation scheduled for Stage 14+.
+
+6. ARTIFACTS PRODUCED UNDER data/metadata/stage13/
+--------------------------------------------------------------------------------
+  1. classification_record_audit.csv          - Full audit of all 3,568 records with view/duplication flags
+  2. classification_master_manifest.csv       - Master manifest with image paths, labels, and assigned splits
+  3. classification_train_manifest.csv        - Active training set manifest (clean, leakage-free)
+  4. classification_val_manifest.csv          - Active validation set manifest (clean, leakage-free)
+  5. classification_test_manifest.csv         - Active test set manifest (clean, leakage-free)
+  6. patient_level_split_manifest.csv         - Patient-level split assignment table
+  7. cross_partition_patient_conflicts.csv    - Detailed audit of official train/test overlap conflicts
+  8. class_distribution_summary.csv           - Class counts and percentages across all partitions
+  9. missing_image_and_invalid_label_report.csv - Integrity audit of missing files or invalid labels
+ 10. stage13_validation.csv                   - Stage 13 automated test checklist
+ 11. stage13_classification_config.json       - Complete machine-readable configuration
+ 12. stage13_classification_report.txt        - This human-readable text report
+ 13. stage13_classification_report.md         - Detailed Markdown report for academic documentation
+================================================================================

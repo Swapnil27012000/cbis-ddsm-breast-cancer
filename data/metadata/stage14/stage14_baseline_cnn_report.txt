@@ -1,0 +1,40 @@
+================================================================================
+CBIS-DDSM STAGE 14 — BASELINE CNN CLASSIFICATION REPORT
+================================================================================
+Generated: 2026-10-20 16:18:01
+Device:    cuda
+Architecture: BaselineBreastCancerCNN (421,601 params)
+
+1. DATASET USAGE & LEAKAGE CONTROLS
+--------------------------------------------------------------------------------
+Training set:        2239 samples (Official training pool, seed 42)
+Validation set:      542 samples (Derived from training patients)
+Clean Test set:      644 samples (Zero patient overlap; 100% clean test)
+Patient Leakage:     0 overlapping patients across partitions (VERIFIED)
+Image Resolution:    256x256 Grayscale
+Deduplication Mode:  All Clinical Records
+
+2. TRAINING & MODEL SELECTION
+--------------------------------------------------------------------------------
+Total Epochs Run:    15
+Best Epoch Selected: 7
+Best Validation Loss: 0.70408
+Total Training Time: 8753.79 seconds
+Loss Function:       BCEWithLogitsLoss (pos_weight=1.447)
+
+3. CLEAN TEST SET EVALUATION METRICS
+--------------------------------------------------------------------------------
+Evaluation Level:    Record-level (Case-abnormality evaluation)
+Test Accuracy:       0.5947 (59.47%)
+Sensitivity/Recall:  0.7237 (72.37%)
+Specificity:         0.5090 (50.90%)
+Precision:           0.4947 (49.47%)
+F1-Score:            0.5877
+ROC-AUC:             0.6669
+
+Confusion Matrix:
+  True Negative (Benign):     197
+  False Positive (Type I):    190
+  False Negative (Type II):   71
+  True Positive (Malignant):  186
+================================================================================

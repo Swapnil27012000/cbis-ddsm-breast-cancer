@@ -1,0 +1,2 @@
+train_patients,val_patients,test_patients,train_records,val_records,test_records,train_primary_views,val_primary_views,test_primary_views,train_val_patient_overlap,train_test_patient_overlap,val_test_patient_overlap,leakage_free
+973,244,318,2239,542,644,1891,465,591,0,0,0,True

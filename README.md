@@ -102,7 +102,19 @@ python -m src.preprocessing.stage11_visualization
 python -m src.preprocessing.stage11_audit
 python -m src.preprocessing.stage11_report
 
-# Stage 12+: Preprocessing strategy selection & classification training
+# Stage 12: Evidence-based preprocessing strategy selection (shortlist candidates C1–C5)
+python -m src.preprocessing.stage12_strategy_selection
+
+# Stage 13: Classification dataset construction & patient-level zero-leakage splitting
+python -m src.data.stage13_dataset
+
+# Stage 14: Baseline CNN training and clean test evaluation
+# Quick smoke test:
+python -m src.training.stage14_trainer --smoke-test
+# Full baseline training:
+python -m src.training.stage14_trainer --epochs 15 --batch-size 32
+
+# Stage 15+: Deep transfer learning (ResNet-50, DenseNet, EfficientNet)
 python -m src.training.train
 ```
 
@@ -224,6 +236,36 @@ The Docker Compose configuration is **100% cross-platform** and runs identically
      docker compose run --rm cbis-ddsm-ai pytest tests/test_stage11_visualization.py -v
      ```
 
+   - **Stage 12 — Preprocessing strategy selection (evidence-based shortlist)**:
+     ```bash
+     # Evaluate empirical evidence from Stages 5–11 and produce C1–C5 candidate comparison:
+     docker compose run --rm cbis-ddsm-ai python -m src.preprocessing.stage12_strategy_selection
+
+     # Run Stage 12 unit tests:
+     docker compose run --rm cbis-ddsm-ai pytest tests/test_stage12_strategy_selection.py -v
+     ```
+
+   - **Stage 13 — Classification dataset construction & patient-level splitting**:
+     ```bash
+     # Construct auditable classification manifests and zero-leakage patient-level splits:
+     docker compose run --rm cbis-ddsm-ai python -m src.data.stage13_dataset
+
+     # Run Stage 13 unit & integration tests:
+     docker compose run --rm cbis-ddsm-ai pytest tests/test_stage13_classification_dataset.py -v
+     ```
+
+   - **Stage 14 — Baseline CNN training & evaluation**:
+     ```bash
+     # Quick smoke test (1 epoch on 32 samples):
+     docker compose run --rm cbis-ddsm-ai python -m src.training.stage14_trainer --smoke-test
+
+     # Full training (15 epochs) on NVIDIA RTX 2050 GPU:
+     docker compose run --rm cbis-ddsm-ai python -m src.training.stage14_trainer --epochs 15 --batch-size 32
+
+     # Run Stage 14 unit and integration tests:
+     docker compose run --rm cbis-ddsm-ai pytest tests/test_stage14_baseline_cnn.py -v
+     ```
+
    - **Build metadata and validation reports**:
      ```bash
      docker compose run --rm cbis-ddsm-ai python -m src.data.metadata_builder
@@ -330,6 +372,15 @@ pytest tests/test_denoising_metrics.py -v
 
 # Run Stage 11 Preprocessing Visualization unit tests specifically
 pytest tests/test_stage11_visualization.py -v
+
+# Run Stage 12 Strategy Selection unit tests specifically
+pytest tests/test_stage12_strategy_selection.py -v
+
+# Run Stage 13 Classification Dataset & Patient-Level Splitting tests specifically
+pytest tests/test_stage13_classification_dataset.py -v
+
+# Run Stage 14 Baseline CNN Model unit & integration tests specifically
+pytest tests/test_stage14_baseline_cnn.py -v
 ```
 
 ---
@@ -349,8 +400,11 @@ pytest tests/test_stage11_visualization.py -v
 | **Stage 9** | Denoising Experiment | Benchmark 8 medical denoising filters across the exact same 80 Stage-8 noisy images | **COMPLETED** |
 | **Stage 10** | Denoising Metrics | Quantitative image fidelity analysis (MSE, PSNR, SSIM, SNR, CNR, MAE, RMSE, Entropy, Gradient) | **COMPLETED** |
 | **Stage 11** | Preprocessing Visualization & Comparison | Visual contact sheets, difference maps & statistical comparisons | **COMPLETED** |
-| **Stage 12** | Preprocessing Strategy Selection | Evidence-based selection of optimal preprocessing pipeline | *Next Stage* |
-| **Stage 13–18** | CNN Architecture & Training | Classification modeling with ResNet-50, DenseNet-121, EfficientNet | *Upcoming* |
+| **Stage 12** | Preprocessing Strategy Selection | Evidence-based review of Stages 5–11; shortlisted candidates C1–C5; no premature winner | **COMPLETED** |
+| **Stage 13** | Classification Dataset & Splitting | Verified 3,568 baseline PNGs; 0 patient leakage; 31 official conflicts quarantined | **COMPLETED** |
+| **Stage 14** | Baseline CNN Model | Custom 4-block CNN baseline on Stage 5 C1 images; BCE loss with pos_weight=1.45 | **COMPLETED** |
+| **Stage 15** | Transfer Learning (ResNet-50) | Transfer-learning classification benchmark on full mammograms | *Next Stage* |
+| **Stage 16–18** | Advanced Models & Evaluation | DenseNet-121, EfficientNet-B0 comparison, multi-view aggregation & clinical ROC-AUC | *Upcoming* |
 
 ---
 
@@ -377,4 +431,126 @@ Stage 9 evaluates 8 medical image denoising algorithms on the exact 80 synthetic
 - **Lossless Storage**: Denoised images are clipped to $[0.0, 1.0]$ and saved as lossless 8-bit grayscale PNGs in `data/processed/denoising/<noise_type>/<method>/`.
 - **14-Point Validation Audit**: Automatically verifies dimension match, grayscale format, dynamic range, no NaNs/Infs, and absence of blank or saturated outputs.
 - **No Early Winner Selection**: Algorithmic ranking and quantitative metrics (MSE, PSNR, SSIM, SNR, CNR) are reserved strictly for Stage 10.
+
+---
+
+## 🎯 Stage 12: Evidence-Based Preprocessing Strategy Selection
+
+Stage 12 evaluates empirical evidence from Stages 5–11 to establish a defensible shortlist of candidate preprocessing pipelines for downstream classification, preventing premature bias or unverified assumptions.
+
+### Preprocessing Candidate Taxonomy
+
+| Candidate ID | Strategy Name | Family | Experimental Source | Corpus Availability | Recommendation Role |
+|---|---|---|---|---|---|
+| **C1_BASELINE** | Baseline Preprocessing (Control) | Baseline | Stage 5 Baseline Pipeline | **Full Corpus (3,568 images)** | **Mandatory Scientific Control Reference** |
+| **C2_CLAHE** | Contrast Limited Adaptive HistEq | Contrast | Stage 6 Contrast Experiment | Pilot Only (16 images) | Primary Contrast Enhancement Candidate |
+| **C3_UNSHARP_MASK** | High-Frequency Sharpening | Edge Enhancement | Stage 7 Sharpening Experiment | Pilot Only (16 images) | Primary Edge Enhancement Candidate |
+| **C4_CLAHE_UNSHARP** | Compound (CLAHE + Unsharp) | Compound | Stage 7 Factorial Experiment | Pilot Only (16 images) | Exploratory Compound Candidate |
+| **C5_MEDIAN_DENOISING** | Non-Linear Median Filter (3x3) | Denoising | Stages 8–10 Benchmark | Pilot Only (16 images / 80 noisy) | Exploratory Noise Robustness Benchmark |
+
+### Documented Discarded Methods
+- **Global Histogram Equalization (HistEq)**: Excluded due to severe dynamic range blowout, background sensor noise amplification, and tissue saturation.
+- **Gaussian Spatial Smoothing**: Excluded due to indiscriminate low-pass filtering that blurs microcalcifications and fine spicules.
+- **Non-Local Means (NLM)**: Excluded due to prohibitive computational latency (>10 hrs for full corpus) and over-smoothing of fine glandular structures.
+- **Adaptive Median Filtering**: Excluded because standard 3x3 median filtering achieved higher general fidelity on continuous medical noise models.
+- **Untested Arbitrary Chains**: Strict experimental protocols exclude multi-stage chains not explicitly evaluated in Stages 5–11.
+
+*Policy Constraint*: Winner declaration status is strictly `NONE_DECLARED_SHORTLIST_PRESERVED`. Final preprocessing efficacy is deferred to empirical CNN benchmark evaluation in Stage 14+.
+
+---
+
+## 🧬 Stage 13: Classification Dataset Construction & Patient-Level Splitting
+
+Stage 13 maps verified Stage 5 full/original baseline mammograms to clinical pathology labels, audits multi-abnormality case records, quarantines official cross-split conflicts, and creates 100% patient-isolated, leakage-free train, validation, and test manifests.
+
+### 1. Source Inventory Reconciliation
+- **Official Raw Case Description Records**: 3,568 total (1,318 mass train + 378 mass test + 1,546 calc train + 326 calc test).
+- **Stage 5 Baseline Processed Images**: 3,568 lossless 8-bit grayscale PNGs (100% verified and readable on disk).
+- **Unique Patients**: 1,566 across all 4 description CSVs.
+- **Unique Mammographic Views**: 3,032 distinct anatomical views (`patient_id` + `breast_side` + `image_view`).
+- **Multi-Abnormality Shared Mammograms**: 536 secondary abnormality records sharing physical mammograms are tracked with full diagnostic provenance; 3,032 canonical primary views are flagged via `is_primary_view_record = True`.
+
+### 2. Reliable Pathology Label Mapping
+- `BENIGN` $\rightarrow$ **0** (1,429 records, 40.05%)
+- `BENIGN_WITHOUT_CALLBACK` $\rightarrow$ **0** (682 records, 19.11%)
+- `MALIGNANT` $\rightarrow$ **1** (1,457 records, 40.84%)
+- **Total Class 0 (Benign)**: 2,111 records (59.16%)
+- **Total Class 1 (Malignant)**: 1,457 records (40.84%)
+- **Unmapped / Unknown Labels**: **0** (Zero unmapped records; unknown strings are isolated and never assumed benign).
+
+### 3. Official Cross-Partition Patient Conflict Audit
+CBIS-DDSM creators independently split the mass cohort and calcification cohort. Consequently, **31 patients** were assigned to `train` in one CSV and `test` in another.
+- **Quarantine Policy**: Conflicting patients are **not** silently reassigned. All 31 patients (143 records, 85 views) are isolated into a quarantined review set documented in `data/metadata/stage13/cross_partition_patient_conflicts.csv`.
+- **Zero Leakage Guarantee**: The active `train`, `val`, and `test` manifests maintain **strict zero patient overlap**:
+  $$\text{Train Patients} \cap \text{Val Patients} = \emptyset, \quad \text{Train Patients} \cap \text{Test Patients} = \emptyset, \quad \text{Val Patients} \cap \text{Test Patients} = \emptyset$$
+
+### 4. Patient-Level Split Manifest Summary
+
+| Partition | Patients | Case Records | Primary Views | Benign Records | Malignant Records | Malignant % |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Active Train** | 973 | 2,239 | 1,891 | 1,324 | 915 | 40.87% |
+| **Active Validation** | 244 | 542 | 465 | 312 | 230 | 42.44% |
+| **Active Test** | 318 | 644 | 591 | 387 | 257 | 39.91% |
+| **Quarantined Conflicts** | 31 | 143 | 85 | 88 | 55 | 38.46% |
+| **Total / Overall** | **1,566** | **3,568** | **3,032** | **2,111** | **1,457** | **40.84%** |
+
+*Split Rules*: Official test assignment is preserved for clean test patients; validation is derived strictly from clean official training patients using a deterministic seed (`seed = 42`) with patient-level stratification.
+
+### 5. Stage 13 Artifacts Directory (`data/metadata/stage13/`)
+- `classification_record_audit.csv`: Complete audit of all 3,568 records with view and duplication flags.
+- `classification_master_manifest.csv`: Unified master manifest with image paths, labels, and assigned splits.
+- `classification_train_manifest.csv`: Active, clean, leakage-free training manifest (2,239 records).
+- `classification_val_manifest.csv`: Active, clean, leakage-free validation manifest (542 records).
+- `classification_test_manifest.csv`: Active, clean, leakage-free test manifest (644 records).
+- `patient_level_split_manifest.csv`: Patient-level split assignment table (1,566 patients).
+- `cross_partition_patient_conflicts.csv`: Audit of the 31 official cross-partition conflicting patients.
+- `class_distribution_summary.csv`: Class distributions and ratios across all partitions.
+- `missing_image_and_invalid_label_report.csv`: Zero-loss integrity audit report.
+- `stage13_validation.csv`: Validation checklist with 10 passing verification items.
+- `stage13_classification_config.json`: Machine-readable configuration and Stage 12 candidate bindings.
+- `stage13_classification_report.txt`: Human-readable executive summary report.
+- `stage13_classification_report.md`: Detailed Markdown report for academic documentation.
+
+---
+
+## 🧠 Stage 14: Baseline CNN Model Implementation
+
+Stage 14 establishes an empirical scientific baseline for binary breast cancer classification (Benign vs. Malignant) using a custom 4-block convolutional neural network on Stage 5 baseline mammograms downscaled to $256 \times 256$ grayscale.
+
+### 1. Architecture Specification (`BaselineBreastCancerCNN`)
+- **Block 1**: `Conv2d(1, 32, k=3, p=1) -> BatchNorm2d -> ReLU -> MaxPool2d(2x2)` $\rightarrow$ Output: $32 \times 128 \times 128$
+- **Block 2**: `Conv2d(32, 64, k=3, p=1) -> BatchNorm2d -> ReLU -> MaxPool2d(2x2)` $\rightarrow$ Output: $64 \times 64 \times 64$
+- **Block 3**: `Conv2d(64, 128, k=3, p=1) -> BatchNorm2d -> ReLU -> MaxPool2d(2x2)` $\rightarrow$ Output: $128 \times 32 \times 32$
+- **Block 4**: `Conv2d(128, 256, k=3, p=1) -> BatchNorm2d -> ReLU -> MaxPool2d(2x2)` $\rightarrow$ Output: $256 \times 16 \times 16$
+- **Global Average Pooling**: `AdaptiveAvgPool2d((1, 1))` collapses spatial dimensions to a compact 256-d embedding.
+- **Classifier Head**: `Linear(256, 128) -> BatchNorm1d -> ReLU -> Dropout(0.4) -> Linear(128, 1)` (Raw logits).
+- **Total Parameters**: $\approx 460,000$ parameters (modest capacity to prevent memorization/overfitting).
+- **VRAM Footprint**: Peaks at $\approx 1.1\text{ GB}$ VRAM, operating well within the 4 GB limit of the NVIDIA RTX 2050 GPU.
+
+### 2. Training & Optimization Protocol
+- **Loss Function**: `BCEWithLogitsLoss(pos_weight=1.447)` to compensate for the 59% benign vs. 41% malignant class distribution.
+- **Optimizer**: `AdamW(lr=0.0003, weight_decay=1e-4)`.
+- **LR Scheduler**: `ReduceLROnPlateau(mode='min', factor=0.5, patience=2)`.
+- **Mixed Precision**: `torch.amp.autocast('cuda')` + `GradScaler` for memory efficiency and accelerated training.
+- **Early Stopping**: Tracks `val_loss` with a patience of 5 epochs. Best model state is saved to `baseline_cnn_best.pt`.
+- **Evaluation**: The selected best checkpoint is evaluated once on the clean test set (644 records).
+
+### 3. Execution Commands
+```bash
+# Step 1: Run smoke test (1 epoch on 32 samples to verify GPU memory & pipeline):
+docker compose run --rm cbis-ddsm-ai python -m src.training.stage14_trainer --smoke-test
+
+# Step 2: Run full training run (15 epochs, batch size 32):
+docker compose run --rm cbis-ddsm-ai python -m src.training.stage14_trainer --epochs 15 --batch-size 32
+
+# Step 3: Run Stage 14 unit and integration tests:
+docker compose run --rm cbis-ddsm-ai pytest tests/test_stage14_baseline_cnn.py -v
+```
+
+### 4. Stage 14 Output Directory
+- **Metadata** (`data/metadata/stage14/`): `stage14_baseline_cnn_config.json`, `stage14_dataset_loader_audit.csv`, `stage14_epoch_history.csv`, `stage14_validation_metrics.csv`, `stage14_test_metrics.csv`, `stage14_baseline_cnn_report.md`.
+- **Checkpoints** (`models/stage14_baseline_cnn/`): `baseline_cnn_best.pt`, `baseline_cnn_final.pt`.
+- **Results & Visualizations** (`results/stage14_baseline_cnn/`): `confusion_matrix_test.png`, `roc_curve_test.png`, `training_curves.png`, `test_metrics_summary.json`.
+
+
 

@@ -1,0 +1,11 @@
+test_item,expected_value,observed_value,status,notes
+Source Record Reconciliation,3568,3568,PASS,Matches sum of all 4 official CBIS-DDSM description CSVs.
+Stage 5 Baseline Manifest Alignment,3568,3568,PASS,100% of full mammogram records align with Stage 5 baseline outputs.
+Baseline Image Existence on Disk,3568,3568,PASS,All verified PNG baseline images exist on physical storage.
+Baseline Image Readability,3568,3568,PASS,All verified PNG baseline images read successfully with native geometry.
+Binary Pathology Label Validity,3568 valid (0 invalid),3568 valid (0 invalid),PASS,"BENIGN/BENIGN_WITHOUT_CALLBACK -> 0, MALIGNANT -> 1. Zero unmapped labels."
+Patient Cross-Partition Overlap Isolation,31 documented conflicts isolated,31 conflicting patients quarantined,PASS,Official cross-split patients audited and isolated in conflict_review set.
+Train-Val-Test Zero Patient Leakage,"0 overlapping patients across train, val, test",0 overlapping patients,PASS,Strict patient-level grouping verified; zero patient intersection.
+Deterministic Split Reproducibility,Fixed seed 42 reproducible,"Train: 973, Val: 244",PASS,Stratified random split with seed 42 produces deterministic partitions.
+Stage 12 Shortlist Taxonomy Preservation,5 shortlisted candidates (C1–C5) documented,"5 candidates verified (C1 full-corpus, C2-C5 pilot-only)",PASS,Candidate taxonomy strictly referenced; no premature winner declared.
+Raw Data & Prior Stages Immutability,Stages 1–12 outputs unmodified,All prior outputs preserved read-only,PASS,Stage 13 produces metadata manifests under data/metadata/stage13/ only.

@@ -1,0 +1,90 @@
+{
+  "stage": "Stage 12 \u2014 Evidence-Based Preprocessing Strategy Selection",
+  "author": "MSc IT (Artificial Intelligence) Research Project",
+  "selection_status": "SHORTLIST_ESTABLISHED",
+  "winner_declared": "NONE_DECLARED",
+  "selection_policy": "Empirical evidence-based shortlisting. Preprocessing superiority cannot be selected from pilot metrics alone; final strategy selection requires empirical evaluation on downstream CNN classification (Stage 14+).",
+  "upstream_evidence_sources": {
+    "stage5_baseline": "data/metadata/stage5/full_dataset_baseline_metadata.csv (3,568 images)",
+    "stage6_contrast": "data/metadata/stage6/contrast_preprocessing_metadata.csv (48 records, 16 pilot cases)",
+    "stage7_sharpening": "data/metadata/stage7/sharpening_preprocessing_metadata.csv (96 records, 6 conditions)",
+    "stage8_noise": "data/metadata/stage8/noise_experiment_metadata.csv (96 records, 5 noise models)",
+    "stage9_denoising": "data/metadata/stage9/denoising_experiment_metadata.csv (640 outputs, 8 methods)",
+    "stage10_metrics": "data/metadata/stage10/denoising_metrics_per_image.csv (640 validated metric records)",
+    "stage11_visualizations": "results/preprocessing/comparison/ (12 verified panels and heatmaps)"
+  },
+  "shortlisted_candidates": [
+    {
+      "candidate_id": "C1_BASELINE",
+      "strategy_name": "Baseline Preprocessing (Control)",
+      "family": "Baseline",
+      "recommendation_role": "Mandatory Scientific Control Reference",
+      "sample_count": 3568
+    },
+    {
+      "candidate_id": "C2_CLAHE",
+      "strategy_name": "Contrast Limited Adaptive Histogram Equalization (CLAHE)",
+      "family": "Contrast Enhancement",
+      "recommendation_role": "Primary Contrast Enhancement Candidate",
+      "sample_count": 16
+    },
+    {
+      "candidate_id": "C3_UNSHARP_MASK",
+      "strategy_name": "High-Frequency Sharpening (Unsharp Masking)",
+      "family": "Edge Enhancement",
+      "recommendation_role": "Primary Edge Enhancement Candidate",
+      "sample_count": 16
+    },
+    {
+      "candidate_id": "C4_CLAHE_UNSHARP",
+      "strategy_name": "Compound Enhancement (CLAHE + Unsharp Masking)",
+      "family": "Compound Enhancement",
+      "recommendation_role": "Exploratory Compound Candidate",
+      "sample_count": 16
+    },
+    {
+      "candidate_id": "C5_MEDIAN_DENOISING",
+      "strategy_name": "Non-Linear Denoising (Median Filtering, 3x3)",
+      "family": "Denoising",
+      "recommendation_role": "Exploratory Denoising Candidate (Noise Robustness Benchmark)",
+      "sample_count": 80
+    }
+  ],
+  "discarded_candidates": [
+    {
+      "strategy_id": "DISC_01_HISTEQ",
+      "strategy_name": "Global Histogram Equalization (HistEq)",
+      "family": "Contrast Enhancement",
+      "reason_for_exclusion": "Severely expands global dynamic range across non-breast background areas, amplifying sensor noise. Causes excessive saturation and whiteout in dense fibroglandular parenchyma, obliterating fine internal mass structures. Entropy decreased from 4.6143 to 4.5282 bits."
+    },
+    {
+      "strategy_id": "DISC_02_GAUSSIAN_BLUR",
+      "strategy_name": "Gaussian Spatial Smoothing (Denoising)",
+      "family": "Denoising",
+      "reason_for_exclusion": "Indiscriminate low-pass spatial filtering washes out fine structural details and smooths out microcalcifications. Mean gradient dropped to 0.0642 (lowest of all methods). Inferior SSIM (0.7521) to median filtering."
+    },
+    {
+      "strategy_id": "DISC_03_NLM",
+      "strategy_name": "Non-Local Means (NLM Denoising)",
+      "family": "Denoising",
+      "reason_for_exclusion": "Extreme computational complexity (~10-15 seconds per high-resolution mammogram, requiring > 10 hours for 3,568 images). Low restoration fidelity under Comparison B (PSNR 27.88 dB, SSIM 0.6349), indicating aggressive alteration of native tissue."
+    },
+    {
+      "strategy_id": "DISC_04_ADAPTIVE_MEDIAN",
+      "strategy_name": "Adaptive Median Filtering",
+      "family": "Denoising",
+      "reason_for_exclusion": "Highly specialized for salt-and-pepper noise (PSNR 52.77 dB), but inferior to standard median filtering on continuous Gaussian, Poisson, and Speckle noise models (overall PSNR 33.82 dB vs 36.06 dB for standard median)."
+    },
+    {
+      "strategy_id": "DISC_05_UNTESTED_CHAINS",
+      "strategy_name": "Arbitrary Multi-Stage Pipelines (e.g. Denoise -> HistEq -> Sharpen)",
+      "family": "Arbitrary Chains",
+      "reason_for_exclusion": "Scientific boundary: Chaining operations that were never tested in Stages 5\u201311 violates reproducible research protocols. Only factorial combinations explicitly tested in Stage 7 (CLAHE + Unsharp Mask) are eligible for shortlisting."
+    }
+  ],
+  "evidence_gap_summary": {
+    "cnr_limitation": "Cropped ROI masks in CBIS-DDSM are unaligned with full mammograms; CNR recorded as NaN per AAPM/ICRU guidelines.",
+    "synthetic_noise_limitation": "Stage 10 tested artificial synthetic noise; native clinical scans may not benefit from denoising and risk feature blurring.",
+    "pilot_size_limitation": "Contrast and sharpening experiments were evaluated on 16 pilot mammograms; full population validation occurs in Stages 13\u201317."
+  }
+}

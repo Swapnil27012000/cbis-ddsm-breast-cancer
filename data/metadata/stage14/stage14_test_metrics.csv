@@ -1,0 +1,2 @@
+accuracy,sensitivity,specificity,precision,f1_score,roc_auc,tp,fp,tn,fn,confusion_matrix,test_loss,test_time_seconds,total_test_samples
+0.59472049689441,0.7237354085603113,0.5090439276485789,0.4946808510638298,0.5876777251184834,0.6669481897063112,186,190,197,71,"[[197, 190], [71, 186]]",0.77238,159.77,644

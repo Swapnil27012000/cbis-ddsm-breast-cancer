@@ -1,0 +1,117 @@
+================================================================================
+CBIS-DDSM STAGE 13.1 — INDEPENDENT DATASET SPLIT AUDIT REPORT
+================================================================================
+Audit Date: 2026-10-20
+Project: CBIS-DDSM Breast Cancer Classification (MSc IT AI Final-Year Project)
+Audit Scope: Independent read-only verification of Stage 13 classification manifests,
+             multi-abnormality case records, patient-level splits, and conflict isolation.
+Audit Status: COMPLETE
+Audit Conclusion: REVIEW REQUIRED — POLICY DECISION NEEDED
+
+1. RECORD & PATIENT INVENTORY RECONCILIATION
+--------------------------------------------------------------------------------
+Total Source Case Records:             3,568 (100.0%)
+  - Mass Training Set:                 1,318
+  - Mass Test Set:                       378
+  - Calcification Training Set:        1,546
+  - Calcification Test Set:              326
+  - Official Train Pool:               2,864
+  - Official Test Pool:                  704
+
+Stage 13 Active Partition Records:
+  - Active Training Manifest:          2,239 records ( 973 patients, 1,891 primary views)
+  - Active Validation Manifest:          542 records ( 244 patients,   465 primary views)
+  - Active Test Manifest:                644 records ( 318 patients,   591 primary views)
+  - Quarantined Conflicts:               143 records (  31 patients,    85 primary views)
+  - Sum of Partitions:                 3,568 records (Exact 100% reconciliation)
+
+Patient Reconciliation:
+  - Total Unique Patients:             1,566
+  - Active Train Patients:               973
+  - Active Validation Patients:          244
+  - Active Test Patients:                318
+  - Quarantined Conflict Patients:        31
+  - Sum of Patients:                   1,566 (Exact 100% reconciliation)
+
+Mammographic View Reconciliation:
+  - Total Unique Anatomical Views:     3,032 (CC and MLO views per breast side)
+  - Primary Canonical View Records:    3,032 (is_primary_view_record = True)
+  - Secondary Abnormality Records:       536 (is_primary_view_record = False)
+  - Total Records:                     3,568 (3,032 primary + 536 secondary)
+
+2. INVESTIGATION OF THE 31 CONFLICTING PATIENTS & 143 QUARANTINED RECORDS
+--------------------------------------------------------------------------------
+Root Cause: In the official CBIS-DDSM release, mass and calcification cohorts were
+split independently without cross-referencing multi-cohort patients.
+Total Conflicting Patients: 31 patients
+Total Quarantined Records: 143 records
+  - Sourced from Official Train CSVs: 83 records
+  - Sourced from Official Test CSVs:  60 records (explains why active test has 644 instead of 704)
+  - Unique Views in Quarantine:       85 views
+  - Quarantined Pathology:            88 Benign (61.54%), 55 Malignant (38.46%)
+
+Conflicting Patient IDs:
+P_00016, P_00041, P_00159, P_00394, P_00495, P_00510, P_00591, P_00601,
+P_00639, P_00652, P_00678, P_00723, P_00753, P_00882, P_00906, P_00924,
+P_00969, P_01108, P_01152, P_01179, P_01237, P_01307, P_01365, P_01467,
+P_01566, P_01605, P_01621, P_01635, P_01741, P_01803, P_01883
+
+Critical Clinical Finding:
+In 11 of the 31 patients (e.g. P_00601, P_00639, P_01635, P_01741), mass and
+calcification lesions carry OPPOSING pathology labels (one benign, one malignant).
+Allowing these records into active splits would cause severe patient identity
+leakage and ground-truth target contradictions.
+
+3. PATIENT-LEVEL SEPARATION & LEAKAGE VERIFICATION
+--------------------------------------------------------------------------------
+Train Patients INTERSECT Val Patients:        0 patients (ZERO LEAKAGE)
+Train Patients INTERSECT Test Patients:       0 patients (ZERO LEAKAGE)
+Val Patients INTERSECT Test Patients:         0 patients (ZERO LEAKAGE)
+Active Patients INTERSECT Quarantined:        0 patients (ZERO LEAKAGE)
+
+All bilateral breasts, views, and repeated abnormality records for a patient
+reside exclusively in one partition.
+
+4. LABEL & IMAGE TRACEABILITY
+--------------------------------------------------------------------------------
+Label Mapping:
+  - BENIGN -> 0:                     1,429 records
+  - BENIGN_WITHOUT_CALLBACK -> 0:      682 records
+  - MALIGNANT -> 1:                  1,457 records
+  - Total Benign (0):                2,111 (59.16%)
+  - Total Malignant (1):             1,457 (40.84%)
+  - Invalid / Unknown Labels:            0 (0.00%)
+
+Class Balance across Active Splits:
+  - Active Train:        1,324 Benign (59.13%) vs. 915 Malignant (40.87%)
+  - Active Validation:     312 Benign (57.56%) vs. 230 Malignant (42.44%)
+  - Active Test:           387 Benign (60.09%) vs. 257 Malignant (39.91%)
+  - Quarantine:             88 Benign (61.54%) vs.  55 Malignant (38.46%)
+
+Image Traceability:
+  - 100% of records map to Stage 5 baseline PNGs (full mammograms, native geometry).
+  - 0 records map to cropped ROIs, masks, or synthetic noisy/denoised images.
+  - 100% of images exist on disk and are readable.
+
+5. REPRODUCIBILITY & IMMUTABILITY
+--------------------------------------------------------------------------------
+  - Deterministic random seed 42 reproducible.
+  - Raw CBIS-DDSM CSVs and Stages 1–12 outputs remain 100% unmodified.
+
+6. POLICY DECISION FOR STAGE 14
+--------------------------------------------------------------------------------
+Option A (Recommended for MSc AI Thesis):
+  Train on 2,239 records, validate on 542 records, test on clean 644 records.
+  Guarantees 100% patient isolation and rigorous academic integrity.
+
+Option B (Recommended for Publication Comparison):
+  Report primary evaluation on clean 644 test set; report secondary comparative
+  benchmark on full 704 official test set, documenting literature leakage.
+
+Option C:
+  Reassign all 31 conflicting patients exclusively to Test (Test = 787 records).
+
+CONCLUSION: REVIEW REQUIRED — POLICY DECISION NEEDED
+The manifests are technically sound and leakage-free. Once Option A is formally
+selected, the project is immediately READY FOR STAGE 14.
+================================================================================

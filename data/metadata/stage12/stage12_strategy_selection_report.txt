@@ -1,0 +1,112 @@
+================================================================================
+CBIS-DDSM STAGE 12: PREPROCESSING STRATEGY SELECTION & CANDIDATE SHORTLIST
+Final-Year MSc IT (Artificial Intelligence) Research Project
+================================================================================
+
+1. EXECUTIVE SUMMARY & DECISION POLICY
+--------------------------------------------------
+Status Policy: SHORTLIST ESTABLISHED (NO SINGLE WINNER DECLARED)
+Upstream Scope Audited: Stages 5–11 completed and validated without error.
+Scientific Rule: A preprocessing method cannot be declared 'optimal' based solely
+on human visual preference, high synthetic PSNR, or edge gradient magnitude.
+An image modification that appears sharp or high-contrast to human observers may
+introduce high-frequency noise artifacts that impair convolutional neural network
+(CNN) generalization. Conversely, non-linear denoising risks smoothing out
+subtle punctate microcalcifications and spiculated tumor borders.
+Therefore, Stage 12 establishes a scientifically defensible candidate shortlist (C1–C5)
+to carry forward into Stage 13 (Classification Dataset Preparation), where downstream
+model training (Stages 14–17) will empirically determine true diagnostic efficacy.
+
+2. PREPROCESSING CANDIDATE SHORTLIST FOR STAGE 13
+--------------------------------------------------
+[C1_BASELINE] Baseline Preprocessing (Control) (Baseline)
+  Role:         Mandatory Scientific Control Reference
+  Source:       Stage 5 Baseline Preprocessing (N=16 pilot, 3568 corpus)
+  Key Metrics:  Entropy=4.6143 bits, Mean Grad=9.45, Strong Edges=10.8%
+  Benefits:     Provides an uncorrupted benchmark for deep learning feature extraction. Guarantees that classification models do not learn preprocessing-induced artifacts.
+  Risks:        Dense glandular regions (BI-RADS density C/D) exhibit lower local contrast, potentially challenging early-stage feature extraction in shallow networks.
+  Evidence Gap: Effect on deep CNN convolutional feature activations must be quantified empirically in Stage 14.
+
+[C2_CLAHE] Contrast Limited Adaptive Histogram Equalization (CLAHE) (Contrast Enhancement)
+  Role:         Primary Contrast Enhancement Candidate
+  Source:       Stage 6 Contrast Enhancement Experiment (N=16 pilot, 16 corpus)
+  Key Metrics:  Entropy=4.9258 bits, Mean Grad=16.08, Strong Edges=26.44%
+  Benefits:     Highest entropy (4.93 bits) among contrast methods; boosts subtle border visibility in dense tissue, which may facilitate mass margin discrimination in CNNs.
+  Risks:        May subtly elevate high-frequency sensor noise in low-density adipose regions; tile boundaries could theoretically produce microscopic gradient discontinuities.
+  Evidence Gap: Tested on 16 pilot mammograms; generalizability across the full 3,568 corpus and impact on classification false-positive rates must be tested in Stages 13–17.
+
+[C3_UNSHARP_MASK] High-Frequency Sharpening (Unsharp Masking) (Edge Enhancement)
+  Role:         Primary Edge Enhancement Candidate
+  Source:       Stage 7 Sharpening Experiment (N=16 pilot, 16 corpus)
+  Key Metrics:  Entropy=4.7529 bits, Mean Grad=14.02, Strong Edges=21.98%
+  Benefits:     Accentuates high-frequency spatial transitions critical for microcalcification cluster and subtle spiculated malignant lesion detection.
+  Risks:        Indiscriminate high-frequency gain sharpens background quantum mottle and scanner noise, which may lead CNN feature extractors to attend to spurious noise spikes.
+  Evidence Gap: Whether edge sharpening increases true positive sensitivity or simply elevates false positives on normal fibroglandular parenchyma remains unknown prior to Stage 14.
+
+[C4_CLAHE_UNSHARP] Compound Enhancement (CLAHE + Unsharp Masking) (Compound Enhancement)
+  Role:         Exploratory Compound Candidate
+  Source:       Stage 7 Factorial Sharpening Experiment (Condition: clahe + unsharp_mask) (N=16 pilot, 16 corpus)
+  Key Metrics:  Entropy=4.9748 bits, Mean Grad=24.25, Strong Edges=36.15%
+  Benefits:     Maximizes visual conspicuity by simultaneously expanding local dynamic range and sharpening fine edges.
+  Risks:        Compounding risk: CLAHE local noise enhancement is subsequently sharpened by unsharp masking. Highest mean absolute change from baseline (1.32 intensity levels; max diff 111.0).
+  Evidence Gap: Must be validated downstream to ensure CNN models are not distracted by intensified texture patterns.
+
+[C5_MEDIAN_DENOISING] Non-Linear Denoising (Median Filtering, 3x3) (Denoising)
+  Role:         Exploratory Denoising Candidate (Noise Robustness Benchmark)
+  Source:       Stages 8–10 Denoising Benchmark (Comparison B & C) (N=16 pilot, 80 corpus)
+  Key Metrics:  Entropy=4.7998 bits, Mean Grad=0.0753, Strong Edges=nan%
+                Stage 10 PSNR=36.06 dB, SSIM=0.8037
+  Benefits:     Demonstrated top general restoration (36.06 dB PSNR, 0.8037 SSIM) in Stage 10 benchmark; serves as a controlled candidate to evaluate whether noise suppression helps CNN generalization.
+  Risks:        Critical Clinical Risk: Denoising raw, uncorrupted clinical scans risks blurring subtle, punctate microcalcifications (< 0.2 mm) and fine spicules, potentially destroying life-saving diagnostic cues. Stage 10 evaluations evaluated synthetic noise, not native scanner noise.
+  Evidence Gap: Denoising was benchmarked against artificial synthetic noise. Its utility on clinical scans without added noise is unproven and must be compared directly against Baseline (C1) in Stage 14.
+
+3. REJECTED / DISCARDED PREPROCESSING STRATEGIES
+--------------------------------------------------
+[DISC_01_HISTEQ] Global Histogram Equalization (HistEq) (Contrast Enhancement)
+  Evidence Basis: Stage 6 Contrast Experiment & Stage 11 Visual Panels
+  Reason:         Severely expands global dynamic range across non-breast background areas, amplifying sensor noise. Causes excessive saturation and whiteout in dense fibroglandular parenchyma, obliterating fine internal mass structures. Entropy decreased from 4.6143 to 4.5282 bits.
+
+[DISC_02_GAUSSIAN_BLUR] Gaussian Spatial Smoothing (Denoising) (Denoising)
+  Evidence Basis: Stage 10 Quantitative Summary & Stage 11 Magnified Crops
+  Reason:         Indiscriminate low-pass spatial filtering washes out fine structural details and smooths out microcalcifications. Mean gradient dropped to 0.0642 (lowest of all methods). Inferior SSIM (0.7521) to median filtering.
+
+[DISC_03_NLM] Non-Local Means (NLM Denoising) (Denoising)
+  Evidence Basis: Stage 10 Quantitative Summary & Stage 9 Runtime Logs
+  Reason:         Extreme computational complexity (~10-15 seconds per high-resolution mammogram, requiring > 10 hours for 3,568 images). Low restoration fidelity under Comparison B (PSNR 27.88 dB, SSIM 0.6349), indicating aggressive alteration of native tissue.
+
+[DISC_04_ADAPTIVE_MEDIAN] Adaptive Median Filtering (Denoising)
+  Evidence Basis: Stage 10 Summary by Method & Noise Type
+  Reason:         Highly specialized for salt-and-pepper noise (PSNR 52.77 dB), but inferior to standard median filtering on continuous Gaussian, Poisson, and Speckle noise models (overall PSNR 33.82 dB vs 36.06 dB for standard median).
+
+[DISC_05_UNTESTED_CHAINS] Arbitrary Multi-Stage Pipelines (e.g. Denoise -> HistEq -> Sharpen) (Arbitrary Chains)
+  Evidence Basis: Strict Experimental Boundary Constraints
+  Reason:         Scientific boundary: Chaining operations that were never tested in Stages 5–11 violates reproducible research protocols. Only factorial combinations explicitly tested in Stage 7 (CLAHE + Unsharp Mask) are eligible for shortlisting.
+
+4. SCIENTIFIC EVIDENCE SYNTHESIS & IDENTIFIED EVIDENCE GAPS
+--------------------------------------------------
+A. Contrast Enhancement:
+   - Global HistEq is objectively detrimental due to background noise blowout and over-saturation.
+   - CLAHE (clip=2.0) demonstrates superior entropy (4.93 bits) and clean glandular contrast.
+B. Sharpening:
+   - Unsharp masking (sigma=1.0, amount=1.0) doubles strong edge percentage (10.8% -> 22.0%).
+   - Risk of sensor noise amplification requires evaluation against Baseline (C1) in Stage 14.
+C. Denoising:
+   - Median filtering (3x3) achieved highest overall restoration (PSNR 36.06 dB, SSIM 0.8037).
+   - However, raw CBIS-DDSM mammograms lack severe synthetic noise; denoising uncorrupted scans
+     risks blunting fine microcalcifications and tumor spicules.
+D. Evidence Gaps:
+   1. Aligned Lesion CNR: Unaligned full-mammogram ROI masks prevent meaningful CNR measurement.
+   2. Classification Transferability: No pilot metric proves whether CNN feature maps benefit
+      from edge acutance vs raw baseline gradients.
+   3. Pilot Generalizability: Contrast and sharpening metrics were computed on 16 pilot mammograms;
+      Stage 13 will expand evaluation across the full 3,568 corpus.
+
+5. TRANSITION PLAN FOR STAGE 13 (CLASSIFICATION DATASET PREPARATION)
+--------------------------------------------------
+Immediate Next Actions Before Stage 13 Execution:
+1. Confirm patient-level partitioning protocol to strictly prevent cross-split data leakage
+   (all images from a single patient must remain strictly within either Train, Val, or Test).
+2. Stage 13 will generate the primary dataset partitions using Baseline Control (C1).
+3. Parallel cached branches for shortlisted candidates (C2, C3, C4, C5) will be prepared
+   for controlled factorial benchmarking during model training (Stage 14+).
+================================================================================

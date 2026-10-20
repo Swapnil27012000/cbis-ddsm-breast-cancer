@@ -1,0 +1,6 @@
+partition,patient_count,patient_benign_count,patient_malignant_count,patient_malignant_pct,record_count,record_benign_count,record_malignant_count,record_malignant_pct,primary_views_count,mass_record_count,calcification_record_count
+overall,1566,814,752,48.02,3568,2111,1457,40.84,3032,1696,1872
+train,973,498,475,48.82,2239,1324,915,40.87,1891,1040,1199
+val,244,125,119,48.77,542,312,230,42.44,465,251,291
+test,318,179,139,43.71,644,387,257,39.91,591,346,298
+conflict_review,31,12,19,61.29,143,88,55,38.46,85,59,84

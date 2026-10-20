@@ -179,4 +179,17 @@ def __getattr__(name: str):
     ):
         from . import finalize_preprocessing
         return getattr(finalize_preprocessing, name)
+    elif name in (
+        "run_stage12_strategy_selection",
+        "audit_existing_preprocessing_evidence",
+        "generate_candidate_comparison_matrix",
+        "generate_stage12_validation_summary",
+        "generate_stage12_reports",
+        "generate_stage12_config",
+        "plot_stage12_shortlist_overview",
+        "CANDIDATE_STRATEGIES",
+        "DISCARDED_STRATEGIES",
+    ):
+        from . import stage12_strategy_selection
+        return getattr(stage12_strategy_selection, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

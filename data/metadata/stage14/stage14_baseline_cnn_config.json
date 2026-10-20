@@ -1,0 +1,79 @@
+{
+  "stage": 14,
+  "stage_title": "Baseline CNN Model Implementation",
+  "timestamp": "2026-10-20 16:18:01",
+  "hardware": {
+    "device": "cuda",
+    "device_info": {
+      "cuda_available": true,
+      "device": "cuda:0",
+      "gpu_name": "NVIDIA GeForce RTX 2050",
+      "cuda_version": "12.4",
+      "device_count": 1,
+      "total_memory_bytes": 4294443008,
+      "total_memory_mb": 4095.5,
+      "total_memory_gb": 4.0,
+      "allocated_memory_mb": 29.05,
+      "cached_memory_mb": 1372.0
+    }
+  },
+  "hyperparameters": {
+    "epochs": 15,
+    "batch_size": 32,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "early_stopping_patience": 5,
+    "image_size": [
+      256,
+      256
+    ],
+    "num_workers": 2,
+    "seed": 42,
+    "smoke_test": false,
+    "primary_views_only": false
+  },
+  "model_architecture": {
+    "name": "BaselineBreastCancerCNN",
+    "in_channels": 1,
+    "num_classes": 1,
+    "parameters": {
+      "total_parameters": 421601,
+      "trainable_parameters": 421601
+    }
+  },
+  "loss_function": {
+    "name": "BCEWithLogitsLoss",
+    "pos_weight": 1.4469945430755615,
+    "rationale": "Compensates for 1.45:1 benign-to-malignant class ratio in training set"
+  },
+  "training_summary": {
+    "best_epoch": 7,
+    "best_val_loss": 0.70408,
+    "total_training_time_seconds": 8753.79
+  },
+  "test_results": {
+    "loss": 0.77238,
+    "metrics": {
+      "accuracy": 0.59472049689441,
+      "sensitivity": 0.7237354085603113,
+      "specificity": 0.5090439276485789,
+      "precision": 0.4946808510638298,
+      "f1_score": 0.5876777251184834,
+      "roc_auc": 0.6669481897063112,
+      "tp": 186,
+      "fp": 190,
+      "tn": 197,
+      "fn": 71,
+      "confusion_matrix": [
+        [
+          197,
+          190
+        ],
+        [
+          71,
+          186
+        ]
+      ]
+    }
+  }
+}
