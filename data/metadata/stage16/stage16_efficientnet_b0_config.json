@@ -1,0 +1,140 @@
+{
+  "stage": 16,
+  "stage_title": "EfficientNet-B0 Transfer Learning for CBIS-DDSM",
+  "timestamp": "2026-10-21 21:08:06",
+  "hardware": {
+    "device": "cuda",
+    "device_info": {
+      "cuda_available": true,
+      "device": "cuda:0",
+      "gpu_name": "NVIDIA GeForce RTX 2050",
+      "cuda_version": "12.4",
+      "device_count": 1,
+      "total_memory_bytes": 4294443008,
+      "total_memory_mb": 4095.5,
+      "total_memory_gb": 4.0,
+      "allocated_memory_mb": 0.0,
+      "cached_memory_mb": 0.0
+    }
+  },
+  "hyperparameters": {
+    "model_key": "efficientnet_b0",
+    "architecture": "EfficientNet-B0",
+    "epochs": 15,
+    "batch_size": 8,
+    "accum_steps": 2,
+    "effective_batch_size": 16,
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "early_stopping_patience": 5,
+    "image_size": [
+      256,
+      256
+    ],
+    "num_workers": 2,
+    "seed": 42,
+    "smoke_test": false,
+    "evaluate_test": false,
+    "primary_views_only": false
+  },
+  "model_architecture": {
+    "name": "Stage16EfficientNetB0",
+    "in_channels": 1,
+    "num_classes": 1,
+    "pretrained_status": true,
+    "weight_version": "EfficientNet_B0_Weights.IMAGENET1K_V1",
+    "adaptation_strategy": "channel_weight_averaging",
+    "parameters": {
+      "total_parameters": 4008253,
+      "trainable_parameters": 4008253,
+      "backbone_parameters": 4006972,
+      "classifier_parameters": 1281
+    }
+  },
+  "loss_function": {
+    "name": "BCEWithLogitsLoss",
+    "pos_weight": 1.4469945430755615,
+    "rationale": "Compensates for 1.45:1 benign-to-malignant class ratio in training set (1,324 benign vs. 915 malignant)"
+  },
+  "training_summary": {
+    "best_loss_epoch": 2,
+    "best_val_loss": 0.62517,
+    "best_val_loss_metrics": {
+      "accuracy": 0.6937269372693727,
+      "sensitivity": 0.7695652173913043,
+      "specificity": 0.6378205128205128,
+      "precision": 0.6103448275862069,
+      "f1_score": 0.6807692307692308,
+      "roc_auc": 0.8078037904124861,
+      "tp": 177,
+      "fp": 113,
+      "tn": 199,
+      "fn": 53,
+      "confusion_matrix": [
+        [
+          199,
+          113
+        ],
+        [
+          53,
+          177
+        ]
+      ]
+    },
+    "best_auc_epoch": 6,
+    "best_val_auc": 0.82411,
+    "best_val_auc_metrics": {
+      "accuracy": 0.7490774907749077,
+      "sensitivity": 0.6739130434782609,
+      "specificity": 0.8044871794871795,
+      "precision": 0.7175925925925926,
+      "f1_score": 0.695067264573991,
+      "roc_auc": 0.8241081382385731,
+      "tp": 155,
+      "fp": 61,
+      "tn": 251,
+      "fn": 75,
+      "confusion_matrix": [
+        [
+          251,
+          61
+        ],
+        [
+          75,
+          155
+        ]
+      ]
+    },
+    "total_training_time_seconds": 7113.3
+  },
+  "checkpoints": {
+    "best_loss_checkpoint": "/app/models/stage16_efficientnet_b0/efficientnet_b0_best_loss.pt",
+    "best_auc_checkpoint": "/app/models/stage16_efficientnet_b0/efficientnet_b0_best_auc.pt",
+    "final_checkpoint": "/app/models/stage16_efficientnet_b0/efficientnet_b0_final.pt"
+  },
+  "test_results": {
+    "evaluated": false,
+    "status": "HELD_BACK_FOR_FINAL_COMPARISON",
+    "loss": null,
+    "metrics": null
+  },
+  "comparative_references": {
+    "stage14_baseline_cnn": {
+      "architecture": "BaselineBreastCancerCNN (421,601 params)",
+      "test_accuracy": 0.5947,
+      "test_sensitivity": 0.7237,
+      "test_specificity": 0.509,
+      "test_f1_score": 0.5877,
+      "test_roc_auc": 0.6669
+    },
+    "stage15_resnet50": {
+      "architecture": "Stage15ResNet50 (23,503,809 params)",
+      "val_loss": 0.60488,
+      "val_accuracy": 0.7528,
+      "val_sensitivity": 0.7261,
+      "val_specificity": 0.7724,
+      "val_f1_score": 0.7137,
+      "val_roc_auc": 0.8326
+    }
+  }
+}

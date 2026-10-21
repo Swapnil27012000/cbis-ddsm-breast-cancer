@@ -1,0 +1,37 @@
+{
+  "status": "SMOKE_TEST_SUCCESS",
+  "architecture": "ResNet-50",
+  "pretrained_status": true,
+  "weight_version": "ResNet50_Weights.IMAGENET1K_V2",
+  "epochs_run": 1,
+  "train_samples": 32,
+  "val_samples": 16,
+  "train_loss": 0.79223,
+  "val_loss": 0.85322,
+  "val_metrics": {
+    "accuracy": 0.4375,
+    "sensitivity": 0.25,
+    "specificity": 0.625,
+    "precision": 0.4,
+    "f1_score": 0.3076923076923077,
+    "roc_auc": 0.5,
+    "tp": 2,
+    "fp": 3,
+    "tn": 5,
+    "fn": 6,
+    "confusion_matrix": [
+      [
+        5,
+        3
+      ],
+      [
+        6,
+        2
+      ]
+    ]
+  },
+  "checkpoint_reloaded": true,
+  "best_checkpoint_path": "/app/models/stage15_resnet50/resnet50_best.pt",
+  "clean_test_evaluated": false,
+  "total_time_seconds": 140.25
+}

@@ -1,0 +1,66 @@
+================================================================================
+CBIS-DDSM STAGE 16.1 — DENSENET-121 AND EFFICIENTNET-B0 IMPLEMENTATION REPORT
+================================================================================
+Implementation Date: 2026-10-21
+Scope:               Stage 16.1 DenseNet-121 and EfficientNet-B0 transfer learning
+                     models, shared trainer with dual checkpointing, and test suite.
+Status:              IMPLEMENTED & READY FOR SMOKE TESTING
+
+1. DELIVERABLES SUMMARY
+  - src/models/stage16_densenet.py:       DenseNet-121 with single-channel conv0 adaptation
+  - src/models/stage16_efficientnet.py:   EfficientNet-B0 with single-channel conv adaptation
+  - src/models/__init__.py:               Exported Stage 16 models
+  - src/training/stage16_trainer.py:      Unified trainer with dual checkpointing & AMP
+  - tests/test_stage16_models.py:         Comprehensive unit & integration test suite (12 tests)
+  - ref/todo.md:                          Updated Stage 16 items
+  - README.md:                            Updated with Stage 16 execution commands
+
+2. ARCHITECTURAL SPECIFICATIONS
+  Model:             DenseNet-121                 EfficientNet-B0
+  Total Parameters:  ~7,000,000                  ~4,000,000
+  Pretrained:        IMAGENET1K_V1                IMAGENET1K_V1
+  First Conv:        features.conv0 (64, 1, 7, 7) features[0][0] (32, 1, 3, 3)
+  Weight Adaptation: W_gray = mean(W_rgb)         W_gray = mean(W_rgb)
+  Classifier Head:   Dropout(0.3) -> Linear(1024, 1) Dropout(0.2) -> Linear(1280, 1)
+  Estimated VRAM:    ~1.8 GB (55% headroom)       ~1.2 GB (70% headroom)
+
+3. CHECKPOINTING SPECIFICATIONS
+  - Best Loss:  models/stage16_<model>/<model>_best_loss.pt (selected on min val_loss)
+  - Best AUC:   models/stage16_<model>/<model>_best_auc.pt  (selected on max val_roc_auc)
+  - Metrics:    Stored in distinct CSVs to prevent metric conflation:
+                data/metadata/stage16/stage16_<model>_validation_metrics_best_loss.csv
+                data/metadata/stage16/stage16_<model>_validation_metrics_best_auc.csv
+
+4. TEST SET ISOLATION & DATA LEAKAGE CONTROLS
+  - Clean Test Partition (644 records): HELD BACK UNBLINDED by default (evaluate_test=False).
+  - Training Partition (2,239 records): Used exclusively for gradient updates.
+  - Validation Partition (542 records): Used exclusively for early stopping & checkpointing.
+  - Quarantined Records (143 records):  Excluded (patient-level conflict policy).
+  - Zero Patient Leakage:               0.0% patient overlap across all active partitions.
+
+5. PRIOR STAGES IMMUTABILITY
+  - Stages 1-13 Manifests: Completely unchanged.
+  - Stage 14 Baseline CNN: Artifacts and metrics completely unchanged.
+  - Stage 15 ResNet-50:    Artifacts, checkpoints, and reports completely unchanged.
+
+6. TARGETED TESTS (tests/test_stage16_models.py)
+  1.  test_densenet121_architecture_and_output_shape
+  2.  test_efficientnet_b0_architecture_and_output_shape
+  3.  test_densenet_pretrained_channel_averaging_exactness
+  4.  test_efficientnet_pretrained_channel_averaging_exactness
+  5.  test_densenet_forward_and_backward_pass
+  6.  test_efficientnet_forward_and_backward_pass
+  7.  test_metric_computations_exactness
+  8.  test_dual_checkpoint_save_and_safe_load
+  9.  test_smoke_test_mode_isolation_densenet
+  10. test_smoke_test_mode_isolation_efficientnet
+  11. test_stage16_manifest_and_patient_leakage_integrity
+  12. test_prior_stages_immutability
+
+7. TERMINAL COMMANDS TO RUN
+  - Test suite:
+    docker compose run --rm cbis-ddsm-ai pytest tests/test_stage16_models.py -v
+  - Smoke tests:
+    docker compose run --rm cbis-ddsm-ai python -m src.training.stage16_trainer --model densenet121 --smoke-test
+    docker compose run --rm cbis-ddsm-ai python -m src.training.stage16_trainer --model efficientnet_b0 --smoke-test
+================================================================================

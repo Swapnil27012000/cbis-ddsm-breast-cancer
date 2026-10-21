@@ -1,0 +1,55 @@
+================================================================================
+CBIS-DDSM STAGE 15.1 — RESNET-50 CHECKPOINT AND METRICS AUDIT REPORT
+================================================================================
+Audit Date: 2026-10-21
+Scope:      Read-only audit of completed Stage 15 ResNet-50 transfer learning run
+Status:     PASS (Zero test leakage, prior stages immutable, checkpoint verified)
+
+1. CHECKPOINT SELECTION & EPOCH VERIFICATION
+  - Selection Metric:    Validation BCE Loss (val_loss, minimization)
+  - Code Definition:     src/training/stage15_trainer.py (if val_loss < best_val_loss)
+  - Saved Best Checkpoint: models/stage15_resnet50/resnet50_best.pt
+  - Best Checkpoint Epoch: Epoch 4
+  - Best Val Loss:       0.60488
+  - Total Epochs Run:    9 (Halted via early stopping with patience=5 at Epoch 9)
+  - Confirmation:        Epoch 4 is confirmed as the saved checkpoint. None of the
+                         subsequent epochs (5-9) achieved val_loss < 0.60488.
+
+2. METRIC COMPARISON: SELECTED CHECKPOINT VS. CROSS-EPOCH PEAKS
+  Metric                     Selected (Epoch 4)    Peak Observed (Epoch)
+  ------------------------------------------------------------------------
+  Validation Loss            0.60488               0.60488 (Epoch 4)
+  Validation Accuracy        75.28%                78.97%  (Epoch 9)
+  Validation Sensitivity     72.61%                86.09%  (Epoch 3)
+  Validation Specificity     77.24%                88.14%  (Epoch 9)
+  Validation Precision       70.17%                80.53%  (Epoch 9)
+  Validation F1-Score        71.37%                72.86%  (Epoch 9)
+  Validation ROC-AUC         0.8326                0.8557  (Epoch 9)
+  Confusion Matrix (TN,FP,FN,TP) [241, 71, 63, 167]  [275, 37, 77, 153] (Epoch 9)
+
+3. EXPLANATION OF EPOCH 9 METRICS DIVERGENCE
+  - Loss vs. Ranking Disconnect: Cross-entropy heavily penalizes overconfident errors.
+    As training loss fell to 0.1233 at Epoch 9, tail errors produced larger individual
+    losses, increasing average validation loss to 0.7784.
+  - Scale Invariance: ROC-AUC evaluates rank ordering across all thresholds, which
+    improved to 0.8557 at Epoch 9 despite degraded loss calibration.
+  - Clinical Trade-off: Epoch 4 offered balanced sensitivity (72.61%) and specificity
+    (77.24%), missing 63 cancers. Epoch 9 increased specificity (88.14%) at the cost
+    of reduced cancer sensitivity (66.52%, missing 77 cancers). Epoch 4 is clinically
+    preferable for screening.
+
+4. TEST SET ISOLATION & PRIOR STAGE IMMUTABILITY
+  - Clean Test Manifest: 644 records strictly held back (evaluate_test=False).
+  - Test Evaluation:     Zero test records evaluated during Stage 15.
+  - Stages 1-13 Splits:  All manifests (2,239 train, 542 val, 644 test, 143 quarantined)
+                         remain identical and unmodified.
+  - Stage 14 Baseline:   Baseline CNN config, metrics, and checkpoints remain intact.
+
+5. CROSS-MODEL COMPARISON RECOMMENDATIONS
+  - Primary Policy:      Maintain val_loss minimization across all models for strict
+                         methodological parity (both Stage 14 and Stage 15 used val_loss).
+  - Dual Archiving:      For Stage 16+, save both *_best_loss.pt and *_best_auc.pt to
+                         capture both calibration and discriminative upper bounds.
+  - Final Unblinding:    Evaluate the pristine test set only in Stage 17 when all
+                         candidate architectures are frozen.
+================================================================================

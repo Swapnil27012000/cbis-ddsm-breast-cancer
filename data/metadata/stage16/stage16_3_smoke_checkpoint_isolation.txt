@@ -1,0 +1,75 @@
+================================================================================
+CBIS-DDSM STAGE 16.3 — SMOKE-TEST CHECKPOINT ISOLATION REPORT
+================================================================================
+Implementation Date: 2026-10-22
+Auditor / Engineer:  Antigravity Pair-Programming Agent
+Project:             MSc IT (Artificial Intelligence) — CBIS-DDSM Breast Cancer
+File Modified:       src/training/stage16_trainer.py
+Test Suite:          tests/test_stage16_models.py
+Status:              IMPLEMENTED & READY FOR VERIFICATION
+
+--------------------------------------------------------------------------------
+1. SUMMARY OF IMPLEMENTATION
+--------------------------------------------------------------------------------
+To resolve the Stage 16.2 overwrite vulnerability, smoke-test paths have been
+separated from full-training production paths via a two-tier defense-in-depth:
+1. Directory separation:
+   Smoke tests write exclusively to:
+     models/stage16_smoke_tests/<canonical_model>/
+     results/stage16_smoke_tests/<canonical_model>/
+2. Filename prefixing:
+   All smoke-test checkpoints are prefixed with "smoke_":
+     smoke_<canonical_model>_best_loss.pt
+     smoke_<canonical_model>_best_auc.pt
+     smoke_<canonical_model>_final.pt
+3. Artifact redirection:
+   All history CSVs, metric CSVs, and config files for smoke tests are redirected
+   to distinct "smoke_" filenames in data/metadata/stage16/.
+4. Production path preservation:
+   Full-training paths (smoke_test=False) remain 100% unchanged:
+     models/stage16_densenet121/densenet121_best_loss.pt
+     models/stage16_densenet121/densenet121_best_auc.pt
+     models/stage16_densenet121/densenet121_final.pt
+     models/stage16_efficientnet_b0/efficientnet_b0_best_loss.pt
+     models/stage16_efficientnet_b0/efficientnet_b0_best_auc.pt
+     models/stage16_efficientnet_b0/efficientnet_b0_final.pt
+
+--------------------------------------------------------------------------------
+2. PATH RESOLUTION COMPARISON
+--------------------------------------------------------------------------------
+Artifact:                 Full Training (Production):          Smoke Test:
+Models Dir:               models/stage16_<model>/              models/stage16_smoke_tests/<model>/
+Best Loss Checkpoint:     <model>_best_loss.pt                 smoke_<model>_best_loss.pt
+Best AUC Checkpoint:      <model>_best_auc.pt                  smoke_<model>_best_auc.pt
+Final Model Weights:      <model>_final.pt                     smoke_<model>_final.pt
+Results Directory:        results/stage16_<model>/             results/stage16_smoke_tests/<model>/
+Epoch History CSV:        stage16_<model>_epoch_history.csv    stage16_<model>_smoke_epoch_history.csv
+Validation Metrics CSV:   stage16_<model>_val_metrics_*.csv    stage16_<model>_smoke_val_metrics_*.csv
+Config JSON:              stage16_<model>_config.json          stage16_<model>_smoke_config.json
+
+--------------------------------------------------------------------------------
+3. REGRESSION & UNIT TESTS ADDED / UPDATED
+--------------------------------------------------------------------------------
+In tests/test_stage16_models.py:
+1. test_smoke_test_checkpoint_path_isolation_exactness [NEW]
+   - Asserts production paths match existing standards.
+   - Asserts smoke paths are inside stage16_smoke_tests/ and start with smoke_.
+   - Asserts all 7 checkpoint/metric paths are completely disjoint between modes.
+2. test_smoke_test_mode_isolation_densenet [UPDATED]
+   - Records production checkpoint mtime before smoke run.
+   - Verifies smoke test writes to models/stage16_smoke_tests/.
+   - Verifies production checkpoint mtime is completely unchanged.
+3. test_smoke_test_mode_isolation_efficientnet [UPDATED]
+   - Records production checkpoint mtime before smoke run.
+   - Verifies smoke test writes to models/stage16_smoke_tests/.
+   - Verifies production checkpoint mtime is completely unchanged.
+
+--------------------------------------------------------------------------------
+4. VERIFICATION COMMAND
+--------------------------------------------------------------------------------
+Run the updated 13-test suite inside Docker:
+docker compose run --rm cbis-ddsm-ai pytest tests/test_stage16_models.py -v
+
+================================================================================
+STATUS: IMPLEMENTED & READY FOR VERIFICATION
+================================================================================

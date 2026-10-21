@@ -1,0 +1,46 @@
+================================================================================
+CBIS-DDSM STAGE 15 — RESNET-50 TRANSFER LEARNING REPORT
+================================================================================
+Generated: 2026-10-20 20:29:14
+Device:    cuda
+Architecture: Stage15ResNet50 (23,503,809 params)
+Pretrained Weights: ResNet50_Weights.IMAGENET1K_V2 (Loaded: True)
+Input Adaptation:  channel_weight_averaging
+
+1. HARDWARE & RESOURCE MANAGEMENT
+  - Device:             cuda
+  - GPU Name:           NVIDIA GeForce RTX 2050
+  - Batch Size:         8 (Accum steps: 2, Effective batch: 16)
+  - Image Resolution:   256x256
+  - Mixed Precision:    AMP (autocast + GradScaler)
+
+2. DATASET SPLIT ISOLATION
+  - Training Set:       2,239 records (Gradient updates only)
+  - Validation Set:     542 records (Model selection & early stopping)
+  - Clean Test Set:     644 records (Pristine held-back partition)
+  - Quarantined:        143 records (Excluded: cross-partition patient conflicts)
+  - Patient Leakage:    0.0% (Zero patient overlap verified in Stage 13.1)
+
+3. VALIDATION PERFORMANCE (MODEL SELECTION)
+  - Best Epoch:         4
+  - Best Val Loss:      0.6049
+  - Val Accuracy:       0.7528
+  - Val Sensitivity:    0.7261
+  - Val Specificity:    0.7724
+  - Val Precision:      0.7017
+  - Val F1-Score:       0.7137
+  - Val ROC-AUC:        0.8326
+
+4. CLEAN TEST EVALUATION STATUS
+  - Test Status:        HELD_BACK_FOR_FINAL_COMPARISON
+  - Rationale:          Test partition held pristine to avoid repeated testing before cross-model comparison.
+
+5. STAGE 14 BASELINE CNN COMPARISON REFERENCE
+  - Architecture:       BaselineBreastCancerCNN (421,601 parameters)
+  - Stage 14 Test Acc:  59.47%
+  - Stage 14 Test Sens: 72.37%
+  - Stage 14 Test Spec: 50.90%
+  - Stage 14 Test F1:   58.77%
+  - Stage 14 Test AUC:  0.6669
+  - Note: Do not claim ResNet-50 outperforms baseline until frozen comparison is executed.
+================================================================================

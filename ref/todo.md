@@ -136,14 +136,14 @@ STAGE 14
 STAGE 15
 │
 ├── RESNET-50
-│   └── Transfer-learning classification
+│   └── Transfer-learning classification [x]
 │
 ↓
 STAGE 16
 │
 ├── OTHER MODEL COMPARISON
-│   ├── DenseNet
-│   └── EfficientNet
+│   ├── DenseNet [x]
+│   └── EfficientNet [x]
 │
 ↓
 STAGE 17

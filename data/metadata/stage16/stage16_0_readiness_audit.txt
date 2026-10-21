@@ -1,0 +1,75 @@
+================================================================================
+CBIS-DDSM STAGE 16.0 — DENSENET AND EFFICIENTNET READINESS AUDIT REPORT
+================================================================================
+Audit Date: 2026-10-21
+Scope:      Architectural, dataset, hardware, and protocol readiness audit for
+            DenseNet-121 and EfficientNet-B0 implementation (Stage 16).
+Verdict:    PASS (All prerequisites satisfied, architecture verified, zero blockers)
+
+1. DATASET REUSE & MANIFEST INTEGRITY
+  - Training Set:       2,239 records (1,324 benign, 915 malignant). Gradient updates only.
+  - Validation Set:     542 records (312 benign, 230 malignant). Model selection only.
+  - Clean Test Set:     644 records (387 benign, 257 malignant). HELD BACK UNBLINDED.
+  - Quarantined:        143 records (31 patients with cross-partition conflicts). Excluded.
+  - Patient Leakage:    0.0% overlap across all active partitions (Verified in Stage 13.1).
+  - Label Mapping:      0 = Benign, 1 = Malignant.
+  - Loss Weighting:     pos_weight = 1324 / 915 = 1.446995 (Parity with Stages 14 and 15).
+
+2. INPUT PREPROCESSING & GRAYSCALE ADAPTATION
+  - Input Resolution:   256 x 256 single-channel grayscale (from Stage 5 / Stage 14 dataloader).
+  - Adaptation Method:  Channel weight averaging: W_gray = mean(W_rgb, dim=1, keepdim=True).
+  - DenseNet-121:       model.features.conv0 adapted to Conv2d(1, 64, kernel=7, stride=2, pad=3).
+  - EfficientNet-B0:    model.features[0][0] adapted to Conv2d(1, 32, kernel=3, stride=2, pad=1).
+  - Mathematical Base:  Preserves luminance-weighted filter response without 3x VRAM bloat.
+
+3. HARDWARE & VRAM ALLOCATION (RTX 2050 4 GB)
+  Model             Parameters  Head In-Features  Pretrained Weights  Est. Peak VRAM
+  ----------------------------------------------------------------------------------
+  Baseline CNN      421,601     128               None (Random)       ~0.8 GB
+  ResNet-50         23,503,809  2,048             IMAGENET1K_V2       ~2.5 GB
+  DenseNet-121      ~7,000,000  1,024             IMAGENET1K_V1       ~1.8 GB
+  EfficientNet-B0   ~4,000,000  1,280             IMAGENET1K_V1       ~1.2 GB
+  ----------------------------------------------------------------------------------
+  Both candidate architectures fit comfortably within the 4 GB VRAM budget.
+
+4. RESOURCE-CONSCIOUS TRAINING CONFIGURATION
+  - Batch Size:         8 per step
+  - Accumulation Steps: 2 (effective batch size: 16)
+  - Precision:          Automatic Mixed Precision (torch.amp.autocast + GradScaler)
+  - Optimizer:          AdamW (lr=0.0001, weight_decay=0.0001)
+  - Scheduler:          ReduceLROnPlateau (mode=min, factor=0.5, patience=2)
+  - Early Stopping:     patience=5 on validation loss
+  - Memory Hygiene:     clean_gpu_memory(0) pre-run purge and runtime OOM catching
+  - Smoke Test Mode:    32 train, 16 val, test set excluded
+
+5. CHECKPOINT POLICY
+  - Primary Checkpoint:   <model>_best_loss.pt (selected by minimal val_loss, calibrated)
+  - Secondary Checkpoint: <model>_best_auc.pt (selected by maximal val_roc_auc, discriminative)
+  - Metrics Isolation:    Saved as distinct files with separate metadata and CSVs to
+                          prevent metric conflation.
+
+6. TEST SET ISOLATION
+  - Clean Test Partition: 644 records remain unread, unblinded, and unevaluated.
+  - Final Unblinding:     Deferred to Stage 17 when all four models are frozen.
+
+7. IMPLEMENTATION ROADMAP (FILES TO CREATE/MODIFY)
+  - src/models/stage16_densenet.py
+  - src/models/stage16_efficientnet.py
+  - src/models/__init__.py
+  - src/training/stage16_trainer.py
+  - tests/test_stage16_models.py
+
+8. READINESS TEST SUITE (tests/test_stage16_readiness.py)
+  1. test_stage16_manifest_integrity_and_patient_isolation  -> PASSED
+  2. test_stage16_label_mapping_consistency                 -> PASSED
+  3. test_densenet121_architecture_and_output_shape         -> PASSED
+  4. test_efficientnet_b0_architecture_and_output_shape     -> PASSED
+  5. test_grayscale_channel_weight_averaging_densenet       -> PASSED
+  6. test_grayscale_channel_weight_averaging_efficientnet   -> PASSED
+  7. test_metric_computations_parity                        -> PASSED
+  8. test_prior_stages_immutability                         -> PASSED
+
+9. FINAL VERDICT
+  - Verdict: PASS
+  - All readiness requirements satisfied. Awaiting user instruction to implement Stage 16.
+================================================================================

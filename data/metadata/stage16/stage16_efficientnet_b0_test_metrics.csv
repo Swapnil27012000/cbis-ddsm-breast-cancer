@@ -1,0 +1,2 @@
+status,model,rationale,clean_test_manifest,total_test_samples
+HELD_BACK_FOR_FINAL_COMPARISON,efficientnet_b0,Deferred until all comparative models are frozen to protect against test exposure,data/metadata/stage13/classification_test_manifest.csv,644

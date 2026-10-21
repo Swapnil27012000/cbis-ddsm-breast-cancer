@@ -114,8 +114,23 @@ python -m src.training.stage14_trainer --smoke-test
 # Full baseline training:
 python -m src.training.stage14_trainer --epochs 15 --batch-size 32
 
-# Stage 15+: Deep transfer learning (ResNet-50, DenseNet, EfficientNet)
-python -m src.training.train
+# Stage 15: ResNet-50 transfer learning (single-channel adaptation, AMP, 4 GB VRAM optimization)
+# Quick smoke test (excludes clean test set):
+python -m src.training.stage15_trainer --smoke-test
+# Full training with deferred test set (validation model selection only):
+python -m src.training.stage15_trainer --epochs 15 --batch-size 8 --accum-steps 2
+# Optional full training with clean test evaluation:
+python -m src.training.stage15_trainer --epochs 15 --batch-size 8 --accum-steps 2 --evaluate-test
+
+# Stage 16: DenseNet-121 and EfficientNet-B0 transfer learning (dual checkpointing)
+# DenseNet-121 smoke test:
+python -m src.training.stage16_trainer --model densenet121 --smoke-test
+# EfficientNet-B0 smoke test:
+python -m src.training.stage16_trainer --model efficientnet_b0 --smoke-test
+# DenseNet-121 training (validation model selection only):
+python -m src.training.stage16_trainer --model densenet121 --epochs 15 --batch-size 8 --accum-steps 2
+# EfficientNet-B0 training (validation model selection only):
+python -m src.training.stage16_trainer --model efficientnet_b0 --epochs 15 --batch-size 8 --accum-steps 2
 ```
 
 ---
