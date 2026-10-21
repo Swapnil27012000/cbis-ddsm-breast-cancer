@@ -149,15 +149,15 @@ STAGE 16
 STAGE 17
 │
 ├── CLASSIFICATION EVALUATION
-│   ├── Accuracy
-│   ├── Precision
-│   ├── Recall
-│   ├── F1-score
-│   ├── Specificity
-│   ├── Sensitivity
-│   ├── ROC-AUC
-│   ├── Confusion matrix
-│   └── Patient-level evaluation
+│   ├── Accuracy [x]
+│   ├── Precision [x]
+│   ├── Recall [x]
+│   ├── F1-score [x]
+│   ├── Specificity [x]
+│   ├── Sensitivity [x]
+│   ├── ROC-AUC [x]
+│   ├── Confusion matrix [x]
+│   └── Patient-level evaluation [x]
 │
 ↓
 STAGE 18

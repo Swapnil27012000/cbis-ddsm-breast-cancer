@@ -1,0 +1,102 @@
+================================================================================
+CBIS-DDSM STAGE 17.2 — INDEPENDENT FINAL EVALUATION INTEGRITY AUDIT
+================================================================================
+Audit Date:       2026-10-22
+Auditor:          Independent Automated Audit Agent (Antigravity)
+Project:          MSc IT (Artificial Intelligence) — CBIS-DDSM Breast Cancer
+Architectures:    Baseline CNN, ResNet-50, DenseNet-121, EfficientNet-B0
+Test Set:         Stage 13 Clean Test Partition (N = 644)
+Final Verdict:    PASS (All criteria satisfied, zero numerical discrepancies)
+
+--------------------------------------------------------------------------------
+1. INDEPENDENT RECOMPUTATION OF METRICS (N = 644)
+--------------------------------------------------------------------------------
+Model:            Baseline CNN (Stage 14, Epoch 7)
+  Confusion Matrix: TN=196, FP=191, FN=71, TP=186
+  Accuracy:        382 / 644 = 0.5932  (Reported: 0.5932) -> EXACT MATCH
+  Sensitivity:     186 / 257 = 0.7237  (Reported: 0.7237) -> EXACT MATCH
+  Specificity:     196 / 387 = 0.5065  (Reported: 0.5065) -> EXACT MATCH
+  Precision:       186 / 377 = 0.4934  (Reported: 0.4934) -> EXACT MATCH
+  F1-Score:        372 / 634 = 0.5868  (Reported: 0.5868) -> EXACT MATCH
+  ROC-AUC:         0.6670              (Reported: 0.6670) -> EXACT MATCH
+  Unweighted BCE:  0.67292             (Reported: 0.67292) -> EXACT MATCH
+  Weighted BCE:    0.77254             (Reported: 0.77254) -> EXACT MATCH
+
+Model:            ResNet-50 (Stage 15, Epoch 4)
+  Confusion Matrix: TN=272, FP=115, FN=95, TP=162
+  Accuracy:        434 / 644 = 0.6739  (Reported: 0.6739) -> EXACT MATCH
+  Sensitivity:     162 / 257 = 0.6304  (Reported: 0.6304) -> EXACT MATCH
+  Specificity:     272 / 387 = 0.7028  (Reported: 0.7028) -> EXACT MATCH
+  Precision:       162 / 277 = 0.5848  (Reported: 0.5848) -> EXACT MATCH
+  F1-Score:        324 / 534 = 0.6067  (Reported: 0.6067) -> EXACT MATCH
+  ROC-AUC:         0.7380              (Reported: 0.7380) -> EXACT MATCH
+  Unweighted BCE:  0.61925             (Reported: 0.61925) -> EXACT MATCH
+  Weighted BCE:    0.74063             (Reported: 0.74063) -> EXACT MATCH
+
+Model:            DenseNet-121 (Stage 16, Epoch 3)
+  Confusion Matrix: TN=198, FP=189, FN=47, TP=210
+  Accuracy:        408 / 644 = 0.6335  (Reported: 0.6335) -> EXACT MATCH
+  Sensitivity:     210 / 257 = 0.8171  (Reported: 0.8171) -> EXACT MATCH
+  Specificity:     198 / 387 = 0.5116  (Reported: 0.5116) -> EXACT MATCH
+  Precision:       210 / 399 = 0.5263  (Reported: 0.5263) -> EXACT MATCH
+  F1-Score:        420 / 656 = 0.6402  (Reported: 0.6402) -> EXACT MATCH
+  ROC-AUC:         0.7479              (Reported: 0.7479) -> EXACT MATCH
+  Unweighted BCE:  0.66376             (Reported: 0.66376) -> EXACT MATCH
+  Weighted BCE:    0.73833             (Reported: 0.73833) -> EXACT MATCH
+
+Model:            EfficientNet-B0 (Stage 16, Epoch 2)
+  Confusion Matrix: TN=226, FP=161, FN=64, TP=193
+  Accuracy:        419 / 644 = 0.6506  (Reported: 0.6506) -> EXACT MATCH
+  Sensitivity:     193 / 257 = 0.7510  (Reported: 0.7510) -> EXACT MATCH
+  Specificity:     226 / 387 = 0.5840  (Reported: 0.5840) -> EXACT MATCH
+  Precision:       193 / 354 = 0.5452  (Reported: 0.5452) -> EXACT MATCH
+  F1-Score:        386 / 611 = 0.6318  (Reported: 0.6318) -> EXACT MATCH
+  ROC-AUC:         0.7383              (Reported: 0.7383) -> EXACT MATCH
+  Unweighted BCE:  0.61141             (Reported: 0.61141) -> EXACT MATCH
+  Weighted BCE:    0.70824             (Reported: 0.70824) -> EXACT MATCH
+
+--------------------------------------------------------------------------------
+2. RECORD IDENTITY & ISOLATION AUDIT
+--------------------------------------------------------------------------------
+- Test manifest verified: data/metadata/stage13/classification_test_manifest.csv
+- Total records: exactly 644 (387 Benign, 257 Malignant, 318 Patients)
+- Exactly 644 rows in all four model prediction CSVs.
+- Sequence, patient IDs, case keys, and labels match manifest row-for-row.
+- Quarantined conflict records (143 records) are strictly absent.
+
+--------------------------------------------------------------------------------
+3. INVESTIGATION OF STAGE 14 BASELINE DISCREPANCY
+--------------------------------------------------------------------------------
+- Historical Stage 14: TN=197, FP=190, FN=71, TP=186 (Accuracy: 59.47%)
+- Stage 17.1 Result:   TN=196, FP=191, FN=71, TP=186 (Accuracy: 59.32%)
+- Difference: Exactly 1 benign record shifted from TN to FP. Malignant cases
+  (TP=186, FN=71) and Sensitivity (72.37%) are 100% identical.
+- Cause Identified: Floating-point precision differences between AMP float16
+  (autocast enabled during Stage 14 evaluation) and FP32 (Stage 17 evaluation).
+  Case traced to P_00457_LEFT_MLO_1 with logit +0.000583 and prob 0.5001458.
+  A minute precision shift (<0.0006) on this single borderline case accounts
+  for the 1-sample difference. Checkpoints and preprocessing are identical.
+
+--------------------------------------------------------------------------------
+4. STATISTICAL SIGNIFICANCE (MCNEMAR TESTS, ALPHA = 0.05)
+--------------------------------------------------------------------------------
+- ResNet-50 vs Baseline CNN:      chi2 = 10.7479, p = 0.001044 -> SIGNIFICANT (p < 0.01)
+- EfficientNet-B0 vs Baseline:    chi2 = 6.7150,  p = 0.009560 -> SIGNIFICANT (p < 0.01)
+- DenseNet-121 vs Baseline:       chi2 = 2.9481,  p = 0.085978 -> Not significant
+- ResNet-50 vs DenseNet-121:      chi2 = 3.3602,  p = 0.066789 -> Not significant
+- ResNet-50 vs EfficientNet-B0:   chi2 = 0.9561,  p = 0.328172 -> Not significant
+- DenseNet-121 vs EfficientNet-B0: chi2 = 0.5236, p = 0.469327 -> Not significant
+
+--------------------------------------------------------------------------------
+5. SUBGROUP SUMMARY (EXPLORATORY)
+--------------------------------------------------------------------------------
+Masses (N = 346, 139 Malignant / 207 Benign):
+  - Highest Sensitivity: DenseNet-121 (83.45%, AUC = 0.7482)
+  - Highest Accuracy:    ResNet-50    (67.92%, AUC = 0.7316)
+Calcifications (N = 298, 118 Malignant / 180 Benign):
+  - Highest Accuracy & AUC: EfficientNet-B0 (67.11% Acc, 72.88% Sens, AUC = 0.7550)
+  - Highest Sensitivity:   DenseNet-121    (79.66% Sens, AUC = 0.7476)
+
+--------------------------------------------------------------------------------
+FINAL AUDIT VERDICT: PASS (ZERO DEFECTS, FULL DATA INTEGRITY)
+================================================================================

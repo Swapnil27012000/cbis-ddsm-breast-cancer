@@ -1,0 +1,70 @@
+{
+  "baseline_cnn": {
+    "display_name": "Baseline CNN",
+    "confusion_matrix": [
+      [
+        196,
+        191
+      ],
+      [
+        71,
+        186
+      ]
+    ],
+    "tn": 196,
+    "fp": 191,
+    "fn": 71,
+    "tp": 186
+  },
+  "resnet50": {
+    "display_name": "ResNet-50",
+    "confusion_matrix": [
+      [
+        272,
+        115
+      ],
+      [
+        95,
+        162
+      ]
+    ],
+    "tn": 272,
+    "fp": 115,
+    "fn": 95,
+    "tp": 162
+  },
+  "densenet121": {
+    "display_name": "DenseNet-121",
+    "confusion_matrix": [
+      [
+        198,
+        189
+      ],
+      [
+        47,
+        210
+      ]
+    ],
+    "tn": 198,
+    "fp": 189,
+    "fn": 47,
+    "tp": 210
+  },
+  "efficientnet_b0": {
+    "display_name": "EfficientNet-B0",
+    "confusion_matrix": [
+      [
+        226,
+        161
+      ],
+      [
+        64,
+        193
+      ]
+    ],
+    "tn": 226,
+    "fp": 161,
+    "fn": 64,
+    "tp": 193
+  }
+}

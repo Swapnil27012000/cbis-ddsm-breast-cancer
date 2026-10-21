@@ -1,0 +1,103 @@
+================================================================================
+CBIS-DDSM STAGE 17.0 — FINAL COMPARATIVE EVALUATION READINESS AUDIT
+================================================================================
+Audit Date:       2026-10-22
+Auditor:          Independent Automated Audit Agent (Antigravity)
+Project:          MSc IT (Artificial Intelligence) — CBIS-DDSM Breast Cancer
+Architectures:    Baseline CNN, ResNet-50, DenseNet-121, EfficientNet-B0
+Audit Scope:      Read-Only Readiness Audit for Final Model Evaluation on Clean Test Set
+Final Verdict:    PASS (All criteria satisfied, zero blockers)
+
+--------------------------------------------------------------------------------
+1. VERIFIED CHECKPOINT INVENTORY & PROFILES
+--------------------------------------------------------------------------------
+Model 1: Baseline CNN (Stage 14)
+  Path:           models/stage14_baseline_cnn/baseline_cnn_best.pt [5,092,063 bytes]
+  Architecture:   BaselineBreastCancerCNN (421,601 parameters)
+  Selected Epoch: Epoch 7 (Validation Loss = 0.70408)
+  Input Shape:    (B, 1, 256, 256) grayscale
+  Classifier:     Linear(256, 128) -> BatchNorm1d -> ReLU -> Dropout(0.4) -> Linear(128, 1)
+
+Model 2: ResNet-50 (Stage 15)
+  Path:           models/stage15_resnet50/resnet50_best.pt [282,505,558 bytes]
+  Architecture:   Stage15ResNet50 (23,503,809 parameters)
+  Selected Epoch: Epoch 4 (Validation Loss = 0.60488)
+  Pretrained:     ResNet50_Weights.IMAGENET1K_V2
+  Input Shape:    (B, 1, 256, 256) grayscale, channel-averaged conv1 (7x7)
+  Classifier:     Dropout(0.3) -> Linear(2048, 1)
+
+Model 3: DenseNet-121 (Stage 16)
+  Path:           models/stage16_densenet121/densenet121_best_loss.pt [84,323,489 bytes]
+  Architecture:   Stage16DenseNet121 (6,948,609 parameters)
+  Selected Epoch: Epoch 3 (Validation Loss = 0.62041, ROC-AUC = 0.8212)
+  Pretrained:     DenseNet121_Weights.IMAGENET1K_V1
+  Input Shape:    (B, 1, 256, 256) grayscale, channel-averaged conv0 (7x7)
+  Classifier:     Dropout(0.3) -> Linear(1024, 1)
+
+Model 4: EfficientNet-B0 (Stage 16)
+  Path:           models/stage16_efficientnet_b0/efficientnet_b0_best_loss.pt [48,595,690 bytes]
+  Architecture:   Stage16EfficientNetB0 (4,008,253 parameters)
+  Selected Epoch: Epoch 2 (Validation Loss = 0.62517, ROC-AUC = 0.8078)
+  Pretrained:     EfficientNet_B0_Weights.IMAGENET1K_V1
+  Input Shape:    (B, 1, 256, 256) grayscale, channel-averaged features[0][0] (3x3)
+  Classifier:     Dropout(0.2) -> Linear(1280, 1)
+
+--------------------------------------------------------------------------------
+2. CLEAN TEST MANIFEST VERIFICATION
+--------------------------------------------------------------------------------
+Manifest: data/metadata/stage13/classification_test_manifest.csv
+- Total Records:       644
+- Benign (Class 0):    387 (60.09%)
+- Malignant (Class 1): 257 (39.91%)
+- Unique Patients:     318
+- Primary Views:       591
+- Mass Cases:          346 records
+- Calcification Cases: 298 records
+- Zero Patient Leakage: 0 patient overlap with Train (973) or Val (244) partitions.
+- Image Presence:      100% of the 644 baseline mammograms are validated and readable.
+- Quarantined Records: 143 conflict records strictly isolated and excluded.
+
+--------------------------------------------------------------------------------
+3. STANDARDIZED EVALUATION PROTOCOL
+--------------------------------------------------------------------------------
+Preprocessing (Identical across all 4 models via src/datasets/stage14_dataloader.py):
+  1. Grayscale decoding (cv2.IMREAD_GRAYSCALE)
+  2. Spatial downsampling to (256, 256) using cv2.INTER_AREA (anti-aliasing)
+  3. Scaling to [0.0, 1.0] float32
+  4. Z-score normalization using training split statistics:
+     mean = 0.3154, std = 0.3012
+  5. Deterministic pass (augment=False), batch_size=16 or 32, num_workers=2
+Inference:
+  1. model.eval() and torch.no_grad()
+  2. Conversion of raw logit z to predicted probability:
+     p_hat = torch.sigmoid(z) in (0, 1)
+Decision Threshold:
+  Fixed a priori at tau = 0.50 across all models (no post-hoc test tuning).
+  y_hat = 1 if p_hat >= 0.50 else 0
+Metrics to Compute:
+  - Confusion Matrix (TN, FP, FN, TP)
+  - Accuracy, Sensitivity (Recall), Specificity, Precision, F1-Score, ROC-AUC
+  - Test BCE Loss with pos_weight = 1.446995
+Granular Prediction Export:
+  Per-record prediction manifest containing patient_id, case_key, image path,
+  ground truth label, predicted probability, predicted class, and abnormality type.
+
+--------------------------------------------------------------------------------
+4. ANTI-LEAKAGE GUARDRAILS
+--------------------------------------------------------------------------------
+- Models are strictly frozen; zero test-based checkpoint selection or threshold tuning.
+- Simultaneous evaluation on the exact same 644 test samples.
+- Prior stage artifacts (Stages 1-16) remain immutable.
+- Results represent research benchmarks; clinical deployment claims are disclaimed.
+
+--------------------------------------------------------------------------------
+5. TEST SUITE STATUS
+--------------------------------------------------------------------------------
+- Stage 14 Test Suite: 11 / 11 PASSED
+- Stage 15 Test Suite: 11 / 11 PASSED
+- Stage 16.0 Readiness: 8 / 8 PASSED
+- Stage 16.3 Suite:    13 / 13 PASSED
+
+--------------------------------------------------------------------------------
+FINAL READINESS VERDICT: PASS (READY FOR STAGE 17.1 IMPLEMENTATION)
+================================================================================
