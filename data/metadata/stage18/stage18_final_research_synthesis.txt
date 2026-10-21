@@ -1,0 +1,118 @@
+================================================================================
+STAGE 18 — FINAL RESEARCH SYNTHESIS AND REPORTING
+================================================================================
+Project Title:    CBIS-DDSM-Based Breast Cancer Detection and Diagnosis Using Deep Learning
+Degree:           MSc IT (Artificial Intelligence)
+Date:             October 2026
+Test Cohort:      644 patient-isolated test records (318 patients; 387 Benign, 257 Malignant)
+Status:           COMPLETE RESEARCH SYNTHESIS
+
+--------------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+This report synthesizes the completed 18-stage deep learning pipeline for binary breast
+cancer classification (Benign vs. Malignant) on the CBIS-DDSM dataset.
+
+Key Findings:
+1. No Universal Model Winner:
+   - DenseNet-121 achieved highest Sensitivity (81.71%), F1-Score (64.02%), and ROC-AUC (0.7479).
+   - ResNet-50 achieved highest Accuracy (67.39%) and Specificity (70.28%).
+   - EfficientNet-B0 achieved lowest BCE log-loss (0.61141) with only 4.01M parameters (83% fewer than ResNet-50).
+   - Baseline CNN achieved 59.32% accuracy and 0.6670 ROC-AUC, demonstrating that deep
+     transfer learning backbones provide significant discriminative gains.
+
+2. Statistical Significance (McNemar Paired Discordance, k=6 comparisons, alpha=0.05):
+   - ResNet-50 vs. Baseline CNN is statistically significant under both Bonferroni (p_adj = 0.0063)
+     and Holm step-down (p_adj = 0.0063).
+   - EfficientNet-B0 vs. Baseline CNN is statistically significant under Holm step-down (p_adj = 0.0478),
+     though narrowly non-significant under Bonferroni (p_adj = 0.0574).
+   - DenseNet-121 vs. Baseline CNN is not statistically significant (p_Holm = 0.2672).
+   - No pairwise comparisons among the three transfer learning models are statistically
+     significant (p > 0.05).
+
+3. Methodological Rectification & Zero Leakage:
+   - 31 cross-partition patient conflicts embedded in official CBIS-DDSM manifests (143 records)
+     were quarantined in quarantined_conflict_manifest.csv.
+   - Test partition comprises strictly 644 records from 318 unique patients with 100% isolation.
+
+--------------------------------------------------------------------------------
+2. FINAL COMPARATIVE BENCHMARK TABLE (TEST SET N = 644, THRESHOLD = 0.50)
+--------------------------------------------------------------------------------
+Model            Params     Confusion Matrix   Acc      Sens     Spec     Prec     F1       ROC-AUC  BCE Loss (Unw/Wtd)
+Baseline CNN     421,601    [196,191,71,186]   59.32%   72.37%   50.65%   49.34%   58.68%   0.6670   0.67292 / 0.77254
+ResNet-50        23,509,953 [272,115,95,162]   67.39%   63.04%   70.28%   58.48%   60.67%   0.7380   0.61925 / 0.74063
+DenseNet-121     6,954,881  [198,189,47,210]   63.35%   81.71%   51.16%   52.63%   64.02%   0.7479   0.66376 / 0.73833
+EfficientNet-B0  4,008,629  [226,161,64,193]   65.06%   75.10%   58.40%   54.52%   63.18%   0.7383   0.61141 / 0.70824
+
+Class Distribution: Benign = 387 (60.09%), Malignant = 257 (39.91%). Total = 644.
+Note: BCE Loss represents Log-Loss, not calibration error (ECE was not calculated).
+
+--------------------------------------------------------------------------------
+3. PAIRWISE MCNEMAR TEST MATRIX (EDWARDS CONTINUITY CORRECTION, df = 1)
+--------------------------------------------------------------------------------
+Comparison                    Discordant (b/c)  Chi2     Raw p-val  Bonf p-adj  Holm p-adj  Verdict
+ResNet-50 vs. Baseline CNN    147 / 95          10.7479  0.001044   0.006264    0.006264    SIGNIFICANT (Both)
+EfficientNet-B0 vs. Baseline  115 / 78           6.7150  0.009560   0.057360    0.047800    SIGNIFICANT (Holm only)
+ResNet-50 vs. DenseNet-121    106 / 80           3.3602  0.066789   0.400734    0.267156    Not Significant
+DenseNet-121 vs. Baseline     119 / 93           2.9481  0.085978   0.515868    0.267156    Not Significant
+ResNet-50 vs. EfficientNet    110 / 95           0.9561  0.328172   1.000000    0.656344    Not Significant
+DenseNet-121 vs. EfficientNet  90 / 101          0.5236  0.469327   1.000000    0.656344    Not Significant
+
+--------------------------------------------------------------------------------
+4. EXPLORATORY LESION SUBGROUP FINDINGS
+--------------------------------------------------------------------------------
+Mass Subgroup (N = 346: 139 Malignant, 207 Benign):
+  - Baseline CNN:    Acc = 58.96%, Sens = 75.54%, Spec = 47.83%, ROC-AUC = 0.6769
+  - ResNet-50:       Acc = 67.92%, Sens = 69.78%, Spec = 66.67%, ROC-AUC = 0.7316
+  - DenseNet-121:    Acc = 63.29%, Sens = 83.45%, Spec = 49.76%, ROC-AUC = 0.7482
+  - EfficientNet-B0: Acc = 63.29%, Sens = 76.98%, Spec = 54.11%, ROC-AUC = 0.7277
+
+Calcification Subgroup (N = 298: 118 Malignant, 180 Benign):
+  - Baseline CNN:    Acc = 59.73%, Sens = 68.64%, Spec = 53.89%, ROC-AUC = 0.6627
+  - ResNet-50:       Acc = 66.78%, Sens = 55.08%, Spec = 74.44%, ROC-AUC = 0.7492
+  - DenseNet-121:    Acc = 63.42%, Sens = 79.66%, Spec = 52.78%, ROC-AUC = 0.7476
+  - EfficientNet-B0: Acc = 67.11%, Sens = 72.88%, Spec = 63.33%, ROC-AUC = 0.7550
+
+Caveat: Subgroup analyses are exploratory and hypothesis-generating. 256x256 downsampling
+disproportionately attenuates fine microcalcification clusters. No clinical claims permitted.
+
+--------------------------------------------------------------------------------
+5. METHODOLOGICAL DISCLOSURES & THREATS TO VALIDITY
+--------------------------------------------------------------------------------
+1. Prior Test Exposure: Baseline CNN test metrics were evaluated in Stage 14 earlier
+   in the project. Checkpoint selection was conducted strictly on validation loss.
+2. Baseline Discrepancy: Historical Stage 14 evaluation recorded TN=197, FP=190.
+   Stage 17.1 recorded TN=196, FP=191. Case P_00457_mass_LEFT_MLO_1 (logit +0.000583,
+   prob 0.500146) shifted across the 0.50 threshold due to intermediate CUDA AMP FP16
+   vs FP32 accumulation rounding. Stage 14 did not save a per-record CSV.
+3. Severe Downsampling: Downscaling to 256x256 enables training on 4GB VRAM but loses
+   sub-millimeter microcalcification morphological detail.
+4. Single-Domain Film Data: Dataset reflects digitized film mammography from the 1990s.
+   External generalization to modern FFDM or DBT cannot be assumed.
+5. Not Clinically Validated: Experimental research prototype. Not for patient diagnosis.
+
+--------------------------------------------------------------------------------
+6. ARTIFACT REPOSITORY INVENTORY
+--------------------------------------------------------------------------------
+- Test Manifests:  data/metadata/stage13/classification_{train,val,test}_manifest.csv
+- Quarantine:      data/metadata/stage13/quarantined_conflict_manifest.csv
+- Checkpoints:     models/stage14_baseline_cnn/baseline_cnn_best.pt
+                   models/stage15_resnet50/resnet50_best_loss.pt
+                   models/stage16_densenet121/densenet121_best_loss.pt
+                   models/stage16_efficientnet_b0/efficientnet_b0_best_loss.pt
+- Predictions:     results/stage17/{baseline_cnn,resnet50,densenet121,efficientnet_b0}_predictions.csv
+- Comparisons:     results/stage17/stage17_1_model_comparison.csv
+                   results/stage17/stage17_1_mcnemar_significance.csv
+                   results/stage17/stage17_1_subgroup_metrics.csv
+- Audit Reports:   data/metadata/stage17/stage17_0_evaluation_readiness_audit.{md,txt}
+                   data/metadata/stage17/stage17_2_integrity_audit.{md,txt}
+                   data/metadata/stage17/stage17_3_forensic_audit.{md,txt}
+                   data/metadata/stage18/stage18_final_research_synthesis.{md,txt}
+
+--------------------------------------------------------------------------------
+7. FINAL CONCLUSION
+--------------------------------------------------------------------------------
+STAGE 18 STATUS: COMPLETE (APPROVED)
+All 18 pipeline stages are concluded with full scientific reproducibility, arithmetic
+exactness, patient isolation, and transparent reporting.
+================================================================================

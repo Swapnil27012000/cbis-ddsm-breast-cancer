@@ -163,8 +163,8 @@ STAGE 17
 STAGE 18
 │
 └── FINAL RESEARCH RESULTS
-    ├── Compare preprocessing strategies
-    ├── Compare models
-    ├── Error analysis
-    ├── Statistical analysis
-    └── Final conclusions
+    ├── Compare preprocessing strategies [x]
+    ├── Compare models [x]
+    ├── Error analysis [x]
+    ├── Statistical analysis [x]
+    └── Final conclusions [x]

@@ -8,6 +8,7 @@ Compares Baseline CNN test inference across:
 
 import os
 import sys
+from typing import Tuple
 import numpy as np
 import pandas as pd
 import torch
